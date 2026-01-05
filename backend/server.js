@@ -36,8 +36,18 @@ Bun.serve({
   port: 3000,
   fetch: async (req) => {
     const url = new URL(req.url);
+
+    // 1. DÉTECTION DYNAMIQUE DE L'ORIGINE
+    const requestOrigin = req.headers.get("Origin");
+    const allowedOrigins = [FRONTEND_URL, "http://localhost:3001"];
+
+    // On ne renvoie que l'origine qui a fait la requête si elle est autorisée
+    const corsOrigin = allowedOrigins.includes(requestOrigin)
+      ? requestOrigin
+      : FRONTEND_URL;
+
     const corsHeaders = {
-      "Access-Control-Allow-Origin": FRONTEND_URL,
+      "Access-Control-Allow-Origin": corsOrigin,
       "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
       "Access-Control-Allow-Headers": "Content-Type",
       "Access-Control-Allow-Credentials": "true",
