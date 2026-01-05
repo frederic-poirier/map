@@ -1,0 +1,14 @@
+{
+  "name": "backend",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "scripts": {
+    "start": "bun run server.js",
+    "tunnel": "cloudflared tunnel run --url http://127.0.0.1:3000 map-api"
+  }
+}
