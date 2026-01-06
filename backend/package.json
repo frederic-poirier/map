@@ -10,5 +10,8 @@
   "scripts": {
     "start": "bun run server.js",
     "tunnel": "cloudflared tunnel run --url http://127.0.0.1:3000 map-api"
+  },
+  "dependencies": {
+    "hono": "^4.11.3"
   }
 }
