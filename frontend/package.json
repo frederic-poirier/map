@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@protomaps/basemaps": "^5.7.0",
+    "@solidjs/router": "^0.15.4",
     "maplibre": "^0.0.1-security",
     "maplibre-gl": "^5.15.0",
     "pmtiles": "^4.3.2",

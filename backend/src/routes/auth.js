@@ -59,7 +59,6 @@ auth.get("/auth/callback", async (c) => {
     const sessionData = await signSession(userData.email);
 
     setCookie(c, "auth_session", sessionData, {
-        domain: COOKIE_DOMAIN,
         httpOnly: true,
         secure: isProd,
         sameSite: "Lax",
@@ -79,7 +78,7 @@ auth.get("/me", async (c) => {
     return c.json({ authenticated: true, email: userEmail });
 });
 
-auth.post("/logout", (c) => {
+auth.get("/logout", (c) => {
     deleteCookie(c, "auth_session", {
         domain: COOKIE_DOMAIN,
         path: "/",
