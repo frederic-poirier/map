@@ -25,7 +25,7 @@ function UserMenu() {
   return (
     <Show when={user()}>
       <span>{user().email}</span>
-      <button className="text-neutral-500 text-sm bg-neutral-100 dark:bg-neutral-900" onClick={logout}>
+      <button className="text-neutral-500 text-sm bg-neutral-100" onClick={logout}>
         Déconnexion
       </button>
     </Show>
