@@ -1,6 +1,9 @@
 import { Hono } from "hono";
 import { setCookie, deleteCookie, getCookie } from "hono/cookie";
 import { signSession, verifySession } from "../lib/auth-utils";
+import { db } from "../db/db";
+import { users } from "../db/schema";
+import { eq } from "drizzle-orm";
 import {
     isProd,
     COOKIE_DOMAIN,
@@ -75,7 +78,35 @@ auth.get("/me", async (c) => {
 
     if (!userEmail) return c.json({ authenticated: false }, 401);
 
+    let user = db.select().from(users).where(eq(users.email, userEmail)).get();
+    if (!user) {
+        user = db
+            .insert(users)
+            .values({
+                email: userEmail,
+                username: userEmail.split("@")[0],
+            })
+            .returning()
+            .get();
+    }
     return c.json({ authenticated: true, email: userEmail });
+});
+
+auth.get("/email", async (c) => {
+    const session = getCookie(c, "auth_session");
+    const userEmail = await verifySession(session);
+
+    if (!userEmail) return c.json({ authenticated: false }, 401);
+
+    const usre = db
+        .select()
+        .from(users)
+        .where(eq(users.email, userEmail))
+        .get();
+    if (!usre) {
+        return c.json({ authenticated: false }, 401);
+    }
+    return c.json({ authenticated: true, email: usre.email });
 });
 
 auth.get("/logout", (c) => {
