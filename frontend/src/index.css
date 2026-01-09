@@ -59,6 +59,30 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Mobile styles */
+@media (max-width: 768px) {
+  body {
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  /* Search results on mobile - limit height within tray */
+  .search-results-enter > div {
+    max-height: 40vh;
+  }
+  
+  /* Map controls adjust for mobile */
+  .controls-enter {
+    top: auto;
+    bottom: 20px;
+    right: 16px;
+  }
+}
+
+/* Desktop styles */
+@media (min-width: 769px) {
+  /* No mobile-specific overrides needed */
+}
+
 /* Sidebar entrance */
 @keyframes sidebar-enter {
   from { 
