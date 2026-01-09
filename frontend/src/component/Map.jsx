@@ -61,26 +61,8 @@ export default function Map() {
       center: [-73.5673, 45.5017],
       zoom: 12,
       maxBounds: bounds,
-<<<<<<< HEAD
-      style: {
-        version: 8,
-        glyphs:
-          "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
-        sprite: "https://protomaps.github.io/basemaps-assets/sprites/v4/light",
-        sources: {
-          montreal: {
-            type: "vector",
-            url: `pmtiles://https://map-bucket.frederic.dog/montreal.pmtiles`,
-            attribution:
-              '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
-          },
-        },
-        layers: layers("montreal", namedFlavor("light"), { lang: "fr" }),
-      },
-=======
       style: getMapStyle(flavor),
       attributionControl: false,
->>>>>>> 1415842 (feat: better UI and now can save places and store them in the SQL)
     });
 
     // Add attribution control in bottom-right
@@ -227,7 +209,7 @@ function MapControls() {
   });
 
   return (
-    <div class="absolute right-3 top-3 flex flex-col gap-2 z-10 controls-enter">
+    <div class="absolute right-3 top-3 flex flex-col gap-2 z-[5] controls-enter">
       {/* Zoom controls */}
       <div class="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-xl shadow-lg overflow-hidden">
         <button

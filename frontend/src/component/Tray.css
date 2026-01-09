@@ -1,0 +1,187 @@
+/* ============================================
+   Tray Component Styles
+   Apple Maps-style scroll-snap tray
+   ============================================ */
+
+/* Map to existing theme variables */
+.tray-root {
+  --tray-top-margin: 24px;
+  --tray-border-radius: 16px;
+  --tray-handle-width: 36px;
+  --tray-handle-height: 5px;
+  --system-background: var(--bg-primary);
+  --system-background-secondary: var(--bg-secondary);
+  --handle-color: var(--border-secondary);
+  --shadow-color: rgba(0, 0, 0, 0.15);
+}
+
+.dark .tray-root {
+  --shadow-color: rgba(0, 0, 0, 0.4);
+}
+
+/* ============================================
+   Root container
+   ============================================ */
+.tray-root {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 0;
+}
+
+/* ============================================
+   Backdrop - Fixed behind the tray
+   ============================================ */
+.tray-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1;
+}
+
+/* ============================================
+   Scroll Container - Overlays backdrop
+   ============================================ */
+.tray-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-x: hidden;
+  overflow-y: scroll;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  z-index: 10;
+}
+
+.tray-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.tray-wrapper:not(.sliding) {
+  scroll-snap-type: y mandatory;
+  -webkit-scroll-snap-type: y mandatory;
+}
+
+/* ============================================
+   Spacer - Creates the open snap point
+   Scroll past this to expand the tray
+   ============================================ */
+.tray-spacer {
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.tray-wrapper:not(.sliding) .tray-spacer {
+  scroll-snap-align: start;
+  -webkit-scroll-snap-align: start;
+}
+
+/* ============================================
+   Tray Sheet - The card container
+   ============================================ */
+.tray-sheet {
+  flex-shrink: 0;
+  min-height: calc(100vh - var(--tray-top-margin));
+  min-height: calc(100svh - var(--tray-top-margin));
+  display: flex;
+  flex-direction: column;
+}
+
+.tray-wrapper:not(.sliding) .tray-sheet {
+  scroll-snap-align: start;
+  -webkit-scroll-snap-align: start;
+}
+
+/* ============================================
+   Tray Card
+   ============================================ */
+.tray-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--system-background);
+  border-radius: var(--tray-border-radius) var(--tray-border-radius) 0 0;
+  box-shadow: 
+    0 -4px 20px var(--shadow-color),
+    0 0 40px var(--shadow-color);
+  min-height: calc(100vh - var(--tray-top-margin));
+  min-height: calc(100svh - var(--tray-top-margin));
+}
+
+/* ============================================
+   Card Handle
+   ============================================ */
+.tray-card-handle {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+  padding: 10px 0 6px;
+  cursor: grab;
+  background-color: var(--system-background);
+  border-radius: var(--tray-border-radius) var(--tray-border-radius) 0 0;
+}
+
+.tray-card-handle:active {
+  cursor: grabbing;
+}
+
+.tray-card-handle-bar {
+  width: var(--tray-handle-width);
+  height: var(--tray-handle-height);
+  background-color: var(--handle-color);
+  border-radius: calc(var(--tray-handle-height) / 2);
+}
+
+/* ============================================
+   Card Header - sticky below handle
+   ============================================ */
+.tray-card-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  padding: 8px 16px 12px;
+  background-color: var(--system-background);
+}
+
+.tray-wrapper.tray-pos-5 .tray-card-header {
+  border-bottom: 1px solid var(--border-primary);
+}
+
+/* ============================================
+   Card Content
+   ============================================ */
+.tray-card-content {
+  flex: 1;
+  padding: 0 16px 20px;
+  overflow-y: auto;
+}
+
+/* ============================================
+   Card Footer - for action buttons
+   ============================================ */
+.tray-card-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  background-color: var(--system-background);
+  border-top: 1px solid var(--border-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
