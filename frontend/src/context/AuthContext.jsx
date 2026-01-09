@@ -2,7 +2,7 @@ import { createContext, useContext, createSignal, onMount } from 'solid-js';
 const AuthContext = createContext();
 
 // Backend URL based on environment
-const BACKEND_URL = import.meta.env.DEV ? 'http://localhost:3000' : 'https://backend.frederic.dog';
+const BACKEND_URL = import.meta.env.DEV ? 'http://localhost:4000' : 'https://backend.frederic.dog';
 
 export function AuthProvider(props) {
   const [user, setUser] = createSignal(null);

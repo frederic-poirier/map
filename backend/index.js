@@ -2,8 +2,10 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { auth } from "./src/routes/auth.js";
 import { maps } from "./src/routes/maps.js";
+import { statusRoute } from "./src/routes/status.js";
 import { authMiddleware } from "./src/middlewares/auth.js";
 import { FRONTEND_URL } from "./src/config.js";
+
 
 const app = new Hono();
 
@@ -17,10 +19,11 @@ app.use(
 );
 
 app.route("/", auth);
+app.route("/status", statusRoute);
 app.use("/api/*", authMiddleware);
-app.route("/api", maps);
+app.route("/api/", maps);
 
 export default {
-    port: 3000,
+    port: 4000,
     fetch: app.fetch,
 };
