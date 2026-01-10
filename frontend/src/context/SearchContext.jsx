@@ -7,8 +7,8 @@ import {
   onCleanup,
 } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
-import { useMap } from "../../context/MapContext";
-import { usePlace } from "../../context/PlaceContext";
+import { useMap } from "./MapContext";
+import { usePlace } from "./PlaceContext";
 
 const SearchContext = createContext();
 const MIN_QUERY_LENGTH = 3;

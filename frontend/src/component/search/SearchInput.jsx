@@ -1,6 +1,6 @@
 import Search from "lucide-solid/icons/search";
 import X from "lucide-solid/icons/x";
-import { useSearch } from "./SearchProvider";
+import { useSearch } from "../../context/SearchContext";
 
 export function SearchInput(props) {
   let inputRef;
