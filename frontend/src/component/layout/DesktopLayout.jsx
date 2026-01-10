@@ -3,17 +3,6 @@ export function DesktopLayout(props) {
   const { mapInstance } = useMap();
   const { selectedPlace, clearPlace } = usePlace();
 
-  useKeyboard({
-    "/": () => document.querySelector('input[placeholder*="Search"]')?.focus(),
-    t: () => toggleTheme(),
-    l: () => document.querySelector("[data-locate-btn]")?.click(),
-    "+": () => mapInstance()?.zoomIn(),
-    "=": () => mapInstance()?.zoomIn(),
-    "-": () => mapInstance()?.zoomOut(),
-    n: () => mapInstance()?.easeTo({ bearing: 0, pitch: 0 }),
-    f: () => toggleFullscreen(),
-    escape: () => clearPlace(),
-  });
 
   return (
     <>

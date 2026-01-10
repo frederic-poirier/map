@@ -61,10 +61,6 @@ auth.get("/auth/callback", async (c) => {
 
     const sessionData = await signSession(userData.email);
 
-    console.log("Setting auth cookie for authenticated user");
-    console.log("isProd:", isProd);
-
-
     const cookieOptions = {
         httpOnly: true,
         secure: isProd,

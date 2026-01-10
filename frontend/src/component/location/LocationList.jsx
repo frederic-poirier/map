@@ -1,35 +1,23 @@
 import { useMap } from "~/context/MapContext";
 import { usePlace } from "~/context/PlaceContext";
-import { createResource, createSignal, For, Show } from "solid-js";
+import { For, Show } from "solid-js";
 import MapPin from "lucide-solid/icons/map-pin";
 import Trash2 from "lucide-solid/icons/trash-2";
 import Bookmark from "lucide-solid/icons/bookmark";
 import Loader2 from "lucide-solid/icons/loader-2";
+import { useLocation } from "~/context/LocationContext";
+import { useNavigate } from "@solidjs/router";
 
-const BACKEND_URL = import.meta.env.DEV
-  ? "http://localhost:4000"
-  : "https://backend.frederic.dog";
 
 
 export function LocationList() {
   const { flyTo, addMarker } = useMap();
   const { selectPlace } = usePlace();
-  const [refreshKey, setRefreshKey] = createSignal(0);
-
-  const [locations, { refetch }] = createResource(refreshKey, async () => {
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/locations`, {
-        credentials: "include",
-      });
-      const data = await response.json();
-      return data.locations || [];
-    } catch (error) {
-      console.log("Error fetching user locations:", error);
-      return [];
-    }
-  });
+  const { locations, deleteLocation } = useLocation();
+  const navigate = useNavigate();
 
   const goToLocation = (location) => {
+    navigate("/place/" + location.id);
     flyTo({ lat: location.latitude, lon: location.longitude }, 16);
     addMarker({ lat: location.latitude, lon: location.longitude });
     selectPlace({
@@ -40,26 +28,6 @@ export function LocationList() {
       type: "saved",
       id: location.id,
     });
-  };
-
-  const deleteLocation = async (locationId, e) => {
-    e.stopPropagation();
-
-    try {
-      const response = await fetch(
-        `${BACKEND_URL}/api/location/${locationId}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        }
-      );
-
-      if (response.ok) {
-        setRefreshKey((k) => k + 1);
-      }
-    } catch (error) {
-      console.error("Error deleting location:", error);
-    }
   };
 
   return (

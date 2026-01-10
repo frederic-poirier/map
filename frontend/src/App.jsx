@@ -10,7 +10,7 @@ export default function App() {
       <Route path="/" component={Home} />
       <Route path="/search" component={Home} />
       <Route path="/profile" component={() => <Profile />} />
-      <Route path="/place" component={Place} />
+      <Route path="/place/:id" component={Place} />
     </Router>
   );
 }
