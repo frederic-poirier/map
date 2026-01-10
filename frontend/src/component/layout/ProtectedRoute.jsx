@@ -1,23 +1,20 @@
-import { Show } from 'solid-js';
-import { useAuth } from '../context/AuthContext';
-import { Map, Loader2 } from 'lucide-solid';
+import { Show } from "solid-js";
+import { useAuth } from "../../context/AuthContext";
+import TriangleAlert from "lucide-solid/icons/triangle-alert";
 
 export function ProtectedRoute(props) {
   const auth = useAuth();
 
   return (
-    <Show 
-      when={!auth.loading()} 
+    <Show
+      when={!auth.loading()}
       fallback={
         <div class="min-h-screen bg-[var(--bg-primary)] flex items-center justify-center">
-          <Loader2 size={24} class="animate-spin text-[var(--text-tertiary)]" />
+          <TriangleAlert class="w-12 h-12 text-[var(--text-secondary)] animate-spin-slow" />
         </div>
       }
     >
-      <Show
-        when={auth.user()}
-        fallback={<LoginPage login={auth.login} />}
-      >
+      <Show when={auth.user()} fallback={<LoginPage login={auth.login} />}>
         {props.children}
       </Show>
     </Show>
@@ -28,25 +25,23 @@ function LoginPage(props) {
   return (
     <div class="min-h-screen bg-[var(--bg-secondary)] flex items-center justify-center p-6">
       <div class="w-full max-w-sm login-enter">
-        {/* Logo */}
         <div class="text-center mb-8">
-          <div class="inline-flex items-center justify-center w-14 h-14 bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-2xl shadow-lg mb-5">
-            <Map size={24} strokeWidth={1.5} class="text-[var(--text-primary)]" />
-          </div>
           <h1 class="text-xl font-semibold text-[var(--text-primary)]">Map</h1>
-          <p class="text-sm text-[var(--text-secondary)] mt-1">Sign in to continue</p>
+          <p class="text-sm text-[var(--text-secondary)] mt-1">
+            Sign in to continue to your account . This is a private app and you
+            must be on the whitelist to access it.
+          </p>
         </div>
-        
-        {/* Login card */}
-        <div class="bg-[var(--bg-primary)] border border-[var(--border-primary)] rounded-2xl shadow-xl p-6">
-          <button
-            onClick={() => props.login()}
-            class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl hover:bg-[var(--bg-hover)] hover:border-[var(--border-secondary)] transition-all"
-          >
-            <GoogleIcon />
-            <span class="font-medium text-sm text-[var(--text-primary)]">Continue with Google</span>
-          </button>
-        </div>
+
+        <button
+          onClick={() => props.login()}
+          class="w-full flex items-center justify-center gap-3 px-4 py-3 bg-[var(--bg-secondary)] border border-[var(--border-primary)] rounded-xl hover:bg-[var(--bg-hover)] hover:border-[var(--border-secondary)] transition-all"
+        >
+          <GoogleIcon />
+          <span class="font-medium text-sm text-[var(--text-primary)]">
+            Continue with Google
+          </span>
+        </button>
       </div>
     </div>
   );

@@ -5,7 +5,13 @@ import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import { useMap } from "../context/MapContext";
 import { useTheme } from "../context/ThemeContext";
-import { Plus, Minus, Compass, Maximize2, Loader2, AlertTriangle, RefreshCw } from "lucide-solid";
+import Plus from "lucide-solid/icons/plus";
+import Minus from "lucide-solid/icons/minus";
+import Compass from "lucide-solid/icons/compass";
+import Maximize2 from "lucide-solid/icons/maximize-2";
+import RefreshCw from "lucide-solid/icons/refresh-cw";
+import Loader from "lucide-solid/icons/loader";
+import AlertTriangle from "lucide-solid/icons/alert-triangle";
 
 export default function Map() {
   const { setMapInstance, setMapCenter, mapInstance } = useMap();
@@ -26,7 +32,8 @@ export default function Map() {
 
   const getMapStyle = (flavor) => ({
     version: 8,
-    glyphs: "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
+    glyphs:
+      "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
     sprite: `https://protomaps.github.io/basemaps-assets/sprites/v4/${flavor}`,
     sources: {
       montreal: {
@@ -54,7 +61,7 @@ export default function Map() {
     maplibregl.addProtocol("pmtiles", protocol.tile);
 
     const currentTheme = theme();
-    const flavor = currentTheme === 'dark' ? 'dark' : 'light';
+    const flavor = currentTheme === "dark" ? "dark" : "light";
 
     map = new maplibregl.Map({
       container: mapContainer,
@@ -66,7 +73,10 @@ export default function Map() {
     });
 
     // Add attribution control in bottom-right
-    map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-right');
+    map.addControl(
+      new maplibregl.AttributionControl({ compact: true }),
+      "bottom-right"
+    );
 
     setMapInstance(map);
     setMapCenter([map.getCenter().lng, map.getCenter().lat]);
@@ -99,9 +109,9 @@ export default function Map() {
   createEffect(() => {
     const currentTheme = theme();
     const currentMap = mapInstance();
-    
+
     if (currentMap && currentMap.isStyleLoaded()) {
-      const flavor = currentTheme === 'dark' ? 'dark' : 'light';
+      const flavor = currentTheme === "dark" ? "dark" : "light";
       currentMap.setStyle(getMapStyle(flavor));
     }
   });
@@ -117,10 +127,12 @@ export default function Map() {
 
   return (
     <div class="relative h-[100svh] w-[100svw]">
-      {/* Loading overlay */}
       <Show when={isLoading() && !hasError()}>
         <div class="absolute inset-0 z-20 bg-[var(--bg-secondary)] flex flex-col items-center justify-center">
-          <Loader2 size={40} class="animate-spin text-[var(--text-tertiary)] mb-4" />
+          <Loader
+            size={40}
+            class="animate-spin text-[var(--text-tertiary)] mb-4"
+          />
           <p class="text-sm text-[var(--text-secondary)]">Loading map...</p>
         </div>
       </Show>
@@ -136,7 +148,8 @@ export default function Map() {
               Unable to load map
             </h2>
             <p class="text-sm text-[var(--text-secondary)] mb-6">
-              There was a problem loading the map tiles. Please check your connection and try again.
+              There was a problem loading the map tiles. Please check your
+              connection and try again.
             </p>
             <button
               class="inline-flex items-center gap-2 px-4 py-2.5 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium rounded-xl transition-colors"
@@ -153,10 +166,7 @@ export default function Map() {
       </Show>
 
       {/* Map container */}
-      <div
-        ref={(el) => (mapContainer = el)}
-        class="w-full h-full"
-      />
+      <div ref={(el) => (mapContainer = el)} class="w-full h-full" />
 
       {/* Map controls */}
       <Show when={!hasError() && !isLoading()}>
@@ -202,9 +212,9 @@ function MapControls() {
     const handleFullscreenChange = () => {
       setIsFullscreen(!!document.fullscreenElement);
     };
-    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
     onCleanup(() => {
-      document.removeEventListener('fullscreenchange', handleFullscreenChange);
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
     });
   });
 

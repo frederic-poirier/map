@@ -1,18 +1,18 @@
-import { createContext, useContext, createSignal } from 'solid-js';
+import { createContext, useContext, createSignal } from "solid-js";
 
 const PlaceContext = createContext();
 
 export function PlaceProvider(props) {
   const [selectedPlace, setSelectedPlace] = createSignal(null);
-  
+
   const selectPlace = (place) => {
     setSelectedPlace(place);
   };
-  
+
   const clearPlace = () => {
-    setSelectedPlace(null);
+    if (selectPlace()) setSelectedPlace(null);
   };
-  
+
   return (
     <PlaceContext.Provider value={{ selectedPlace, selectPlace, clearPlace }}>
       {props.children}
@@ -23,7 +23,7 @@ export function PlaceProvider(props) {
 export function usePlace() {
   const context = useContext(PlaceContext);
   if (!context) {
-    throw new Error('usePlace must be used within a PlaceProvider');
+    throw new Error("usePlace must be used within a PlaceProvider");
   }
   return context;
 }

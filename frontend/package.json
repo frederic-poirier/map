@@ -12,11 +12,12 @@
   "license": "MIT",
   "devDependencies": {
     "@tailwindcss/vite": "^4.1.13",
-    "solid-devtools": "^0.34.3",
+    "eslint": "^9.39.2",
     "tailwindcss": "^4.1.13",
     "typescript": "^5.9.2",
     "vite": "^7.1.4",
-    "vite-plugin-solid": "^2.11.8"
+    "vite-plugin-solid": "^2.11.8",
+    "vite-tsconfig-paths": "^6.0.4"
   },
   "dependencies": {
     "@protomaps/basemaps": "^5.7.0",
