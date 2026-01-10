@@ -61,9 +61,9 @@ auth.get("/auth/callback", async (c) => {
 
     const sessionData = await signSession(userData.email);
 
-    console.log('Setting cookie for user:', userData.email);
-    console.log('isProd:', isProd);
-    console.log('Session data:', sessionData);
+    console.log("Setting auth cookie for authenticated user");
+    console.log("isProd:", isProd);
+
 
     const cookieOptions = {
         httpOnly: true,
@@ -76,11 +76,11 @@ auth.get("/auth/callback", async (c) => {
     // Only set domain in production
     if (isProd && COOKIE_DOMAIN) {
         cookieOptions.domain = COOKIE_DOMAIN;
-        console.log('Setting domain:', COOKIE_DOMAIN);
+        console.log("Setting domain:", COOKIE_DOMAIN);
     }
 
     setCookie(c, "auth_session", sessionData, cookieOptions);
-    console.log('Cookie set, redirecting to:', FRONTEND_URL);
+    console.log("Cookie set, redirecting to:", FRONTEND_URL);
 
     return c.redirect(FRONTEND_URL);
 });
