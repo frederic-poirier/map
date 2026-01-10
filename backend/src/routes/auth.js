@@ -61,13 +61,26 @@ auth.get("/auth/callback", async (c) => {
 
     const sessionData = await signSession(userData.email);
 
-    setCookie(c, "auth_session", sessionData, {
+    console.log('Setting cookie for user:', userData.email);
+    console.log('isProd:', isProd);
+    console.log('Session data:', sessionData);
+
+    const cookieOptions = {
         httpOnly: true,
         secure: isProd,
         sameSite: "Lax",
         path: "/",
         maxAge: 60 * 60 * 24 * 7, // 7 days
-    });
+    };
+
+    // Only set domain in production
+    if (isProd && COOKIE_DOMAIN) {
+        cookieOptions.domain = COOKIE_DOMAIN;
+        console.log('Setting domain:', COOKIE_DOMAIN);
+    }
+
+    setCookie(c, "auth_session", sessionData, cookieOptions);
+    console.log('Cookie set, redirecting to:', FRONTEND_URL);
 
     return c.redirect(FRONTEND_URL);
 });
