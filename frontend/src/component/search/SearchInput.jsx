@@ -1,3 +1,4 @@
+import { Show } from "solid-js";
 import Search from "lucide-solid/icons/search";
 import X from "lucide-solid/icons/x";
 import { useSearch } from "../../context/SearchContext";

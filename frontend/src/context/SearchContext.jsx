@@ -6,7 +6,7 @@ import {
   createResource,
   onCleanup,
 } from "solid-js";
-import { useSearchParams } from "@solidjs/router";
+import { useSearchParams, useNavigate } from "@solidjs/router";
 import { useMap } from "./MapContext";
 import { usePlace } from "./PlaceContext";
 
@@ -19,6 +19,7 @@ const BACKEND_URL = import.meta.env.DEV
 
 export function SearchProvider(props) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { mapCenter, flyTo, addMarker } = useMap();
   const { selectPlace } = usePlace();
 
@@ -64,16 +65,28 @@ export function SearchProvider(props) {
 
   const selectLocation = (feature) => {
     const [lon, lat] = feature.geometry.coordinates;
-    setQuery(feature.properties.name);
+    const props = feature.properties;
+    setQuery(props.name);
     setSelectedIndex(-1);
     flyTo({ lat, lon });
     addMarker({ lat, lon });
-    selectPlace({
-      name: feature.properties.name,
+    
+    const placeId = selectPlace({
+      name: props.name,
       latitude: lat,
       longitude: lon,
+      address: props.street,
+      city: props.city,
+      district: props.district,
+      postcode: props.postcode,
+      housenumber: props.housenumber,
+      osmKey: props.osm_key,
+      osmValue: props.osm_value,
       type: "search",
     });
+    
+    // Navigate to place page
+    navigate(`/place/${placeId}`);
   };
 
   const value = {

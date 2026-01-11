@@ -5,6 +5,123 @@ import { eq, and } from "drizzle-orm";
 
 const maps = new Hono();
 
+// OTP GraphQL endpoint
+const OTP_URL = process.env.OTP_URL || "http://localhost:8080";
+
+// OTP trip planning GraphQL query
+const PLAN_QUERY = `
+query Plan($from: InputCoordinates!, $to: InputCoordinates!, $numItineraries: Int, $time: String, $date: String) {
+  plan(
+    from: $from
+    to: $to
+    numItineraries: $numItineraries
+    time: $time
+    date: $date
+    transportModes: [
+      { mode: TRANSIT },
+      { mode: WALK }
+    ]
+  ) {
+    itineraries {
+      startTime
+      endTime
+      duration
+      walkTime
+      waitingTime
+      legs {
+        mode
+        startTime
+        endTime
+        duration
+        distance
+        from {
+          name
+          lat
+          lon
+          stop {
+            gtfsId
+            code
+          }
+        }
+        to {
+          name
+          lat
+          lon
+          stop {
+            gtfsId
+            code
+          }
+        }
+        route {
+          gtfsId
+          shortName
+          longName
+          color
+          textColor
+        }
+        intermediateStops {
+          name
+          lat
+          lon
+          gtfsId
+        }
+        legGeometry {
+          points
+        }
+      }
+    }
+  }
+}
+`;
+
+// Plan a trip using OTP
+maps.post("/otp/plan", async (c) => {
+    try {
+        const { from, to, time, date, numItineraries = 5 } = await c.req.json();
+
+        if (!from || !to || !from.lat || !from.lon || !to.lat || !to.lon) {
+            return c.json({ error: "Missing required coordinates" }, 400);
+        }
+
+        const variables = {
+            from: { lat: from.lat, lon: from.lon },
+            to: { lat: to.lat, lon: to.lon },
+            numItineraries,
+            time: time || new Date().toTimeString().slice(0, 5),
+            date: date || new Date().toISOString().slice(0, 10),
+        };
+
+        const response = await fetch(`${OTP_URL}/otp/gtfs/v1`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                query: PLAN_QUERY,
+                variables,
+            }),
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error("OTP error:", errorText);
+            return c.json({ error: "Failed to plan trip" }, 500);
+        }
+
+        const data = await response.json();
+
+        if (data.errors) {
+            console.error("OTP GraphQL errors:", data.errors);
+            return c.json({ error: data.errors[0]?.message || "Failed to plan trip" }, 500);
+        }
+
+        return c.json(data.data.plan);
+    } catch (error) {
+        console.error("Error planning trip:", error);
+        return c.json({ error: "Error planning trip" }, 500);
+    }
+});
+
 maps.get("/search", async (c) => {
     const query = c.req.query("q");
     const lat = c.req.query("lat");

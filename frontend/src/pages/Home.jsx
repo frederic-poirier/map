@@ -1,3 +1,4 @@
+import { Show } from "solid-js";
 import { SearchInput } from "~/component/search/SearchInput";
 import SearchResults from "../component/search/SearchResults";
 import { LocationList } from "~/component/location/LocationList";
