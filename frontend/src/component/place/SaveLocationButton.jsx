@@ -5,25 +5,29 @@ import BookmarkCheck from "lucide-solid/icons/bookmark-check";
 import X from "lucide-solid/icons/x";
 import Loader2 from "lucide-solid/icons/loader-2";
 
+
 export default function SaveLocationButton(props) {
   const { place } = props;
-  const { locations, saveLocation } = useLocation();
-  
+  const { locations, saveLocation, deleteLocation } = useLocation();
+
   const [isModalOpen, setIsModalOpen] = createSignal(false);
   const [customName, setCustomName] = createSignal("");
   const [isSaving, setIsSaving] = createSignal(false);
+  const [isDeleting, setIsDeleting] = createSignal(false);
   const [error, setError] = createSignal(null);
 
-  // Check if this place is already saved
-  const isSaved = () => {
+  // Find the saved location matching this place
+  const getSavedLocation = () => {
     const locs = locations();
-    if (!locs || !place) return false;
-    return locs.some(
+    if (!locs || !place) return null;
+    return locs.find(
       (loc) =>
         Math.abs(loc.latitude - place.latitude) < 0.0001 &&
         Math.abs(loc.longitude - place.longitude) < 0.0001
     );
   };
+
+  const isSaved = () => !!getSavedLocation();
 
   const openModal = () => {
     setCustomName(place.name || "");
@@ -66,96 +70,114 @@ export default function SaveLocationButton(props) {
     }
   };
 
+  const handleDelete = async () => {
+    const saved = getSavedLocation();
+    if (!saved) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteLocation(saved.id);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   return (
     <>
-      <button
-        onClick={openModal}
-        disabled={isSaved()}
-        class="w-full py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 disabled:cursor-not-allowed"
-        classList={{
-          "bg-[var(--bg-secondary)] text-[var(--text-tertiary)]": isSaved(),
-          "bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)]": !isSaved(),
-        }}
-      >
-        <Show when={isSaved()} fallback={<Bookmark size={18} />}>
-          <BookmarkCheck size={18} />
-        </Show>
-        <span>{isSaved() ? "Saved" : "Save Location"}</span>
-      </button>
-
-      {/* Modal Overlay */}
-      <Show when={isModalOpen()}>
-        <div
-          class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-          onClick={(e) => e.target === e.currentTarget && closeModal()}
+      <Show when={isSaved()} fallback={
+        <button
+          onClick={openModal}
+          class="w-full py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)]"
         >
-          <div class="bg-[var(--bg-primary)] rounded-2xl w-full max-w-sm shadow-xl border border-[var(--border-primary)]">
-            {/* Header */}
-            <div class="flex items-center justify-between p-4 border-b border-[var(--border-primary)]">
-              <h3 class="font-semibold text-[var(--text-primary)]">Save Location</h3>
-              <button
-                onClick={closeModal}
-                class="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
+          <Bookmark size={18} />
+          <span>Save Location</span>
+        </button>
+      }>
+        <button
+          onClick={handleDelete}
+          disabled={isDeleting()}
+          class="w-full py-3 rounded-xl font-medium transition-colors flex items-center justify-center gap-2 bg-[var(--bg-secondary)] hover:bg-red-500/10 text-[var(--accent-primary)] hover:text-red-500 disabled:opacity-50"
+        >
+          <Show when={isDeleting()} fallback={<BookmarkCheck size={18} />}>
+            <Loader2 size={18} class="animate-spin" />
+          </Show>
+          <span>{isDeleting() ? "Removing..." : "Saved"}</span>
+        </button>
+      </Show>
 
-            {/* Body */}
-            <div class="p-4 space-y-4">
-              <div>
-                <label class="block text-sm text-[var(--text-secondary)] mb-1.5">
-                  Name this place
-                </label>
-                <input
-                  type="text"
-                  value={customName()}
-                  onInput={(e) => setCustomName(e.target.value)}
-                  onKeyDown={handleKeyDown}
-                  placeholder="e.g., Home, Work, Gym..."
-                  autofocus
-                  class="w-full px-3 py-2.5 bg-[var(--bg-secondary)] rounded-xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all placeholder:text-[var(--text-tertiary)]"
-                />
+        {/* Modal Overlay */}
+        <Show when={isModalOpen()}>
+          <div
+            class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+            onClick={(e) => e.target === e.currentTarget && closeModal()}
+          >
+            <div class="bg-[var(--bg-primary)] rounded-2xl w-full max-w-sm shadow-xl border border-[var(--border-primary)]">
+              {/* Header */}
+              <div class="flex items-center justify-between p-4 border-b border-[var(--border-primary)]">
+                <h3 class="font-semibold text-[var(--text-primary)]">Save Location</h3>
+                <button
+                  onClick={closeModal}
+                  class="p-1 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
+                >
+                  <X size={20} />
+                </button>
               </div>
 
-              <Show when={error()}>
-                <p class="text-sm text-red-400">{error()}</p>
-              </Show>
+              {/* Body */}
+              <div class="p-4 space-y-4">
+                <div>
+                  <label class="block text-sm text-[var(--text-secondary)] mb-1.5">
+                    Name this place
+                  </label>
+                  <input
+                    type="text"
+                    value={customName()}
+                    onInput={(e) => setCustomName(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="e.g., Home, Work, Gym..."
+                    autofocus
+                    class="w-full px-3 py-2.5 bg-[var(--bg-secondary)] rounded-xl text-sm text-[var(--text-primary)] focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)] transition-all placeholder:text-[var(--text-tertiary)]"
+                  />
+                </div>
 
-              {/* Place Preview */}
-              <div class="p-3 bg-[var(--bg-secondary)] rounded-xl">
-                <p class="text-xs text-[var(--text-tertiary)] mb-1">Location</p>
-                <p class="text-sm text-[var(--text-primary)]">{place.name}</p>
-                <Show when={place.address || place.street}>
-                  <p class="text-xs text-[var(--text-tertiary)] mt-0.5">
-                    {place.address || place.street}
-                  </p>
+                <Show when={error()}>
+                  <p class="text-sm text-red-400">{error()}</p>
                 </Show>
+
+                {/* Place Preview */}
+                <div class="p-3 bg-[var(--bg-secondary)] rounded-xl">
+                  <p class="text-xs text-[var(--text-tertiary)] mb-1">Location</p>
+                  <p class="text-sm text-[var(--text-primary)]">{place.name}</p>
+                  <Show when={place.address || place.street}>
+                    <p class="text-xs text-[var(--text-tertiary)] mt-0.5">
+                      {place.address || place.street}
+                    </p>
+                  </Show>
+                </div>
               </div>
-            </div>
 
-            {/* Footer */}
-            <div class="p-4 border-t border-[var(--border-primary)] flex gap-3">
-              <button
-                onClick={closeModal}
-                class="flex-1 py-2.5 rounded-xl font-medium bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={handleSave}
-                disabled={isSaving()}
-                class="flex-1 py-2.5 rounded-xl font-medium bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
-              >
-                <Show when={isSaving()} fallback={<Bookmark size={16} />}>
-                  <Loader2 size={16} class="animate-spin" />
-                </Show>
-                <span>{isSaving() ? "Saving..." : "Save"}</span>
-              </button>
+              {/* Footer */}
+              <div class="p-4 border-t border-[var(--border-primary)] flex gap-3">
+                <button
+                  onClick={closeModal}
+                  class="flex-1 py-2.5 rounded-xl font-medium bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] text-[var(--text-primary)] transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving()}
+                  class="flex-1 py-2.5 rounded-xl font-medium bg-[var(--accent-primary)] hover:bg-[var(--accent-secondary)] text-white transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  <Show when={isSaving()} fallback={<Bookmark size={16} />}>
+                    <Loader2 size={16} class="animate-spin" />
+                  </Show>
+                  <span>{isSaving() ? "Saving..." : "Save"}</span>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      </Show>
+        </Show>
     </>
   );
 }

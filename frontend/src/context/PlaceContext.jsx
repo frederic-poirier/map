@@ -1,40 +1,36 @@
 import { createContext, useContext, createSignal } from "solid-js";
+import { generatePlaceId } from "~/utils/placeId";
 
 const PlaceContext = createContext();
 
-// Generate a unique ID from place coordinates
-const generatePlaceId = (lat, lon) => {
-  // Ensure lat/lon are numbers
-  const latNum = typeof lat === 'string' ? parseFloat(lat) : lat;
-  const lonNum = typeof lon === 'string' ? parseFloat(lon) : lon;
-  return `${latNum.toFixed(6)}_${lonNum.toFixed(6)}`.replace(/\./g, "-");
-};
-
-// Parse place ID back to coordinates
-export const parsePlaceId = (id) => {
-  if (!id) return null;
-  const [lat, lon] = id.split("_").map((s) => parseFloat(s.replace(/-/g, ".")));
-  return { lat, lon };
-};
+// ID generation and parsing now provided by shared util
 
 export function PlaceProvider(props) {
   const [selectedPlace, setSelectedPlace] = createSignal(null);
   const [placeCache, setPlaceCache] = createSignal({});
 
-  const selectPlace = (place) => {
-    if (!place) return;
-    
-    // Ensure coordinates are numbers
-    const latitude = typeof place.latitude === 'string' ? parseFloat(place.latitude) : place.latitude;
-    const longitude = typeof place.longitude === 'string' ? parseFloat(place.longitude) : place.longitude;
-    
+  const selectPlace = (item) => {
+    if (!item) return;
+
+    // Normalize: handle both saved locations and search results (GeoJSON features)
+    const isFeature = !!item.geometry;
+
+    const latitude = isFeature
+      ? item.geometry.coordinates[1]
+      : (typeof item.latitude === 'string' ? parseFloat(item.latitude) : item.latitude);
+    const longitude = isFeature
+      ? item.geometry.coordinates[0]
+      : (typeof item.longitude === 'string' ? parseFloat(item.longitude) : item.longitude);
+
     const id = generatePlaceId(latitude, longitude);
-    const placeWithId = { ...place, id, latitude, longitude };
-    
+
+    // Store raw item with normalized coords and id
+    const place = { ...item, id, latitude, longitude };
+
     // Cache the place data
-    setPlaceCache((prev) => ({ ...prev, [id]: placeWithId }));
-    setSelectedPlace(placeWithId);
-    
+    setPlaceCache((prev) => ({ ...prev, [id]: place }));
+    setSelectedPlace(place);
+
     return id;
   };
 

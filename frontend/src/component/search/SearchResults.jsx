@@ -1,226 +1,184 @@
 import { Show, For } from "solid-js";
-import { useNavigate } from "@solidjs/router";
-import { useMap } from "../../context/MapContext";
-import { usePlace } from "../../context/PlaceContext";
 import { useSearch } from "../../context/SearchContext";
-import { useLocation } from "../../context/LocationContext";
+import { useMap } from "~/context/MapContext";
 import MapPin from "lucide-solid/icons/map-pin";
 import Navigation from "lucide-solid/icons/navigation";
 import Bookmark from "lucide-solid/icons/bookmark";
 import useCoordinates from "../../utils/useCoordinates";
 
+// Helper to check if item is a saved location (has placeId) vs search result (has geometry)
+const isSavedLocation = (item) => !!item.placeId;
+
+// Extract display info from either saved location or search result
+const getItemInfo = (item) => {
+  if (isSavedLocation(item)) {
+    return {
+      name: item.name,
+      street: null,
+      latitude: item.latitude,
+      longitude: item.longitude,
+    };
+  }
+  // Search result (GeoJSON feature)
+  const props = item.properties || {};
+  return {
+    name: props.name,
+    street: props.street,
+    latitude: item.geometry?.coordinates[1],
+    longitude: item.geometry?.coordinates[0],
+  };
+};
+
 export default function SearchResults() {
-  const navigate = useNavigate();
-  const { getDistance, getAngle } = useCoordinates();
-  const { mapCenter, flyTo, addMarker } = useMap();
-  const { selectPlace } = usePlace();
-  const { locations } = useLocation();
+  console.log('SearchResults rendering');
+
   const {
-    reset,
-    results,
-    selectedIndex,
+    navigableItems,
+    loading,
     setSelectedIndex,
-    isSearchFocused,
-    query,
+    isSelected,
+    selectCurrent,
   } = useSearch();
 
-  // Filter saved locations that match the query
-  const matchingSavedLocations = () => {
-    const locs = locations();
-    const q = query();
-    if (!locs || q.length < 2) return [];
-    const qLower = q.toLowerCase();
-    return locs.filter((loc) => loc.name.toLowerCase().includes(qLower));
+  const handleSelect = (index) => {
+    setSelectedIndex(index);
+    selectCurrent();
   };
 
-  const handleSelect = (feature) => {
-    const [lon, lat] = feature.geometry.coordinates;
-    const props = feature.properties;
-    flyTo({ lat, lon });
-    addMarker({ lat, lon });
-    
-    const placeId = selectPlace({
-      name: props.name,
-      latitude: lat,
-      longitude: lon,
-      address: props.street,
-      city: props.city,
-      district: props.district,
-      postcode: props.postcode,
-      housenumber: props.housenumber,
-      osmKey: props.osm_key,
-      osmValue: props.osm_value,
-      type: "search",
-    });
-    
-    // Navigate to place page
-    navigate(`/place/${placeId}`);
+  const hasResults = () => navigableItems().length > 0;
+
+  const getItemIcon = (item, index) => {
+    if (isSavedLocation(item)) {
+      return (
+        <Bookmark
+          size={16}
+          strokeWidth={1.5}
+          class="flex-shrink-0 text-[var(--accent-primary)]"
+        />
+      );
+    }
+    return (
+      <MapPin
+        size={16}
+        strokeWidth={1.5}
+        class="flex-shrink-0"
+        classList={{
+          "text-[var(--text-primary)]": isSelected(index),
+          "text-[var(--text-tertiary)]": !isSelected(index),
+        }}
+      />
+    );
   };
 
-  const handleSelectSaved = (loc) => {
-    flyTo({ lat: loc.latitude, lon: loc.longitude });
-    addMarker({ lat: loc.latitude, lon: loc.longitude });
-    
-    const placeId = selectPlace({
-      name: loc.name,
-      latitude: loc.latitude,
-      longitude: loc.longitude,
-      type: "saved",
-    });
-    
-    navigate(`/place/${placeId}`);
+  const getItemSubtitle = (item) => {
+    const info = getItemInfo(item);
+    if (info.street) {
+      return <p class="text-xs text-[var(--text-tertiary)] truncate">{info.street}</p>;
+    }
+    return null;
   };
-
-  const hasResults = () => (results()?.length > 0) || (matchingSavedLocations().length > 0);
 
   return (
     <div class="overflow-y-auto pt-3">
-      <Show
-        when={hasResults()}
-        fallback={
-          <div class="flex flex-col items-center justify-center gap-4 px-4">
-            <p class="text-center text-[var(--text-tertiary)]">
-              No results found. Try adjusting your search terms.
-            </p>
-            <button
-              onClick={reset}
-              class="px-4 py-2 border border-neutral-700 hover:bg-[var(--bg-hover)] rounded text-sm text-[var(--text-primary)] transition-colors"
-            >
-              Reset Search
-            </button>
-          </div>
-        }
-      >
-        {/* Saved Locations Section */}
-        <Show when={matchingSavedLocations().length > 0}>
-          <span class="text-xs font-medium px-1 text-[var(--text-tertiary)] tracking-tight flex items-center gap-1.5">
-            <Bookmark size={12} />
-            Saved Places
-          </span>
+      <Show when={hasResults()} fallback={<EmptyState />}>
+        <Show when={!loading} fallback={<LoadingState />}>
           <ul>
-            <For each={matchingSavedLocations()}>
-              {(loc, i) => (
-                <li
-                  class="search-item-enter"
-                  style={{ "animation-delay": `${i() * 20}ms` }}
-                >
-                  <button
-                    class="flex items-center transition-colors cursor-pointer text-left w-full hover:bg-[var(--bg-hover)]"
-                    onClick={() => handleSelectSaved(loc)}
+            <For each={navigableItems()}>
+              {(item, i) => {
+                const info = getItemInfo(item);
+                return (
+                  <li
+                    class="search-item-enter"
+                    style={{ "animation-delay": `${i() * 20}ms` }}
                   >
-                    <div class="flex-1 px-2 py-2.5 flex items-center gap-3 min-w-0">
-                      <Bookmark
-                        size={16}
-                        strokeWidth={1.5}
-                        class="flex-shrink-0 text-[var(--accent-primary)]"
-                      />
-                      <div class="flex-1 min-w-0 mr-3">
-                        <p class="text-sm text-[var(--text-secondary)] truncate">
-                          {loc.name}
-                        </p>
-                      </div>
-                      <div class="flex-shrink-0 flex items-center gap-1.5 text-[var(--text-tertiary)]">
-                        <Navigation
-                          size={11}
-                          strokeWidth={2}
-                          style={{
-                            transform: `rotate(${getAngle([loc.longitude, loc.latitude], mapCenter())}deg)`,
-                          }}
-                        />
-                        <span class="text-xs tabular-nums">
-                          {getDistance([loc.longitude, loc.latitude], mapCenter())}
-                        </span>
-                      </div>
-                    </div>
-                  </button>
-                </li>
-              )}
-            </For>
-          </ul>
-        </Show>
-
-        {/* Search Results Section */}
-        <Show when={results()?.length > 0}>
-          <span class="text-xs font-medium px-1 text-[var(--text-tertiary)] tracking-tight mt-2 block">
-            Results
-          </span>
-          <ul>
-            <For each={results()}>
-              {(item, i) => (
-                <li
-                  class="search-item-enter"
-                  style={{ "animation-delay": `${(i() + matchingSavedLocations().length) * 20}ms` }}
-                >
-                  <button
-                    class="flex items-center transition-colors cursor-pointer text-left w-full"
-                    classList={{
-                      "bg-[var(--bg-hover)]": selectedIndex() === i(),
-                    }}
-                    onMouseEnter={() => setSelectedIndex(i())}
-                    onClick={() => handleSelect(item)}
-                  >
-                    <div class="flex-1 px-2 py-2.5 flex items-center gap-3 min-w-0">
-                      <MapPin
-                        size={16}
-                        strokeWidth={1.5}
-                        class="flex-shrink-0"
-                        classList={{
-                          "text-[var(--text-primary)]": selectedIndex() === i(),
-                          "text-[var(--text-tertiary)]": selectedIndex() !== i(),
-                        }}
-                      />
-                      <div class="flex-1 min-w-0 mr-3">
-                        <p
-                          class="text-sm truncate"
-                          classList={{
-                            "text-[var(--text-primary)] font-medium":
-                              selectedIndex() === i(),
-                            "text-[var(--text-secondary)]":
-                              selectedIndex() !== i(),
-                          }}
-                        >
-                          {item.properties.name}
-                        </p>
-                        <Show when={item.properties.street}>
-                          <p class="text-xs text-[var(--text-tertiary)] truncate">
-                            {item.properties.street}
+                    <button
+                      class="flex items-center transition-colors cursor-pointer text-left w-full hover:bg-[var(--bg-hover)]"
+                      classList={{ "bg-[var(--bg-hover)]": isSelected(i()) }}
+                      onMouseEnter={() => setSelectedIndex(i())}
+                      onClick={() => handleSelect(i())}
+                    >
+                      <div class="flex-1 px-2 py-2.5 flex items-center gap-3 min-w-0">
+                        {getItemIcon(item, i())}
+                        <div class="flex-1 min-w-0 mr-3">
+                          <p
+                            class="text-sm truncate"
+                            classList={{
+                              "text-[var(--text-primary)] font-medium": isSelected(i()),
+                              "text-[var(--text-secondary)]": !isSelected(i()),
+                            }}
+                          >
+                            {info.name}
                           </p>
-                        </Show>
+                          {getItemSubtitle(item)}
+                        </div>
+                        <DirectionAndDistance coordinates={[info.longitude, info.latitude]} />
                       </div>
-                      <div class="flex-shrink-0 flex items-center gap-1.5 text-[var(--text-tertiary)]">
-                        <Navigation
-                          size={11}
-                          strokeWidth={2}
-                          style={{
-                            transform: `rotate(${getAngle(item.geometry.coordinates, mapCenter())}deg)`,
-                          }}
-                        />
-                        <span class="text-xs tabular-nums">
-                          {getDistance(item.geometry.coordinates, mapCenter())}
-                        </span>
-                      </div>
-                    </div>
-                    <div
-                      class="pr-3 transition-opacity"
-                      classList={{
-                        "opacity-100": selectedIndex() === i(),
-                        "opacity-0": selectedIndex() !== i(),
-                      }}
-                    ></div>
-                  </button>
-                </li>
-              )}
+                      <div
+                        class="pr-3 transition-opacity"
+                        classList={{
+                          "opacity-100": isSelected(i()),
+                          "opacity-0": !isSelected(i()),
+                        }}
+                      ></div>
+                    </button>
+                  </li>
+                )
+              }}
             </For>
           </ul>
         </Show>
-
         <ShortcutHint />
       </Show>
     </div>
   );
 }
 
-export function ShortcutHint() {
+function LoadingState() {
+  return (
+    <div class="flex items-center justify-center py-4">
+      <div class="w-4 h-4 border-2 border-[var(--text-tertiary)] border-t-[var(--text-primary)] rounded-full animate-spin"></div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  const { reset } = useSearch();
+  return (
+    <div class="flex flex-col items-center justify-center gap-4 px-4">
+      <p class="text-center text-[var(--text-tertiary)]">
+        No results found. Try adjusting your search terms.
+      </p>
+      <button
+        onClick={reset}
+        class="px-4 py-2 border border-neutral-700 hover:bg-[var(--bg-hover)] rounded text-sm text-[var(--text-primary)] transition-colors"
+      >
+        Reset Search
+      </button>
+    </div>
+  );
+}
+
+function DirectionAndDistance({ coordinates }) {
+  const { getDistance, getAngle } = useCoordinates();
+  const { mapCenter } = useMap();
+
+  return (
+    <div class="flex items-center gap-1.5 text-[var(--text-tertiary)]">
+      <Navigation
+        size={11}
+        strokeWidth={2}
+        style={{
+          transform: `rotate(${getAngle(coordinates, mapCenter())}deg)`,
+        }}
+      />
+      <span class="text-xs tabular-nums">
+        {getDistance(coordinates, mapCenter())}
+      </span>
+    </div>
+  );
+}
+
+function ShortcutHint() {
   const details = [
     { key: "↑↓", action: "navigate" },
     { key: "tab", action: "complete" },

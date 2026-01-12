@@ -9,7 +9,7 @@ export default function useKeyboard(config) {
       activeElement.isContentEditable;
 
     if (isTyping) return;
-    if (e.key !== Escape) document.blur();
+    if (e.key === "Escape") document.blur();
 
     const key = e.key.toLowerCase();
     const action = config[key] || config[e.key];

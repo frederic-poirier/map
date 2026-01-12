@@ -4,11 +4,13 @@ import {
   createSignal,
   createEffect,
   createResource,
+  createMemo,
   onCleanup,
 } from "solid-js";
 import { useSearchParams, useNavigate } from "@solidjs/router";
-import { useMap } from "./MapContext";
 import { usePlace } from "./PlaceContext";
+import { useLocation } from "./LocationContext";
+import useListNavigation from "../utils/useListNavigation";
 
 const SearchContext = createContext();
 const MIN_QUERY_LENGTH = 3;
@@ -20,11 +22,10 @@ const BACKEND_URL = import.meta.env.DEV
 export function SearchProvider(props) {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { mapCenter, flyTo, addMarker } = useMap();
   const { selectPlace } = usePlace();
+  const { locations } = useLocation();
 
   const [query, setQuery] = createSignal(searchParams.q || "");
-  const [selectedIndex, setSelectedIndex] = createSignal(-1);
   const [isSearchFocused, setIsSearchFocused] = createSignal(false);
 
   const isSearchMode = () => query().length >= MIN_QUERY_LENGTH;
@@ -43,14 +44,14 @@ export function SearchProvider(props) {
     onCleanup(() => clearTimeout(timeoutID));
   });
 
-  // Fetching centralisé
-  const [results] = createResource(
-    () => ({ q: searchParams.q, center: mapCenter() }),
-    async (source) => {
-      if (!source.q || source.q.length < MIN_QUERY_LENGTH || !source.center)
-        return [];
+  // Fetching centralisé - uses default center, PlaceDetail handles map positioning
+  const [results, { loading }] = createResource(
+    () => searchParams.q,
+    async (q) => {
+      if (!q || q.length < MIN_QUERY_LENGTH) return [];
+      // Default to Montreal center for search bias
       const response = await fetch(
-        `${BACKEND_URL}/api/search?q=${encodeURIComponent(source.q)}&lon=${source.center[0]}&lat=${source.center[1]}&location_bias_scale=0.5`,
+        `${BACKEND_URL}/api/search?q=${encodeURIComponent(q)}&lon=-73.5674&lat=45.5019&location_bias_scale=0.5`,
         { credentials: "include" }
       );
       const data = await response.json();
@@ -58,47 +59,64 @@ export function SearchProvider(props) {
     }
   );
 
-  const reset = () => {
-    setQuery("");
-    setSelectedIndex(-1);
+  // Merge saved locations and search results into navigable items
+  const navigableItems = createMemo(() => {
+    const locs = locations() || [];
+    const q = query();
+    const res = results() || [];
+
+    // Filter saved locations that match query (2+ chars)
+    const matchingSaved = q.length >= 2
+      ? locs.filter((loc) => loc.name.toLowerCase().includes(q.toLowerCase()))
+      : [];
+
+    // Combine: saved first, then search results - pass raw data
+    return [...matchingSaved, ...res];
+  });
+
+  // Selection handler for navigable items
+  const handleSelectItem = (item) => {
+    // Get name for query - saved locations have name directly, search results have properties.name
+    const name = item.name || item.properties?.name;
+    setQuery(name);
+
+    // Pass the whole object to selectPlace, PlaceDetail will extract what it needs
+    const placeId = selectPlace(item);
+    navigate(`/place/${placeId}`);
   };
 
-  const selectLocation = (feature) => {
-    const [lon, lat] = feature.geometry.coordinates;
-    const props = feature.properties;
-    setQuery(props.name);
-    setSelectedIndex(-1);
-    flyTo({ lat, lon });
-    addMarker({ lat, lon });
-    
-    const placeId = selectPlace({
-      name: props.name,
-      latitude: lat,
-      longitude: lon,
-      address: props.street,
-      city: props.city,
-      district: props.district,
-      postcode: props.postcode,
-      housenumber: props.housenumber,
-      osmKey: props.osm_key,
-      osmValue: props.osm_value,
-      type: "search",
-    });
-    
-    // Navigate to place page
-    navigate(`/place/${placeId}`);
+  // List navigation hook
+  const listNav = useListNavigation({
+    items: navigableItems,
+    onSelect: handleSelectItem,
+    handlers: {
+      onTab: (item) => setQuery(item.name || item.properties?.name),
+      onEscape: () => {
+        if (query()) {
+          setQuery("");
+        } else {
+          setIsSearchFocused(false);
+        }
+      },
+    },
+  });
+
+  const reset = () => {
+    setQuery("");
+    setSearchParams({ q: undefined }, { replace: true });
+    listNav.reset();
   };
 
   const value = {
     query,
     setQuery,
     results,
+    loading,
+    navigableItems,
     isSearchMode,
-    selectedIndex,
-    setSelectedIndex,
     isSearchFocused,
     setIsSearchFocused,
-    selectLocation,
+    ...listNav,
     reset,
   };
 

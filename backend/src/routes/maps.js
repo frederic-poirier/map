@@ -5,6 +5,13 @@ import { eq, and } from "drizzle-orm";
 
 const maps = new Hono();
 
+// Deterministic place ID generator (aligns with frontend util)
+const generatePlaceId = (lat, lon) => {
+    const latNum = typeof lat === "string" ? parseFloat(lat) : lat;
+    const lonNum = typeof lon === "string" ? parseFloat(lon) : lon;
+    return `${latNum.toFixed(6)}_${lonNum.toFixed(6)}`.replace(/\./g, "-");
+};
+
 // OTP GraphQL endpoint
 const OTP_URL = process.env.OTP_URL || "http://localhost:8080";
 
@@ -163,7 +170,8 @@ maps.post("/location", async (c) => {
             name,
             timestamp,
         });
-        return c.json({ success: true });
+        const placeId = generatePlaceId(latitude, longitude);
+        return c.json({ success: true, placeId });
     } catch (error) {
         console.log("Error saving location:", error);
         return c.json({ error: "Error saving location" }, 500);
@@ -173,11 +181,17 @@ maps.post("/location", async (c) => {
 maps.get("/locations", async (c) => {
     const userId = c.get("userId");
     try {
-        const locations = await db
+        const rows = await db
             .select()
             .from(schema.location)
             .where(eq(schema.location.userId, userId))
             .orderBy(schema.location.timestamp);
+        const locations = rows.map((loc) => {
+          const latitude = typeof loc.latitude === "string" ? parseFloat(loc.latitude) : loc.latitude;
+          const longitude = typeof loc.longitude === "string" ? parseFloat(loc.longitude) : loc.longitude;
+          const placeId = generatePlaceId(latitude, longitude);
+          return { ...loc, latitude, longitude, placeId };
+        });
         return c.json({ locations });
     } catch (error) {
         console.log("Error fetching locations:", error);

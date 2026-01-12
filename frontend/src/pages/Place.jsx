@@ -4,14 +4,14 @@ import { LayoutHeader } from "~/component/layout/Layout";
 import PlaceDetail from "~/component/place/PlaceDetail";
 import SaveLocationButton from "~/component/place/SaveLocationButton";
 import ItineraryButton from "~/component/itinerary/ItineraryButton";
-import { usePlace, parsePlaceId } from "~/context/PlaceContext";
+import { usePlace } from "~/context/PlaceContext";
+import { parsePlaceId } from "~/utils/placeId";
 import { useMap } from "~/context/MapContext";
 
 export default function Place() {
   const params = useParams();
   const navigate = useNavigate();
-  const { getPlaceById, selectedPlace } = usePlace();
-  const { flyTo, addMarker } = useMap();
+  const { getPlaceById } = usePlace();
 
   // Get place from cache or parse from URL
   const place = () => {
@@ -26,20 +26,12 @@ export default function Place() {
         name: "Selected Location",
         latitude: coords.lat,
         longitude: coords.lon,
-        type: "search",
       };
     }
     return null;
   };
 
-  // Center map on place when loaded
-  onMount(() => {
-    const p = place();
-    if (p) {
-      flyTo({ lat: p.latitude, lon: p.longitude });
-      addMarker({ lat: p.latitude, lon: p.longitude });
-    }
-  });
+  // Map centering moved to PlaceDetail for consistency
 
   const handleDirections = (place) => {
     // Navigate to itinerary page with destination
@@ -59,7 +51,7 @@ export default function Place() {
         }
       >
         <PlaceDetail place={place()} />
-        
+
         <div class="space-y-2">
           <ItineraryButton place={place()} onClick={handleDirections} />
           <SaveLocationButton place={place()} />

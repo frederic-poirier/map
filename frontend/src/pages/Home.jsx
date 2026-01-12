@@ -4,9 +4,15 @@ import SearchResults from "../component/search/SearchResults";
 import { LocationList } from "~/component/location/LocationList";
 import { useSearch } from "~/context/SearchContext";
 import useKeyboard from "~/utils/useKeyboard";
+import { useMap } from "~/context/MapContext";
+import { usePlace } from "~/context/PlaceContext";
+import { useTheme } from "~/context/ThemeContext";
 
 export default function Home() {
   const { query } = useSearch();
+  const { toggleFullscreen, mapInstance } = useMap();
+  const { clearPlace } = usePlace();
+  const { toggleTheme } = useTheme();
 
   useKeyboard({
     "/": () => document.querySelector('input[placeholder*="Search"]')?.focus(),

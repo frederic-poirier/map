@@ -1,4 +1,5 @@
 import { createContext, createResource, useContext } from "solid-js";
+import { generatePlaceId } from "~/utils/placeId";
 const LocationContext = createContext();
 
 // Backend URL based on environment
@@ -12,7 +13,16 @@ export default function LocationProvider(props) {
       credentials: "include",
     });
     const data = await response.json();
-    return data.locations || [];
+    const raw = data.locations || [];
+    // Normalize coordinates and attach a consistent placeId for navigation/cache
+    return raw.map((loc) => {
+      const latitude =
+        typeof loc.latitude === "string" ? parseFloat(loc.latitude) : loc.latitude;
+      const longitude =
+        typeof loc.longitude === "string" ? parseFloat(loc.longitude) : loc.longitude;
+      const placeId = generatePlaceId(latitude, longitude);
+      return { ...loc, latitude, longitude, placeId };
+    });
   });
 
   const saveLocation = async (latitude, longitude, name) => {

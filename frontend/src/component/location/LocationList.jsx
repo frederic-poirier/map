@@ -1,8 +1,6 @@
-import { useMap } from "~/context/MapContext";
 import { usePlace } from "~/context/PlaceContext";
 import { For, Show } from "solid-js";
 import MapPin from "lucide-solid/icons/map-pin";
-import Trash2 from "lucide-solid/icons/trash-2";
 import Bookmark from "lucide-solid/icons/bookmark";
 import Loader2 from "lucide-solid/icons/loader-2";
 import { useLocation } from "~/context/LocationContext";
@@ -11,22 +9,18 @@ import { useNavigate } from "@solidjs/router";
 
 
 export function LocationList() {
-  const { flyTo, addMarker } = useMap();
   const { selectPlace } = usePlace();
-  const { locations, deleteLocation } = useLocation();
+  const { locations } = useLocation();
   const navigate = useNavigate();
 
   const goToLocation = (location) => {
-    navigate("/place/" + location.id);
-    flyTo({ lat: location.latitude, lon: location.longitude }, 16);
-    addMarker({ lat: location.latitude, lon: location.longitude });
+    navigate("/place/" + location.placeId);
     selectPlace({
       name: location.name,
       address: null,
       latitude: location.latitude,
       longitude: location.longitude,
-      type: "saved",
-      id: location.id,
+      id: location.placeId,
     });
   };
 
@@ -88,12 +82,6 @@ export function LocationList() {
                         {location.name}
                       </p>
                     </div>
-                    <button
-                      onClick={(e) => deleteLocation(location.id, e)}
-                      class="p-1 text-[var(--text-tertiary)] hover:text-red-500 rounded opacity-0 group-hover:opacity-100 transition-all"
-                    >
-                      <Trash2 size={12} strokeWidth={1.5} />
-                    </button>
                   </div>
                 </li>
               )}

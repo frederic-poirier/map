@@ -3,62 +3,35 @@ import Search from "lucide-solid/icons/search";
 import X from "lucide-solid/icons/x";
 import { useSearch } from "../../context/SearchContext";
 
-export function SearchInput(props) {
+export function SearchInput() {
   let inputRef;
   const {
     query,
     setQuery,
-    results,
-    selectLocation,
-    selectedIndex,
-    setSelectedIndex,
+    handleKeyDown,
+    reset,
     setIsSearchFocused,
   } = useSearch();
 
   const clearSearch = () => {
-    setQuery("");
+    console.log('caca')
+    reset();
     inputRef?.focus();
   };
 
-  const handleKeyDown = (e) => {
-    const items = results() || [];
-
-    switch (e.key) {
-      case "ArrowDown":
-        e.preventDefault();
-        setSelectedIndex((i) => Math.min(i + 1, items.length - 1));
-        break;
-      case "ArrowUp":
-        e.preventDefault();
-        setSelectedIndex((i) => Math.max(i - 1, -1));
-        break;
-      case "Tab":
-        if (items.length > 0 && selectedIndex() === -1) {
-          e.preventDefault();
-          setSelectedIndex(0);
-        } else if (selectedIndex() >= 0 && items[selectedIndex()]) {
-          e.preventDefault();
-          setQuery(items[selectedIndex()].properties.name);
-        }
-        break;
-      case "Enter":
-        e.preventDefault();
-        if (selectedIndex() >= 0 && items[selectedIndex()]) {
-          selectLocation(items[selectedIndex()]);
-        } else if (items.length > 0) {
-          selectLocation(items[0]);
-        }
-        break;
-      case "Escape":
-        e.preventDefault();
-        if (query()) {
-          clearSearch();
-        } else {
-          inputRef?.blur();
-          setIsSearchFocused(false);
-        }
-        break;
+  const onKeyDown = (e) => {
+    // Handle Escape specially to manage focus
+    if (e.key === "Escape") {
+      e.preventDefault();
+      if (query()) {
+        clearSearch();
+      } else {
+        inputRef?.blur();
+        setIsSearchFocused(false);
+      }
+      return;
     }
+    handleKeyDown(e);
   };
 
   return (
@@ -76,11 +49,10 @@ export function SearchInput(props) {
         placeholder="Search places..."
         onFocus={() => setIsSearchFocused(true)}
         onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-        onkeydown={handleKeyDown}
+        onkeydown={onKeyDown}
         value={query()}
         onInput={(e) => {
           setQuery(e.target.value);
-          setSelectedIndex(-1);
         }}
         class="w-full pl-9 pr-9 py-2.5 bg-[var(--bg-secondary)] rounded-xl text-sm text-[var(--text-primary)] focus:outline-none focus:bg-[var(--bg-tertiary)] transition-all placeholder:text-[var(--text-tertiary)]"
       />

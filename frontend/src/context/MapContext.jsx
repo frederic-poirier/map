@@ -299,6 +299,14 @@ export function MapProvider(props) {
             }
         },
 
+        toggleFullscreen: () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+            } else {
+                document.exitFullscreen();
+            }
+        },
+
         // Route display methods
         displayRoute,
         clearRoute,

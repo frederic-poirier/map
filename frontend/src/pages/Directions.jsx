@@ -1,7 +1,8 @@
 import { useSearchParams, useNavigate } from "@solidjs/router";
 import { Show, createEffect, onMount, For, createSignal } from "solid-js";
 import { LayoutHeader } from "~/component/layout/Layout";
-import { usePlace, parsePlaceId } from "~/context/PlaceContext";
+import { usePlace } from "~/context/PlaceContext";
+import { parsePlaceId } from "~/utils/placeId";
 import { useItinerary } from "~/context/ItineraryContext";
 import { useMap } from "~/context/MapContext";
 import DirectionsForm from "~/component/directions/DirectionsForm";
@@ -11,9 +12,9 @@ export default function Directions() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { getPlaceById } = usePlace();
-  const { 
+  const {
     origin, destination, itinerary, isLoading, error,
-    setOriginPlace, setDestinationPlace, planTrip, clearItinerary 
+    setOriginPlace, setDestinationPlace, planTrip, clearItinerary
   } = useItinerary();
   const { flyTo, addMarker } = useMap();
 

@@ -21,8 +21,8 @@ export default function Layout(props) {
           <MapProvider>
             <PlaceProvider>
               <ItineraryProvider>
-                <SearchProvider>
-                  <LocationProvider>
+                <LocationProvider>
+                  <SearchProvider>
                     <div class="overflow-hidden">
                       <Map />
                     </div>
@@ -40,8 +40,8 @@ export default function Layout(props) {
                       </header>
                       <main class="p-2">{props.children}</main>
                     </div>
-                  </LocationProvider>
-                </SearchProvider>
+                  </SearchProvider>
+                </LocationProvider>
               </ItineraryProvider>
             </PlaceProvider>
           </MapProvider>

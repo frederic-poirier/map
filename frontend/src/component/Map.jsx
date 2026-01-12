@@ -177,7 +177,7 @@ export default function Map() {
 }
 
 function MapControls() {
-  const { mapInstance, getZoom } = useMap();
+  const { mapInstance, getZoom, toggleFullscreen } = useMap();
   const [isFullscreen, setIsFullscreen] = createSignal(false);
 
   const zoomIn = () => {
@@ -197,15 +197,6 @@ function MapControls() {
     }
   };
 
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-      setIsFullscreen(true);
-    } else {
-      document.exitFullscreen();
-      setIsFullscreen(false);
-    }
-  };
 
   // Listen for fullscreen changes
   onMount(() => {
