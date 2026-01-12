@@ -48,6 +48,7 @@ export default function useListNavigation(options) {
     });
   };
 
+
   const selectCurrent = () => {
     const list = getItems();
     const index = selectedIndex();
@@ -68,11 +69,13 @@ export default function useListNavigation(options) {
     return false;
   };
 
-  const reset = () => {
-    setSelectedIndex(initialIndex);
-  };
-
+  const reset = () => setSelectedIndex(initialIndex);
   const isSelected = (index) => selectedIndex() === index;
+  const getSelectedItem = () => {
+    const list = getItems();
+    const index = selectedIndex();
+    return list[index] || null;
+  }
 
   const handleKeyDown = (e) => {
     switch (e.key) {
@@ -128,6 +131,7 @@ export default function useListNavigation(options) {
     selectCurrent,
     selectFirst,
     reset,
+    getSelectedItem,
 
     // Helpers
     isSelected,

@@ -1,10 +1,9 @@
 import { Show, For } from "solid-js";
-import { useSearch } from "../../context/SearchContext";
 import { useMap } from "~/context/MapContext";
 import MapPin from "lucide-solid/icons/map-pin";
 import Navigation from "lucide-solid/icons/navigation";
 import Bookmark from "lucide-solid/icons/bookmark";
-import useCoordinates from "../../utils/useCoordinates";
+import useCoordinates from "../../../utils/useCoordinates";
 
 // Helper to check if item is a saved location (has placeId) vs search result (has geometry)
 const isSavedLocation = (item) => !!item.placeId;
@@ -29,23 +28,23 @@ const getItemInfo = (item) => {
   };
 };
 
-export default function SearchResults() {
-  console.log('SearchResults rendering');
-
-  const {
-    navigableItems,
-    loading,
-    setSelectedIndex,
-    isSelected,
-    selectCurrent,
-  } = useSearch();
-
+/**
+ * SearchResults - Headless search results component
+ * @param {Object} props
+ * @param {any[]} props.items - Array of navigable items
+ * @param {boolean} props.loading - Loading state
+ * @param {() => number} props.selectedIndex - Accessor for selected index
+ * @param {(index: number) => void} props.setSelectedIndex - Set selected index
+ * @param {(index: number) => boolean} props.isSelected - Check if index is selected
+ * @param {(index: number) => void} props.onSelect - Called when item is selected
+ * @param {() => void} props.onReset - Called to reset search
+ */
+export default function SearchResults(props) {
   const handleSelect = (index) => {
-    setSelectedIndex(index);
-    selectCurrent();
+    props.onSelect?.(index);
   };
 
-  const hasResults = () => navigableItems().length > 0;
+  const hasResults = () => props.items?.length > 0;
 
   const getItemIcon = (item, index) => {
     if (isSavedLocation(item)) {
@@ -63,8 +62,8 @@ export default function SearchResults() {
         strokeWidth={1.5}
         class="flex-shrink-0"
         classList={{
-          "text-[var(--text-primary)]": isSelected(index),
-          "text-[var(--text-tertiary)]": !isSelected(index),
+          "text-[var(--text-primary)]": props.isSelected(index),
+          "text-[var(--text-tertiary)]": !props.isSelected(index),
         }}
       />
     );
@@ -73,17 +72,24 @@ export default function SearchResults() {
   const getItemSubtitle = (item) => {
     const info = getItemInfo(item);
     if (info.street) {
-      return <p class="text-xs text-[var(--text-tertiary)] truncate">{info.street}</p>;
+      return (
+        <p class="text-xs text-[var(--text-tertiary)] truncate">
+          {info.street}
+        </p>
+      );
     }
     return null;
   };
 
   return (
     <div class="overflow-y-auto pt-3">
-      <Show when={hasResults()} fallback={<EmptyState />}>
-        <Show when={!loading} fallback={<LoadingState />}>
+      <Show
+        when={hasResults()}
+        fallback={<EmptyState onReset={props.onReset} />}
+      >
+        <Show when={!props.loading} fallback={<LoadingState />}>
           <ul>
-            <For each={navigableItems()}>
+            <For each={props.items}>
               {(item, i) => {
                 const info = getItemInfo(item);
                 return (
@@ -93,8 +99,10 @@ export default function SearchResults() {
                   >
                     <button
                       class="flex items-center transition-colors cursor-pointer text-left w-full hover:bg-[var(--bg-hover)]"
-                      classList={{ "bg-[var(--bg-hover)]": isSelected(i()) }}
-                      onMouseEnter={() => setSelectedIndex(i())}
+                      classList={{
+                        "bg-[var(--bg-hover)]": props.isSelected(i()),
+                      }}
+                      onMouseEnter={() => props.setSelectedIndex(i())}
                       onClick={() => handleSelect(i())}
                     >
                       <div class="flex-1 px-2 py-2.5 flex items-center gap-3 min-w-0">
@@ -103,26 +111,30 @@ export default function SearchResults() {
                           <p
                             class="text-sm truncate"
                             classList={{
-                              "text-[var(--text-primary)] font-medium": isSelected(i()),
-                              "text-[var(--text-secondary)]": !isSelected(i()),
+                              "text-[var(--text-primary)] font-medium":
+                                props.isSelected(i()),
+                              "text-[var(--text-secondary)]":
+                                !props.isSelected(i()),
                             }}
                           >
                             {info.name}
                           </p>
                           {getItemSubtitle(item)}
                         </div>
-                        <DirectionAndDistance coordinates={[info.longitude, info.latitude]} />
+                        <DirectionAndDistance
+                          coordinates={[info.longitude, info.latitude]}
+                        />
                       </div>
                       <div
                         class="pr-3 transition-opacity"
                         classList={{
-                          "opacity-100": isSelected(i()),
-                          "opacity-0": !isSelected(i()),
+                          "opacity-100": props.isSelected(i()),
+                          "opacity-0": !props.isSelected(i()),
                         }}
                       ></div>
                     </button>
                   </li>
-                )
+                );
               }}
             </For>
           </ul>
@@ -141,15 +153,14 @@ function LoadingState() {
   );
 }
 
-function EmptyState() {
-  const { reset } = useSearch();
+function EmptyState(props) {
   return (
     <div class="flex flex-col items-center justify-center gap-4 px-4">
       <p class="text-center text-[var(--text-tertiary)]">
         No results found. Try adjusting your search terms.
       </p>
       <button
-        onClick={reset}
+        onClick={props.onReset}
         class="px-4 py-2 border border-neutral-700 hover:bg-[var(--bg-hover)] rounded text-sm text-[var(--text-primary)] transition-colors"
       >
         Reset Search

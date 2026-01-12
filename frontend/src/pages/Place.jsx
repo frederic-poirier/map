@@ -1,9 +1,9 @@
 import { useParams, useNavigate } from "@solidjs/router";
 import { Show, createEffect, onMount } from "solid-js";
-import { LayoutHeader } from "~/component/layout/Layout";
-import PlaceDetail from "~/component/place/PlaceDetail";
-import SaveLocationButton from "~/component/place/SaveLocationButton";
-import ItineraryButton from "~/component/itinerary/ItineraryButton";
+import { LayoutHeader } from "~/component/features/layout/Layout";
+import PlaceDetail from "~/component/features/place/PlaceDetail";
+import SaveLocationButton from "~/component/features/place/SaveLocationButton";
+import ItineraryButton from "~/component/features/itinerary/ItineraryButton";
 import { usePlace } from "~/context/PlaceContext";
 import { parsePlaceId } from "~/utils/placeId";
 import { useMap } from "~/context/MapContext";

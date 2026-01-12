@@ -1,5 +1,5 @@
 import { useAuth } from "~/context/AuthContext";
-import { LayoutHeader } from "../component/layout/Layout";
+import { LayoutHeader } from "../component/features/layout/Layout";
 import LogOut from "lucide-solid/icons/log-out";
 
 export default function Profile() {
