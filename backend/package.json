@@ -11,7 +11,9 @@
   },
   "scripts": {
     "start": "bun run server.js",
-    "tunnel": "cloudflared tunnel run --url http://127.0.0.1:3000 map-api"
+    "tunnel": "cloudflared tunnel run --url http://127.0.0.1:4000 map-api",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1",

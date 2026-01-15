@@ -19,28 +19,17 @@ export default function Directions() {
   const { flyTo, addMarker } = useMap();
 
   // Initialize destination from URL param
-  onMount(() => {
+  onMount(async () => {
     const toId = searchParams.to;
     if (toId) {
-      const place = getPlaceById(toId);
+      const place = await getPlaceById(toId);
       if (place) {
+        const coordinates = place.geometry.coordinates
         setDestinationPlace(place);
-        flyTo({ lat: place.latitude, lon: place.longitude });
-        addMarker({ lat: place.latitude, lon: place.longitude });
+        flyTo({ lat: coordinates[1], lon: coordinates[0] });
+        addMarker({ lat: coordinates[1], lon: coordinates[0] });
       } else {
-        // Try to parse coordinates from ID
-        const coords = parsePlaceId(toId);
-        if (coords) {
-          setDestinationPlace({
-            id: toId,
-            name: "Selected Location",
-            latitude: coords.lat,
-            longitude: coords.lon,
-            type: "search",
-          });
-          flyTo({ lat: coords.lat, lon: coords.lon });
-          addMarker({ lat: coords.lat, lon: coords.lon });
-        }
+        console.error("Failed to load destination place");
       }
     }
   });
@@ -53,7 +42,6 @@ export default function Directions() {
   return (
     <div class="space-y-4">
       <LayoutHeader title="Directions" onBack={handleBack} />
-
       <DirectionsForm />
 
       <Show when={error()}>

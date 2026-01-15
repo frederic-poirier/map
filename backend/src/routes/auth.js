@@ -1,8 +1,8 @@
 import { Hono } from "hono";
 import { setCookie, deleteCookie, getCookie } from "hono/cookie";
-import { signSession, verifySession } from "../lib/auth-utils";
-import { db } from "../db/db";
-import { users } from "../db/schema";
+import { signSession, verifySession } from "../lib/auth-utils.js";
+import { db } from "../db/db.js";
+import { users } from "../db/schema.js";
 import { eq } from "drizzle-orm";
 import {
     isProd,
@@ -116,6 +116,33 @@ auth.get("/email", async (c) => {
         return c.json({ authenticated: false }, 401);
     }
     return c.json({ authenticated: true, email: usre.email });
+});
+
+auth.get("/refresh", async (c) => {
+    const session = getCookie(c, "auth_session");
+    const userEmail = await verifySession(session);
+
+    if (!userEmail) {
+        return c.json({ error: "Invalid session" }, 401);
+    }
+
+    // Issue a fresh session token
+    const sessionData = await signSession(userEmail);
+
+    const cookieOptions = {
+        httpOnly: true,
+        secure: isProd,
+        sameSite: "Lax",
+        path: "/",
+        maxAge: 60 * 60 * 24 * 7, // 7 days
+    };
+
+    if (isProd && COOKIE_DOMAIN) {
+        cookieOptions.domain = COOKIE_DOMAIN;
+    }
+
+    setCookie(c, "auth_session", sessionData, cookieOptions);
+    return c.json({ authenticated: true, email: userEmail, refreshed: true });
 });
 
 auth.get("/logout", (c) => {

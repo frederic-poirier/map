@@ -13,3 +13,9 @@
     - [ ] Add tags field
     - [ ] Add icon field
     - [ ] Add description field
+
+
+### Directions
+1. Data sharing
+2. ID -> PARSE -> CACHE / FETCH -> USE
+

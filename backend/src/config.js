@@ -15,3 +15,5 @@ export const REDIRECT_URI = isProd
 : process.env.DEV_REDIRECT_URI;
 
 export const ALLOWED_EMAILS = process.env.ALLOWED_EMAILS?.split(",") || [];
+
+export const OSM_VERSION = 0;

@@ -9,13 +9,16 @@ import useKeyboard from "~/utils/useKeyboard";
 import { useMap } from "~/context/MapContext";
 import { usePlace } from "~/context/PlaceContext";
 import { useTheme } from "~/context/ThemeContext";
+import { generatePlaceId } from "~/utils/placeId";
+import { StickySlot, useSheetLayout } from "~/context/SheetLayoutContext";
 
 export default function Explore() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toggleFullscreen, mapInstance } = useMap();
-  const { clearPlace, selectPlace } = usePlace();
   const { toggleTheme } = useTheme();
+  const { addPlaceToCache } = usePlace();
+  const sheetLayout = useSheetLayout();
 
   const [isSearchFocused, setIsSearchFocused] = createSignal(false);
 
@@ -32,10 +35,8 @@ export default function Explore() {
   });
 
   const handleSelectItem = (item) => {
-    const name = item.name || item.properties?.name;
-    search.setQuery(name);
-    const placeId = selectPlace(item);
-    navigate(`/place/${placeId}`);
+    addPlaceToCache(item);
+    navigate(`/place/${generatePlaceId(item)}`);
   };
 
   // List navigation hook
@@ -67,16 +68,24 @@ export default function Explore() {
     escape: () => clearPlace(),
   });
 
+  const handleSearchFocus = () => {
+    setIsSearchFocused(true);
+    // Open sheet smoothly when search is focused
+    sheetLayout?.openSheet?.();
+  };
+
   return (
     <>
-      <SearchInput
-        value={search.query()}
-        onChange={search.setQuery}
-        onKeyDown={navigation.handleKeyDown}
-        onFocus={() => setIsSearchFocused(true)}
-        onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-        onReset={search.reset}
-      />
+      <StickySlot>
+        <SearchInput
+          value={search.query()}
+          onChange={search.setQuery}
+          onKeyDown={navigation.handleKeyDown}
+          onFocus={handleSearchFocus}
+          onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
+          onReset={search.reset}
+        />
+      </StickySlot>
       <Show when={search.query().length >= 3} fallback={<LocationList />}>
         <SearchResults
           items={search.navigableItems()}

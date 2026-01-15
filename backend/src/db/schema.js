@@ -9,8 +9,10 @@ export const users = sqliteTable("users", {
 export const location = sqliteTable("location", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     userId: integer("user_id").notNull().references(() => users.id),
-    latitude: text("latitude").notNull(),
-    longitude: text("longitude").notNull(),
-    timestamp: integer("timestamp").notNull(),
+
     name: text("name").notNull(),
+
+    OSM_object: text("osm_object").notNull(),
+    OSM_version: integer("osm_version").notNull(),
+    timestamp: integer("timestamp").notNull(),
 });

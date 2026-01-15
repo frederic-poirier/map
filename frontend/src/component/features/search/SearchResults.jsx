@@ -1,45 +1,28 @@
 import { Show, For } from "solid-js";
 import { useMap } from "~/context/MapContext";
+import { usePlace } from "~/context/PlaceContext";
 import MapPin from "lucide-solid/icons/map-pin";
 import Navigation from "lucide-solid/icons/navigation";
 import Bookmark from "lucide-solid/icons/bookmark";
 import useCoordinates from "../../../utils/useCoordinates";
+import { getPlaceType } from "../place/placeTypeMap";
 
 // Helper to check if item is a saved location (has placeId) vs search result (has geometry)
-const isSavedLocation = (item) => !!item.placeId;
 
 // Extract display info from either saved location or search result
-const getItemInfo = (item) => {
-  if (isSavedLocation(item)) {
-    return {
-      name: item.name,
-      street: null,
-      latitude: item.latitude,
-      longitude: item.longitude,
-    };
-  }
-  // Search result (GeoJSON feature)
+const getItemInfo = (i) => {
+  const item = i.hasOwnProperty(`GeoJSON`) ? i.GeoJSON : i;
   const props = item.properties || {};
   return {
-    name: props.name,
+    name: i.name || props.name,
     street: props.street,
     latitude: item.geometry?.coordinates[1],
     longitude: item.geometry?.coordinates[0],
   };
 };
 
-/**
- * SearchResults - Headless search results component
- * @param {Object} props
- * @param {any[]} props.items - Array of navigable items
- * @param {boolean} props.loading - Loading state
- * @param {() => number} props.selectedIndex - Accessor for selected index
- * @param {(index: number) => void} props.setSelectedIndex - Set selected index
- * @param {(index: number) => boolean} props.isSelected - Check if index is selected
- * @param {(index: number) => void} props.onSelect - Called when item is selected
- * @param {() => void} props.onReset - Called to reset search
- */
 export default function SearchResults(props) {
+  const { isSavedPlace } = usePlace();
   const handleSelect = (index) => {
     props.onSelect?.(index);
   };
@@ -47,7 +30,7 @@ export default function SearchResults(props) {
   const hasResults = () => props.items?.length > 0;
 
   const getItemIcon = (item, index) => {
-    if (isSavedLocation(item)) {
+    if (isSavedPlace(item.placeId)) {
       return (
         <Bookmark
           size={16}
@@ -56,8 +39,15 @@ export default function SearchResults(props) {
         />
       );
     }
+
+    // Get the appropriate icon based on place type
+    const itemData = item.hasOwnProperty('GeoJSON') ? item.GeoJSON : item;
+    const properties = itemData.properties || {};
+    const placeType = getPlaceType(properties);
+    const IconComponent = placeType.icon;
+
     return (
-      <MapPin
+      <IconComponent
         size={16}
         strokeWidth={1.5}
         class="flex-shrink-0"
@@ -146,9 +136,54 @@ export default function SearchResults(props) {
 }
 
 function LoadingState() {
+  const skeletonItems = Array.from({ length: 25 }, (_, i) => i);
+
+  // Generate random place types for skeleton icons
+  const getRandomPlaceType = () => {
+    const types = [
+      { amenity: "restaurant" },
+      { amenity: "cafe" },
+      { amenity: "school" },
+      { amenity: "hospital" },
+      { shop: "supermarket" },
+      { tourism: "museum" },
+      { amenity: "bank" },
+      { amenity: "parking" },
+    ];
+    return types[Math.floor(Math.random() * types.length)];
+  };
+
   return (
-    <div class="flex items-center justify-center py-4">
-      <div class="w-4 h-4 border-2 border-[var(--text-tertiary)] border-t-[var(--text-primary)] rounded-full animate-spin"></div>
+    <div class="overflow-y-auto pt-3">
+      <ul>
+        <For each={skeletonItems}>
+          {(i) => {
+            const placeType = getRandomPlaceType();
+            const IconComponent = getPlaceType(placeType).icon;
+
+            return (
+              <li class="animate-pulse">
+                <div class="flex items-center transition-colors cursor-pointer text-left w-full hover:bg-[var(--bg-hover)]">
+                  <div class="flex-1 px-2 py-2.5 flex items-center gap-3 min-w-0">
+                    <div class="flex-shrink-0">
+                      <IconComponent
+                        size={16}
+                        strokeWidth={1.5}
+                        class="text-[var(--text-tertiary)] opacity-40"
+                      />
+                    </div>
+                    <div class="flex-1 min-w-0 mr-3">
+                      <div class="h-3.5 bg-[var(--bg-tertiary)] rounded w-3/4 mb-2"></div>
+                      <div class="h-2.5 bg-[var(--bg-secondary)] rounded w-1/2"></div>
+                    </div>
+                    <div class="flex-shrink-0 w-12 h-5 bg-[var(--bg-secondary)] rounded"></div>
+                  </div>
+                </div>
+              </li>
+            );
+          }}
+        </For>
+      </ul>
     </div>
   );
 }

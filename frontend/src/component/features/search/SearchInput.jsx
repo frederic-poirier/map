@@ -38,36 +38,36 @@ export default function SearchInput(props) {
   };
 
   return (
-    <div class="relative">
-      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+    <label class={
+      props.class ||
+      "flex items-center gap-2.5 px-2.5  bg-[var(--bg-secondary)] rounded-xl text-sm text-[var(--text-primary)] focus:outline-none focus:bg-[var(--bg-tertiary)] transition-all placeholder:text-[var(--text-tertiary)] focus-within:shadow-input-shadow focus-within:ring-2 focus-within:ring-[var(--color-primary)]"
+    }>
+      <Show when={!props.icon} fallback={props.icon}>
         <Search
           size={16}
           strokeWidth={1.5}
           class="text-[var(--text-tertiary)]"
         />
-      </div>
+      </Show>
       <input
         ref={inputRef}
         type="text"
+        class="w-full  pr-9 py-2.5 focus:outline-none bg-transparent"
         placeholder={props.placeholder || "Search places..."}
         onFocus={props.onFocus}
         onBlur={props.onBlur}
         onkeydown={handleKeyDown}
         value={props.value}
         onInput={(e) => props.onChange?.(e.target.value)}
-        class={
-          props.class ||
-          "w-full pl-9 pr-9 py-2.5 bg-[var(--bg-secondary)] rounded-xl text-sm text-[var(--text-primary)] focus:outline-none focus:bg-[var(--bg-tertiary)] transition-all placeholder:text-[var(--text-tertiary)]"
-        }
+
       />
       <Show when={props.value}>
         <button
           onClick={clearSearch}
-          class="absolute inset-y-0 right-0 pr-3 flex items-center text-[var(--text-tertiary)] hover:text-[var(--text-secondary)] transition-colors"
         >
           <X size={16} strokeWidth={1.5} />
         </button>
       </Show>
-    </div>
+    </label>
   );
 }

@@ -9,7 +9,7 @@ import {
 } from "solid-js";
 import { useSearchParams, useNavigate } from "@solidjs/router";
 import { usePlace } from "./PlaceContext";
-import { useLocation } from "./LocationContext";
+import { useLocation } from "./SavedLocationsContext";
 import useListNavigation from "../utils/useListNavigation";
 
 const SearchContext = createContext();
@@ -74,13 +74,10 @@ export function SearchProvider(props) {
     return [...matchingSaved, ...res];
   });
 
-  // Selection handler for navigable items
   const handleSelectItem = (item) => {
-    // Get name for query - saved locations have name directly, search results have properties.name
-    const name = item.name || item.properties?.name;
+    const name = item.properties?.name;
     setQuery(name);
 
-    // Pass the whole object to selectPlace, PlaceDetail will extract what it needs
     const placeId = selectPlace(item);
     navigate(`/place/${placeId}`);
   };

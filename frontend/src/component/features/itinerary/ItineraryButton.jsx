@@ -1,4 +1,4 @@
-import Route from "lucide-solid/icons/route";
+import ArrowRight from "lucide-solid/icons/arrow-right";
 
 export default function ItineraryButton(props) {
   const { place, onClick } = props;
@@ -6,13 +6,13 @@ export default function ItineraryButton(props) {
   return (
     <button
       onClick={() => onClick?.(place)}
-      class="w-full flex items-center justify-center gap-2 px-4 py-2.5 
-             bg-blue-600 hover:bg-blue-700 
-             text-white font-medium text-sm 
-             rounded-lg transition-colors"
+      class="w-full flex items-center justify-between px-5 py-4
+             bg-[var(--accent-primary)] hover:bg-[var(--accent-primary)]/90 
+             text-white font-semibold
+             rounded-2xl transition-all active:scale-[0.98] shadow-lg shadow-[var(--accent-primary)]/20"
     >
-      <Route size={16} />
-      <span>Get Directions</span>
+      <span class="text-base">Directions</span>
+      <ArrowRight size={22} strokeWidth={2.5} />
     </button>
   );
 }

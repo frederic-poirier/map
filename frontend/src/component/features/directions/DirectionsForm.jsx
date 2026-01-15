@@ -2,6 +2,7 @@ import { createSignal, Show, createEffect } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
 import { useItinerary } from "~/context/ItineraryContext";
 import { useSearch } from "~/utils/useSearch";
+import { usePlace } from "~/context/PlaceContext";
 import useListNavigation from "~/utils/useListNavigation";
 import SearchInput from "../search/SearchInput";
 import SearchResults from "../search/SearchResults";
@@ -24,59 +25,22 @@ export default function DirectionsForm() {
     planTrip,
   } = useItinerary();
 
-  // Track which field is active: "from" | "to" | null
-  const [activeField, setActiveField] = createSignal(null);
   const [isLocating, setIsLocating] = createSignal(false);
 
-  // Display values for the inputs (shown when not actively searching)
   const [fromDisplay, setFromDisplay] = createSignal(searchParams.from || "");
   const [toDisplay, setToDisplay] = createSignal(searchParams.to || "");
 
-  // Shared search instance - query syncs to searchParams based on active field
-  const search = useSearch({
-    initialQuery: "",
-    onQueryChange: (q) => {
-      const field = activeField();
-      if (field === "from") {
-        setSearchParams({ from: q || undefined }, { replace: true });
-      } else if (field === "to") {
-        setSearchParams({ to: q || undefined }, { replace: true });
-      }
-    },
-    onReset: () => {
-      const field = activeField();
-      if (field === "from") {
-        setSearchParams({ from: undefined }, { replace: true });
-        setFromDisplay("");
-      } else if (field === "to") {
-        setSearchParams({ to: undefined }, { replace: true });
-        setToDisplay("");
-      }
-      navigation.reset();
-    },
-  });
 
   // Handle selection
   const handleSelectItem = (item) => {
     const name = item.name || item.properties?.name;
-    const field = activeField();
-
-    // Build place object
-    const place = item.placeId
-      ? {
-          name: item.name,
-          latitude: parseFloat(item.latitude),
-          longitude: parseFloat(item.longitude),
-          type: "saved",
-        }
-      : {
-          name: item.properties?.name,
-          address: item.properties?.street,
-          city: item.properties?.city,
-          latitude: item.geometry?.coordinates[1],
-          longitude: item.geometry?.coordinates[0],
-          type: "search",
-        };
+    const place = {
+      name: item.properties?.name,
+      address: item.properties?.street,
+      city: item.properties?.city,
+      latitude: item.geometry?.coordinates[1],
+      longitude: item.geometry?.coordinates[0],
+    };
 
     if (field === "from") {
       setOriginPlace(place);
@@ -93,17 +57,6 @@ export default function DirectionsForm() {
   };
 
   // List navigation
-  const navigation = useListNavigation({
-    items: search.navigableItems,
-    onSelect: handleSelectItem,
-    handlers: {
-      onTab: (item) => search.setQuery(item.name || item.properties?.name),
-      onEscape: () => {
-        search.reset();
-        setActiveField(null);
-      },
-    },
-  });
 
   // Handle focus on input
   const handleFocus = (field) => {
@@ -175,8 +128,9 @@ export default function DirectionsForm() {
 
   createEffect(() => {
     const d = destination();
+    console.log(d?.properties.name, toDisplay())
     if (d && !toDisplay()) {
-      setToDisplay(d.name || "Selected Location");
+      setToDisplay(d?.properties.name || "Selected Location");
     }
   });
 
@@ -293,4 +247,101 @@ export default function DirectionsForm() {
       </button>
     </div>
   );
+}
+
+function directionSearch() {
+
+  const search = useSearch({
+    initialQuery: "",
+    onQueryChange: (q) => {
+      const field = activeField();
+      if (field === "from") {
+        setSearchParams({ from: q || undefined }, { replace: true });
+      } else if (field === "to") {
+        setSearchParams({ to: q || undefined }, { replace: true });
+      }
+    },
+    onReset: () => {
+      const field = activeField();
+      if (field === "from") {
+        setSearchParams({ from: undefined }, { replace: true });
+        setFromDisplay("");
+      } else if (field === "to") {
+        setSearchParams({ to: undefined }, { replace: true });
+        setToDisplay("");
+      }
+      navigation.reset();
+    },
+  });
+
+  const navigation = useListNavigation({
+    items: search.navigableItems,
+    onSelect: handleSelectItem,
+    handlers: {
+      onTab: (item) => search.setQuery(item.name || item.properties?.name),
+      onEscape: () => {
+        search.reset();
+        setActiveField(null);
+      },
+    },
+  });
+
+
+  return (
+    <div class="relative">
+      <SearchInput
+        value={activeField() === "to" ? search.query() : toDisplay()}
+        onChange={search.setQuery}
+        onKeyDown={navigation.handleKeyDown}
+        onFocus={() => handleFocus("to")}
+        onBlur={handleBlur}
+        onReset={() => {
+          setToDisplay("");
+          setDestinationPlace(null);
+          search.reset();
+        }}
+        placeholder="Choose destination"
+        icon={<MapPin size={16} class="text-[var(--text-tertiary)]" />}
+      />
+      <Show when={activeField() && search.query().length >= 2}>
+        <div class="relative">
+          {/* Use My Location - only for "from" field */}
+          <Show when={activeField() === "from"}>
+            <button
+              onClick={handleUseMyLocation}
+              class="w-full px-3 py-2 flex items-center gap-2 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-left mb-2"
+            >
+              <Show
+                when={!isLocating()}
+                fallback={
+                  <Loader2
+                    size={14}
+                    class="animate-spin text-[var(--accent-primary)]"
+                  />
+                }
+              >
+                <Crosshair size={14} class="text-[var(--accent-primary)]" />
+              </Show>
+              <span class="text-sm text-[var(--accent-primary)]">
+                Use my location
+              </span>
+            </button>
+          </Show>
+
+          <SearchResults
+            items={search.navigableItems()}
+            loading={search.isLoading()}
+            selectedIndex={navigation.selectedIndex}
+            setSelectedIndex={navigation.setSelectedIndex}
+            isSelected={navigation.isSelected}
+            onSelect={(index) => {
+              navigation.setSelectedIndex(index);
+              navigation.selectCurrent();
+            }}
+            onReset={search.reset}
+          />
+        </div>
+      </Show>
+    </div>
+  )
 }

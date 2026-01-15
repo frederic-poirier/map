@@ -10,7 +10,6 @@ import Minus from "lucide-solid/icons/minus";
 import Compass from "lucide-solid/icons/compass";
 import Maximize2 from "lucide-solid/icons/maximize-2";
 import RefreshCw from "lucide-solid/icons/refresh-cw";
-import Loader from "lucide-solid/icons/loader";
 import AlertTriangle from "lucide-solid/icons/alert-triangle";
 
 export default function Map() {
@@ -127,14 +126,9 @@ export default function Map() {
 
   return (
     <div class="relative h-[100svh] w-[100svw]">
+      {/* Skeleton loading state - subtle background */}
       <Show when={isLoading() && !hasError()}>
-        <div class="absolute inset-0 z-20 bg-[var(--bg-secondary)] flex flex-col items-center justify-center">
-          <Loader
-            size={40}
-            class="animate-spin text-[var(--text-tertiary)] mb-4"
-          />
-          <p class="text-sm text-[var(--text-secondary)]">Loading map...</p>
-        </div>
+        <div class="absolute inset-0 z-20 skeleton" />
       </Show>
 
       {/* Error state */}

@@ -1,55 +1,97 @@
-import { createContext, useContext, createSignal } from "solid-js";
-import { generatePlaceId } from "~/utils/placeId";
+import { createContext, createSignal, createResource, useContext } from "solid-js";
+import { generatePlaceId, parsePlaceId } from "~/utils/placeId";
+import { BACKEND_URL } from "~/config";
 
 const PlaceContext = createContext();
 
-// ID generation and parsing now provided by shared util
-
 export function PlaceProvider(props) {
-  const [selectedPlace, setSelectedPlace] = createSignal(null);
   const [placeCache, setPlaceCache] = createSignal({});
+  const [savedPlaces, { mutate, refetch }] = createResource(async () => {
+    const response = await fetch(`${BACKEND_URL}/api/saved-place`, {
+      credentials: "include",
+    });
+    const data = await response.json();
+    const raw = data.locations || [];
+    return raw.map((loc) => {
+      const GeoJSON = JSON.parse(loc.OSM_object);
+      const placeId = generatePlaceId(GeoJSON);
+      console.log({ placeId, ...GeoJSON, name: loc.name, id: loc.id })
+      return { placeId, ...GeoJSON, name: loc.name, id: loc.id };
+    });
+  });
 
-  const selectPlace = (item) => {
-    if (!item) return;
+  const savePlace = async (name, osmObject) => {
+    const response = await fetch(`${BACKEND_URL}/api/saved-place`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ name, osmObject }),
+    });
 
-    // Normalize: handle both saved locations and search results (GeoJSON features)
-    const isFeature = !!item.geometry;
-
-    const latitude = isFeature
-      ? item.geometry.coordinates[1]
-      : (typeof item.latitude === 'string' ? parseFloat(item.latitude) : item.latitude);
-    const longitude = isFeature
-      ? item.geometry.coordinates[0]
-      : (typeof item.longitude === 'string' ? parseFloat(item.longitude) : item.longitude);
-
-    const id = generatePlaceId(latitude, longitude);
-
-    // Store raw item with normalized coords and id
-    const place = { ...item, id, latitude, longitude };
-
-    // Cache the place data
-    setPlaceCache((prev) => ({ ...prev, [id]: place }));
-    setSelectedPlace(place);
-
-    return id;
+    if (!response.ok) throw new Error("Failed to save place");
+    else await refetch();
   };
 
-  const getPlaceById = (id) => {
+  const unsavePlace = async (id) => {
+    mutate((prev) => prev.filter((loc) => loc.id !== id));
+    const response = await fetch(`${BACKEND_URL}/api/saved-place/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+  };
+
+  const addPlaceToCache = (GeoJSON) => {
+    if (!GeoJSON || getPlaceFromCache(generatePlaceId(GeoJSON))) return;
+    const placeId = generatePlaceId(GeoJSON);
+    setPlaceCache((prev) => ({ ...prev, [placeId]: GeoJSON }));
+  }
+
+  const getPlaceFromCache = (id) => {
     return placeCache()[id] || null;
-  };
+  }
 
-  const clearPlace = () => {
-    setSelectedPlace(null);
-  };
+  const fetchPlaceById = async (id) => {
+    const cached = getPlaceFromCache(id);
+    if (cached) {
+      return Promise.resolve(cached);
+    }
+
+    const place = parsePlaceId(id)
+    if (!place) return Promise.resolve('Error parsing ID')
+    try {
+      const response = await fetch(`${BACKEND_URL}/api/place?lat=${place.lat}&lon=${place.lon}`, { credentials: "include" });
+      if (!response.ok) throw new Error("Failed to fetch place");
+      const data = await response.json();
+      setPlaceCache((prev) => ({ ...prev, [id]: data }));
+      return data;
+    } catch (error) {
+      console.error("Error fetching place by ID:", error);
+      return null;
+    }
+  }
+
+  const isSavedPlace = (id) => {
+    return savedPlaces()?.some((loc) => loc.placeId === id);
+  }
+
+  const getSavedPlaceById = (id) => {
+    return savedPlaces()?.find((loc) => loc.placeId === id) || null;
+  }
 
   return (
     <PlaceContext.Provider
       value={{
-        selectedPlace,
-        selectPlace,
-        clearPlace,
-        getPlaceById,
-        generatePlaceId,
+        // Saved places
+        savedPlaces,
+        savePlace,
+        unsavePlace,
+        isSavedPlace,
+        getSavedPlaceById,
+        // Regular places cache
+        placeCache,
+        addPlaceToCache,
+        getPlaceFromCache,
+        fetchPlaceById
       }}
     >
       {props.children}
@@ -57,7 +99,7 @@ export function PlaceProvider(props) {
   );
 }
 
-export function usePlace() {
+export const usePlace = () => {
   const context = useContext(PlaceContext);
   if (!context) {
     throw new Error("usePlace must be used within a PlaceProvider");

@@ -189,3 +189,41 @@ export const typeMap = {
     leisure: { icon: TreePine, label: "Leisure", color: "text-green-400" },
     tourism: { icon: Landmark, label: "Tourism", color: "text-amber-400" },
   };
+
+
+export function getPlaceType(properties) {
+  // First, check for Photon API format (osm_key:osm_value)
+  if (properties.osm_key && properties.osm_value) {
+    const photonKey = `${properties.osm_key}:${properties.osm_value}`;
+    if (typeMap[photonKey]) {
+      return typeMap[photonKey];
+    }
+    // Try generic osm_key fallback
+    if (typeMap[properties.osm_key]) {
+      return typeMap[properties.osm_key];
+    }
+  }
+
+  // Check for direct property matches (e.g., amenity: "restaurant")
+  for (const key of Object.keys(typeMap)) {
+    const [propKey, propValue] = key.split(":");
+    if (properties[propKey] === propValue) {
+      return typeMap[key];
+    }
+  }
+
+  // Fallback to generic category
+  for (const key of Object.keys(typeMap)) {
+    const [propKey] = key.split(":");
+    if (properties[propKey]) {
+      return typeMap[key];
+    }
+  }
+
+  // Default fallback
+  return {
+    icon: MapPin,
+    label: "Place",
+    color: "text-gray-400",
+  };
+}

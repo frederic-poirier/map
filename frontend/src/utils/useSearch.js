@@ -1,20 +1,10 @@
 import { createSignal, createResource, createMemo } from "solid-js";
-import { useLocation } from "~/context/LocationContext";
+import { BACKEND_URL } from "~/config";
+import { usePlace } from "~/context/PlaceContext";
 
-const BACKEND_URL = import.meta.env.DEV
-  ? "http://localhost:4000"
-  : "https://backend.frederic.dog";
 
-/**
- * useSearch - Multi-source search orchestrator
- * @param {Object} options
- * @param {string} options.initialQuery - Initial search query
- * @param {(query: string) => void} options.onQueryChange - Callback when query changes
- * @param {() => void} options.onReset - Callback when search is reset
- */
 export function useSearch(options = {}) {
-  const { locations } = useLocation();
-
+  const { savedPlaces } = usePlace();
   const [query, setQueryInternal] = createSignal(options.initialQuery || "");
 
   // Wrapper to call onQueryChange callback
@@ -38,18 +28,26 @@ export function useSearch(options = {}) {
 
   // Merge saved locations and search results into navigable items
   const navigableItems = createMemo(() => {
-    const locs = locations() || [];
+    const saved = savedPlaces() || [];
     const q = query();
     const photon = photonResults() || [];
 
     // Filter saved locations that match query (2+ chars)
-    const matchingSaved =
+    const matchingSavedByName =
       q.length >= 2
-        ? locs.filter((loc) => loc.name.toLowerCase().includes(q.toLowerCase()))
+        ? saved.filter((loc) => loc.name.toLowerCase().includes(q.toLowerCase()))
+        : [];
+
+    const matchingSavedByAddress =
+      q.length >= 2
+        ? saved.filter((loc) => {
+            const addr = loc.properties?.street + " " + loc.properties?.housenumber  || "";
+            return addr.toLowerCase().includes(q.toLowerCase());
+          })
         : [];
 
     // Combine: saved first, then search results
-    return [...matchingSaved, ...photon];
+    return [...matchingSavedByName, ...matchingSavedByAddress, ...photon];
   });
 
   const isLoading = () => photonResults.loading;

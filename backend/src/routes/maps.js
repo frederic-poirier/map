@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import { db } from "../db/db.js";
 import * as schema from "../db/schema.js";
 import { eq, and } from "drizzle-orm";
+import { OSM_VERSION } from "../config.js";
 
 const maps = new Hono();
 
@@ -14,6 +15,7 @@ const generatePlaceId = (lat, lon) => {
 
 // OTP GraphQL endpoint
 const OTP_URL = process.env.OTP_URL || "http://localhost:8080";
+
 
 // OTP trip planning GraphQL query
 const PLAN_QUERY = `
@@ -155,30 +157,50 @@ maps.get("/search", async (c) => {
     }
 });
 
-maps.post("/location", async (c) => {
-    const { latitude, longitude, name } = await c.req.json();
+maps.post("/saved-place", async (c) => {
+    const { name, osmObject } = await c.req.json();
     const userId = c.get("userId");
-    if (!latitude || !longitude || !name) {
+    if (!osmObject || !name) {
         return c.json({ error: "Missing required fields" }, 400);
     }
     try {
         const timestamp = Date.now();
         await db.insert(schema.location).values({
             userId,
-            latitude,
-            longitude,
+            OSM_object: JSON.stringify(osmObject),
+            OSM_version: OSM_VERSION,
             name,
-            timestamp,
+            timestamp,        
         });
-        const placeId = generatePlaceId(latitude, longitude);
-        return c.json({ success: true, placeId });
+
+        return c.json({ success: true });
     } catch (error) {
-        console.log("Error saving location:", error);
-        return c.json({ error: "Error saving location" }, 500);
+        console.error("Error saving location:", error.message, error.stack);
+        return c.json({ error: error.message || "Error saving location" }, 500);
     }
 });
 
-maps.get("/locations", async (c) => {
+
+maps.get("/place", async (c) => {
+    const lat = c.req.query("lat");
+    const lon = c.req.query("lon");
+
+    if (!lat || !lon) return c.json({ results: [] })
+
+    try {
+        const photonURL = new URL("http://0.0.0.0:5000/reverse");
+        photonURL.searchParams.set("lat", lat)
+        photonURL.searchParams.set("lon", lon)
+        const response = await fetch(photonURL.toString());
+        const data = await response.json();
+        return c.json(data.features[0]);
+    } catch (error) {
+        console.log("Error fetching search results:", error);
+        return c.json({ error: "Error fetching search results" }, 500);
+    }
+})
+
+maps.get("/saved-place", async (c) => {
     const userId = c.get("userId");
     try {
         const rows = await db
@@ -186,25 +208,20 @@ maps.get("/locations", async (c) => {
             .from(schema.location)
             .where(eq(schema.location.userId, userId))
             .orderBy(schema.location.timestamp);
-        const locations = rows.map((loc) => {
-          const latitude = typeof loc.latitude === "string" ? parseFloat(loc.latitude) : loc.latitude;
-          const longitude = typeof loc.longitude === "string" ? parseFloat(loc.longitude) : loc.longitude;
-          const placeId = generatePlaceId(latitude, longitude);
-          return { ...loc, latitude, longitude, placeId };
-        });
+        const locations = rows.map((loc) => { return { ...loc }; });
         return c.json({ locations });
     } catch (error) {
-        console.log("Error fetching locations:", error);
-        return c.json({ error: "Error fetching locations" }, 500);
+        console.log("Error fetching places:", error);
+        return c.json({ error: "Error fetching saved places" }, 500);
     }
 });
 
-maps.delete("/location/:id", async (c) => {
+maps.delete("/saved-place/:id", async (c) => {
     const userId = c.get("userId");
-    const locationId = c.req.param("id");
+    const placeId = c.req.param("id");
     
-    if (!locationId) {
-        return c.json({ error: "Missing location ID" }, 400);
+    if (!placeId) {
+        return c.json({ error: "Missing place ID" }, 400);
     }
     
     try {
@@ -212,14 +229,14 @@ maps.delete("/location/:id", async (c) => {
             .delete(schema.location)
             .where(
                 and(
-                    eq(schema.location.id, locationId),
+                    eq(schema.location.id, placeId),
                     eq(schema.location.userId, userId)
                 )
             );
         return c.json({ success: true });
     } catch (error) {
-        console.log("Error deleting location:", error);
-        return c.json({ error: "Error deleting location" }, 500);
+        console.log("Error unsaving place:", error);
+        return c.json({ error: "Error unsaving place" }, 500);
     }
 });
 
