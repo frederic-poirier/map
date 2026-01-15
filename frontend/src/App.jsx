@@ -5,6 +5,7 @@ import Profile from "./pages/Profile";
 import Place from "./pages/Place";
 import Directions from "./pages/Directions";
 import Login from "./pages/Login";
+import Test from "./pages/Test";
 import { ThemeProvider } from "./context/ThemeContext";
 
 // Minimal wrapper for login page (no auth required)
@@ -24,6 +25,7 @@ export default function App() {
         <Route path="/profile" component={() => <Profile />} />
         <Route path="/place/:id" component={Place} />
         <Route path="/directions" component={Directions} />
+        <Route path="/test" component={Test} />
       </Route>
     </Router>
   );

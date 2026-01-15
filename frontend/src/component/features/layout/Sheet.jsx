@@ -9,7 +9,6 @@ const SheetContext = createContext();
  */
 function Sheet(props) {
     let peekRef, trayRef, sheetRef;
-    let canScroll = false;
 
     const sheetLayout = useSheetLayout();
     const [peekHeight, setPeekHeight] = createSignal(props.peekHeight ?? 120);
@@ -104,40 +103,9 @@ function Sheet(props) {
 
         trayRef.addEventListener('scroll', handleScroll, { passive: true });
 
-        // Prevent scrolling when interaction starts outside the sheet
-        const onWheel = (e) => {
-            if (!sheetRef) return;
-            const sheetRect = sheetRef.getBoundingClientRect();
-            // If mouse is above the sheet, prevent scroll
-            if (e.clientY < sheetRect.top) {
-                e.preventDefault();
-            }
-        };
-
-        const onTouchStart = (e) => {
-            if (!sheetRef) return;
-            const touch = e.touches[0];
-            const sheetRect = sheetRef.getBoundingClientRect();
-            // Allow scroll only if touch starts on the sheet
-            canScroll = touch.clientY >= sheetRect.top;
-        };
-
-        const onTouchMove = (e) => {
-            if (!canScroll) {
-                e.preventDefault();
-            }
-        };
-
-        trayRef.addEventListener('wheel', onWheel, { passive: false });
-        trayRef.addEventListener('touchstart', onTouchStart, { passive: true });
-        trayRef.addEventListener('touchmove', onTouchMove, { passive: false });
-
         onCleanup(() => {
             resizeObserver.disconnect();
             trayRef.removeEventListener('scroll', handleScroll);
-            trayRef.removeEventListener('wheel', onWheel);
-            trayRef.removeEventListener('touchstart', onTouchStart);
-            trayRef.removeEventListener('touchmove', onTouchMove);
             clearTimeout(scrollTimeout);
             sheetLayout?.setSheetRef?.(null);
         });
@@ -173,7 +141,7 @@ function Sheet(props) {
                     <div class="sheet-spacer"></div>
 
                     {/* SHEET PANEL */}
-                    <div ref={sheetRef} class="sheet-panel bg-[var(--bg-primary)] rounded-t-2xl sticky top-0 shadow-[0_-2px_16px_rgba(0,0,0,0.08),0_0_32px_rgba(0,0,0,0.04)] dark:shadow-[0_-2px_16px_rgba(0,0,0,0.4),0_0_32px_rgba(0,0,0,0.2)] pointer-events-auto">
+                    <div ref={sheetRef} class="sheet-panel bg-[var(--bg-primary)] rounded-t-2xl sticky top-0 shadow-[0_-2px_16px_rgba(0,0,0,0.08),0_0_32px_rgba(0,0,0,0.04)] dark:shadow-[0_-2px_16px_rgba(0,0,0,0.4),0_0_32px_rgba(0,0,0,0.2)]">
                         {/* Open snap point - invisible anchor */}
                         <div class="sheet-open-anchor"></div>
                         <div ref={peekRef} class="sticky top-0 bg-[var(--bg-primary)] rounded-t-2xl z-10">

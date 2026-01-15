@@ -12,10 +12,10 @@
     scroll-snap-type: none;
     scrollbar-width: none;
     overscroll-behavior: contain;
-    pointer-events: none;
     border-radius: 2rem 2rem 0 0;
     z-index: 100;
-    scroll-behavior: smooth;
+    /* Touch action allows vertical scrolling */
+    touch-action: pan-y;
 }
 
 .sheet-tray.snap-enabled {
@@ -32,6 +32,7 @@
     height: var(--spacer-closed-h);
     scroll-snap-align: start;
     scroll-snap-stop: always;
+    /* Let touches pass through to map */
     pointer-events: none;
 }
 
