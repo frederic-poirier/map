@@ -20,6 +20,21 @@ function Sheet(props) {
 
   const sheetLayout = useSheetLayout();
 
+  // Touch handling state
+  let touchStartY = 0;
+  let touchStartScroll = 0;
+
+  const handleTouchStart = (e) => {
+    touchStartY = e.touches[0].clientY;
+    touchStartScroll = trayRef?.scrollTop ?? 0;
+  };
+
+  const handleTouchMove = (e) => {
+    if (!trayRef) return;
+    const deltaY = touchStartY - e.touches[0].clientY;
+    trayRef.scrollTop = touchStartScroll + deltaY;
+  };
+
   // Parse snap points from props (default: ['auto', 40, 90])
   const snapPoints = () => props.snapPoints ?? ['auto', 40, 90];
 
@@ -242,7 +257,7 @@ function Sheet(props) {
         {/* TRAY CONTAINER - Height = max snap point, positioned at bottom */}
         <div
           ref={trayRef}
-          class="tray fixed rounded-t-3xl inset-x-0 bottom-0 z-100 overflow-y-auto overscroll-contain touch-pan-y pointer-events-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
+          class="tray fixed rounded-t-3xl inset-x-0 bottom-0 z-100 overflow-y-auto overscroll-contain touch-none pointer-events-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
           classList={{
             'snap-y snap-mandatory': snapEnabled(),
           }}
@@ -267,8 +282,10 @@ function Sheet(props) {
           {/* SHEET PANEL - sticky header, content flows naturally */}
           <div
             ref={sheetRef}
-            class="bg-[var(--bg-primary)] rounded-t-3xl pointer-events-auto shadow-[0_-2px_16px_rgba(0,0,0,0.08),0_0_32px_rgba(0,0,0,0.04)] dark:shadow-[0_-2px_16px_rgba(0,0,0,0.4),0_0_32px_rgba(0,0,0,0.2)]"
+            class="bg-[var(--bg-primary)] rounded-t-3xl pointer-events-auto touch-pan-y shadow-[0_-2px_16px_rgba(0,0,0,0.08),0_0_32px_rgba(0,0,0,0.04)] dark:shadow-[0_-2px_16px_rgba(0,0,0,0.4),0_0_32px_rgba(0,0,0,0.2)]"
             style={{ 'min-height': 'var(--sheet-min-height)' }}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
           >
             {/* Peek/Header area - sticky */}
             <div
