@@ -16,7 +16,6 @@ const generatePlaceId = (lat, lon) => {
 // OTP GraphQL endpoint
 const OTP_URL = process.env.OTP_URL || "http://localhost:8080";
 
-
 // OTP trip planning GraphQL query
 const PLAN_QUERY = `
 query Plan($from: InputCoordinates!, $to: InputCoordinates!, $numItineraries: Int, $time: String, $date: String) {
@@ -92,6 +91,14 @@ maps.post("/otp/plan", async (c) => {
             return c.json({ error: "Missing required coordinates" }, 400);
         }
 
+        console.log("Planning trip with variables:", {
+            from,
+            to,
+            time,
+            date,
+            numItineraries,
+        });
+
         const variables = {
             from: { lat: from.lat, lon: from.lon },
             to: { lat: to.lat, lon: to.lon },
@@ -121,7 +128,10 @@ maps.post("/otp/plan", async (c) => {
 
         if (data.errors) {
             console.error("OTP GraphQL errors:", data.errors);
-            return c.json({ error: data.errors[0]?.message || "Failed to plan trip" }, 500);
+            return c.json(
+                { error: data.errors[0]?.message || "Failed to plan trip" },
+                500
+            );
         }
 
         return c.json(data.data.plan);
@@ -143,7 +153,7 @@ maps.get("/search", async (c) => {
     try {
         const photonURL = new URL("http://0.0.0.0:5000/api");
         photonURL.searchParams.set("q", query);
-        photonURL.searchParams.set("limit", "5");
+        photonURL.searchParams.set("limit", "15");
         photonURL.searchParams.set("lat", lat);
         photonURL.searchParams.set("lon", lon);
         photonURL.searchParams.set("location_bias_scale", scale);
@@ -170,7 +180,7 @@ maps.post("/saved-place", async (c) => {
             OSM_object: JSON.stringify(osmObject),
             OSM_version: OSM_VERSION,
             name,
-            timestamp,        
+            timestamp,
         });
 
         return c.json({ success: true });
@@ -180,17 +190,16 @@ maps.post("/saved-place", async (c) => {
     }
 });
 
-
 maps.get("/place", async (c) => {
     const lat = c.req.query("lat");
     const lon = c.req.query("lon");
 
-    if (!lat || !lon) return c.json({ results: [] })
+    if (!lat || !lon) return c.json({ results: [] });
 
     try {
         const photonURL = new URL("http://0.0.0.0:5000/reverse");
-        photonURL.searchParams.set("lat", lat)
-        photonURL.searchParams.set("lon", lon)
+        photonURL.searchParams.set("lat", lat);
+        photonURL.searchParams.set("lon", lon);
         const response = await fetch(photonURL.toString());
         const data = await response.json();
         return c.json(data.features[0]);
@@ -198,7 +207,7 @@ maps.get("/place", async (c) => {
         console.log("Error fetching search results:", error);
         return c.json({ error: "Error fetching search results" }, 500);
     }
-})
+});
 
 maps.get("/saved-place", async (c) => {
     const userId = c.get("userId");
@@ -208,7 +217,9 @@ maps.get("/saved-place", async (c) => {
             .from(schema.location)
             .where(eq(schema.location.userId, userId))
             .orderBy(schema.location.timestamp);
-        const locations = rows.map((loc) => { return { ...loc }; });
+        const locations = rows.map((loc) => {
+            return { ...loc };
+        });
         return c.json({ locations });
     } catch (error) {
         console.log("Error fetching places:", error);
@@ -219,11 +230,11 @@ maps.get("/saved-place", async (c) => {
 maps.delete("/saved-place/:id", async (c) => {
     const userId = c.get("userId");
     const placeId = c.req.param("id");
-    
+
     if (!placeId) {
         return c.json({ error: "Missing place ID" }, 400);
     }
-    
+
     try {
         const result = await db
             .delete(schema.location)

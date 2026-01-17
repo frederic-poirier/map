@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from "@solidjs/router";
-import { Show, createEffect, createResource, onCleanup, For, createMemo } from "solid-js";
+import { Show, createEffect, createResource, onCleanup, createSignal, createMemo } from "solid-js";
 import { LayoutHeader } from "~/component/features/layout/Layout";
 import SaveLocationButton from "~/component/features/place/SaveLocationButton";
 import ItineraryButton from "~/component/features/itinerary/ItineraryButton";
@@ -14,9 +14,6 @@ import Phone from "lucide-solid/icons/phone";
 import Globe from "lucide-solid/icons/globe";
 import Clock from "lucide-solid/icons/clock";
 import Mail from "lucide-solid/icons/mail";
-import Star from "lucide-solid/icons/star";
-import Building2 from "lucide-solid/icons/building-2";
-import Layers from "lucide-solid/icons/layers";
 import Hash from "lucide-solid/icons/hash";
 import Wifi from "lucide-solid/icons/wifi";
 import Accessibility from "lucide-solid/icons/accessibility";
@@ -25,7 +22,7 @@ import CreditCard from "lucide-solid/icons/credit-card";
 import ExternalLink from "lucide-solid/icons/external-link";
 import Copy from "lucide-solid/icons/copy";
 import Check from "lucide-solid/icons/check";
-import { createSignal } from "solid-js";
+import { useSheetLayout } from "~/context/SheetLayoutContext";
 
 export default function Place() {
   const params = useParams();
@@ -33,8 +30,9 @@ export default function Place() {
   const { fetchPlaceById, getSavedPlaceById } = usePlace();
   const { flyTo, addMarker, removeMarker } = useMap();
 
-  const [place, { refetch }] = createResource(() => params.id, fetchPlaceById);
+  const [place] = createResource(() => params.id, fetchPlaceById);
   const [copiedField, setCopiedField] = createSignal(null);
+  const sheet = useSheetLayout()
 
   // Get saved place data (for custom name)
   const savedPlace = createMemo(() => getSavedPlaceById(params.id));
@@ -52,8 +50,9 @@ export default function Place() {
       lastPlace = place();
       const lat = place().geometry.coordinates[1];
       const lon = place().geometry.coordinates[0];
-      flyTo({ lat, lon });
+      flyTo({ lat, lon }, -0.4);
       addMarker({ lat, lon });
+      sheet.snapTo(1)
     }
   });
 

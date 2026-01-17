@@ -38,10 +38,12 @@ export default function SearchInput(props) {
   };
 
   return (
-    <label class={
-      props.class ||
-      "flex items-center gap-2.5 px-2.5  bg-[var(--bg-secondary)] rounded-xl text-sm text-[var(--text-primary)] focus:outline-none focus:bg-[var(--bg-tertiary)] transition-all placeholder:text-[var(--text-tertiary)] focus-within:shadow-input-shadow focus-within:ring-2 focus-within:ring-[var(--color-primary)]"
-    }>
+    <label
+      class={
+        props.class ||
+        "flex flex-1 items-center gap-2.5 px-2.5  bg-[var(--bg-secondary)] rounded-xl text-sm text-[var(--text-primary)] focus:outline-none focus:bg-[var(--bg-tertiary)] transition-all placeholder:text-[var(--text-tertiary)] focus-within:shadow-input-shadow focus-within:ring-2 focus-within:ring-[var(--color-primary)]"
+      }
+    >
       <Show when={!props.icon} fallback={props.icon}>
         <Search
           size={16}
@@ -59,12 +61,9 @@ export default function SearchInput(props) {
         onkeydown={handleKeyDown}
         value={props.value}
         onInput={(e) => props.onChange?.(e.target.value)}
-
       />
       <Show when={props.value}>
-        <button
-          onClick={clearSearch}
-        >
+        <button onClick={clearSearch}>
           <X size={16} strokeWidth={1.5} />
         </button>
       </Show>

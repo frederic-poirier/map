@@ -1,11 +1,7 @@
 import { createContext, useContext, createSignal } from "solid-js";
+import { BACKEND_URL } from "~/config";
 
 const ItineraryContext = createContext();
-
-// Backend URL based on environment
-const BACKEND_URL = import.meta.env.DEV
-  ? "http://localhost:4000"
-  : "https://backend.frederic.dog";
 
 export function ItineraryProvider(props) {
   const [origin, setOrigin] = createSignal(null);
@@ -42,8 +38,8 @@ export function ItineraryProvider(props) {
   };
 
   const planTrip = async (options = {}) => {
-    const from = origin();
-    const to = destination();
+    const from = origin().geometry.coordinates;
+    const to = destination().geometry.coordinates;
 
     if (!from || !to) {
       setError("Please select both origin and destination");
@@ -55,11 +51,14 @@ export function ItineraryProvider(props) {
     setItinerary(null);
 
     try {
-      // Ensure coordinates are numbers
-      const fromLat = typeof from.latitude === 'string' ? parseFloat(from.latitude) : from.latitude;
-      const fromLon = typeof from.longitude === 'string' ? parseFloat(from.longitude) : from.longitude;
-      const toLat = typeof to.latitude === 'string' ? parseFloat(to.latitude) : to.latitude;
-      const toLon = typeof to.longitude === 'string' ? parseFloat(to.longitude) : to.longitude;
+      const fromLat =
+        typeof from[1] === "string" ? parseFloat(from[1]) : from[1];
+      const fromLon =
+        typeof from[0] === "string" ? parseFloat(from[0]) : from[0];
+      const toLat = typeof to[1] === "string" ? parseFloat(to[1]) : to[1];
+      const toLon = typeof to[0] === "string" ? parseFloat(to[0]) : to[0];
+
+      console.log(fromLat, fromLon, toLat, toLon);
 
       const response = await fetch(`${BACKEND_URL}/api/otp/plan`, {
         method: "POST",
@@ -104,7 +103,7 @@ export function ItineraryProvider(props) {
     itinerary,
     isLoading,
     error,
-    
+
     // Actions
     setOriginPlace,
     setDestinationPlace,

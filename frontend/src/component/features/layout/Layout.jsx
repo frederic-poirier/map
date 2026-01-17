@@ -12,7 +12,8 @@ import Map from "../../Map";
 import { A } from "@solidjs/router";
 import { Show, createSignal, onMount, onCleanup } from "solid-js";
 import { useAuth } from "~/context/AuthContext";
-import Sheet from "./Sheet";
+import { Sheet } from "./Sheet";
+import { Toaster } from 'solid-toast'
 import "~/css/Sheet.css";
 
 export default function Layout(props) {
@@ -20,6 +21,7 @@ export default function Layout(props) {
     <ThemeProvider>
       <AuthProvider>
         <MapProvider>
+          <Toaster />
           <div class="overflow-hidden">
             <Map />
             <LayoutContent>{props.children}</LayoutContent>
@@ -86,7 +88,11 @@ function MobileSheet(props) {
   );
 
   return (
-    <Sheet header={header} sticky={sticky}>
+    <Sheet
+      snapPoints={['auto', 40, 80]}  // ← AJOUTÉ
+      header={header}
+      sticky={sticky}
+    >
       <Sheet.Content>
         <Show when={props.user()} fallback={<ContentSkeleton />}>
           {props.children}

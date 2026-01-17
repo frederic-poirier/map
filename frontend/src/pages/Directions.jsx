@@ -11,10 +11,17 @@ import ItineraryList from "~/component/features/directions/ItineraryList";
 export default function Directions() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { getPlaceById } = usePlace();
+  const { getPlaceFromCache, fetchPlaceById } = usePlace();
   const {
-    origin, destination, itinerary, isLoading, error,
-    setOriginPlace, setDestinationPlace, planTrip, clearItinerary
+    origin,
+    destination,
+    itinerary,
+    isLoading,
+    error,
+    setOriginPlace,
+    setDestinationPlace,
+    planTrip,
+    clearItinerary,
   } = useItinerary();
   const { flyTo, addMarker } = useMap();
 
@@ -22,9 +29,22 @@ export default function Directions() {
   onMount(async () => {
     const toId = searchParams.to;
     if (toId) {
-      const place = await getPlaceById(toId);
+      const place = await getPlaceFromCache(toId);
+      if (!place) {
+        fetchPlaceById(toId).then((fetchedPlace) => {
+          if (fetchedPlace) {
+            const coordinates = fetchedPlace.geometry.coordinates;
+            setDestinationPlace(fetchedPlace);
+            flyTo({ lat: coordinates[1], lon: coordinates[0] });
+            addMarker({ lat: coordinates[1], lon: coordinates[0] });
+          } else {
+            console.error("Failed to load destination place");
+          }
+        });
+        return;
+      }
       if (place) {
-        const coordinates = place.geometry.coordinates
+        const coordinates = place.geometry.coordinates;
         setDestinationPlace(place);
         flyTo({ lat: coordinates[1], lon: coordinates[0] });
         addMarker({ lat: coordinates[1], lon: coordinates[0] });
@@ -40,7 +60,7 @@ export default function Directions() {
   };
 
   return (
-    <div class="space-y-4">
+    <div class="space-y-4 h-full">
       <LayoutHeader title="Directions" onBack={handleBack} />
       <DirectionsForm />
 

@@ -1,4 +1,4 @@
-import { Show, createSignal } from "solid-js";
+import { createEffect, createSignal, Show } from "solid-js";
 import { useSearchParams, useNavigate } from "@solidjs/router";
 import SearchInput from "~/component/features/search/SearchInput";
 import SearchResults from "~/component/features/search/SearchResults";
@@ -11,21 +11,28 @@ import { usePlace } from "~/context/PlaceContext";
 import { useTheme } from "~/context/ThemeContext";
 import { generatePlaceId } from "~/utils/placeId";
 import { StickySlot, useSheetLayout } from "~/context/SheetLayoutContext";
+import useCoordinates from "~/utils/useCoordinates";
+import RefreshCcw from "lucide-solid/icons/refresh-ccw";
 
 export default function Explore() {
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { toggleFullscreen, mapInstance } = useMap();
+  const { toggleFullscreen, mapInstance, clearPlace, moveEndEvent, getCenter } =
+    useMap();
   const { toggleTheme } = useTheme();
   const { addPlaceToCache } = usePlace();
   const sheetLayout = useSheetLayout();
+  const { getDistance } = useCoordinates();
 
-  const [isSearchFocused, setIsSearchFocused] = createSignal(false);
+  const [center, setCenter] = createSignal(getCenter());
+  const [showRefreshButton, setShowRefreshButton] = createSignal(false);
 
   // Search hook - handles query, fetching, merging locations + results
   const search = useSearch({
     initialQuery: searchParams.q || "",
     onQueryChange: (q) => {
+      setCenter(getCenter());
+      setShowRefreshButton(false);
       setSearchParams({ q: q.length >= 3 ? q : undefined }, { replace: true });
     },
     onReset: () => {
@@ -55,6 +62,16 @@ export default function Explore() {
     },
   });
 
+  createEffect(() => {
+    const event = moveEndEvent();
+    if (event) {
+      if (getDistance(getCenter(), center(), false) > 50) {
+        setShowRefreshButton(true);
+      } else {
+        setShowRefreshButton(false);
+      }
+    }
+  });
   // Global keyboard shortcuts
   useKeyboard({
     "/": () => document.querySelector('input[placeholder*="Search"]')?.focus(),
@@ -68,23 +85,34 @@ export default function Explore() {
     escape: () => clearPlace(),
   });
 
-  const handleSearchFocus = () => {
-    setIsSearchFocused(true);
-    // Open sheet smoothly when search is focused
-    sheetLayout?.openSheet?.();
-  };
+  const handleSearchFocus = () => sheetLayout?.openSheet?.();
 
   return (
     <>
       <StickySlot>
-        <SearchInput
-          value={search.query()}
-          onChange={search.setQuery}
-          onKeyDown={navigation.handleKeyDown}
-          onFocus={handleSearchFocus}
-          onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-          onReset={search.reset}
-        />
+        <div class="flex gap-2 items-center">
+          <SearchInput
+            value={search.query()}
+            onChange={search.setQuery}
+            onKeyDown={navigation.handleKeyDown}
+            onFocus={handleSearchFocus}
+            onReset={search.reset}
+          />
+          <Show when={showRefreshButton()}>
+            <button
+              class="flex items-center aspect-square justify-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium rounded-xl p-1 transition-colors"
+              onClick={() => {
+                setCenter(getCenter());
+                setShowRefreshButton(false);
+                search.setQuery(search.query());
+                search.refetch();
+                sheetLayout.snapTo(1);
+              }}
+            >
+              <RefreshCcw class="w-4 h-4" />
+            </button>
+          </Show>
+        </div>
       </StickySlot>
       <Show when={search.query().length >= 3} fallback={<LocationList />}>
         <SearchResults

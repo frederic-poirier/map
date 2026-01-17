@@ -160,7 +160,7 @@ export default function Map() {
       </Show>
 
       {/* Map container */}
-      <div ref={(el) => (mapContainer = el)} class="w-full h-full" />
+      <div ref={(el) => (mapContainer = el)} class="w-full h-full touch-none" />
 
       {/* Map controls */}
       <Show when={!hasError() && !isLoading()}>

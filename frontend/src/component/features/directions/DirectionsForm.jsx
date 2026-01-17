@@ -1,240 +1,45 @@
-import { createSignal, Show, createEffect } from "solid-js";
+import { createSignal, onMount, Show } from "solid-js";
 import { useSearchParams } from "@solidjs/router";
 import { useItinerary } from "~/context/ItineraryContext";
 import { useSearch } from "~/utils/useSearch";
-import { usePlace } from "~/context/PlaceContext";
 import useListNavigation from "~/utils/useListNavigation";
 import SearchInput from "../search/SearchInput";
 import SearchResults from "../search/SearchResults";
 import MapPin from "lucide-solid/icons/map-pin";
-import Navigation from "lucide-solid/icons/navigation";
-import ArrowUpDown from "lucide-solid/icons/arrow-up-down";
-import Crosshair from "lucide-solid/icons/crosshair";
 import Search from "lucide-solid/icons/search";
 import Loader2 from "lucide-solid/icons/loader-2";
+import { generatePlaceId } from "~/utils/placeId";
+import { usePlace } from "~/context/PlaceContext";
 
 export default function DirectionsForm() {
-  const [searchParams, setSearchParams] = useSearchParams();
   const {
     origin,
     destination,
     isLoading,
+    planTrip,
     setOriginPlace,
     setDestinationPlace,
-    swapOriginDestination,
-    planTrip,
   } = useItinerary();
+  const [activeField, setActiveField] = createSignal(null);
 
-  const [isLocating, setIsLocating] = createSignal(false);
-
-  const [fromDisplay, setFromDisplay] = createSignal(searchParams.from || "");
-  const [toDisplay, setToDisplay] = createSignal(searchParams.to || "");
-
-
-  // Handle selection
-  const handleSelectItem = (item) => {
-    const name = item.name || item.properties?.name;
-    const place = {
-      name: item.properties?.name,
-      address: item.properties?.street,
-      city: item.properties?.city,
-      latitude: item.geometry?.coordinates[1],
-      longitude: item.geometry?.coordinates[0],
-    };
-
-    if (field === "from") {
-      setOriginPlace(place);
-      setFromDisplay(name);
-      setSearchParams({ from: undefined }, { replace: true });
-    } else if (field === "to") {
-      setDestinationPlace(place);
-      setToDisplay(name);
-      setSearchParams({ to: undefined }, { replace: true });
-    }
-
-    search.setQuery("");
-    setActiveField(null);
-  };
-
-  // List navigation
-
-  // Handle focus on input
-  const handleFocus = (field) => {
-    setActiveField(field);
-    // Load current display value into search query
-    const currentValue = field === "from" ? fromDisplay() : toDisplay();
-    search.setQuery(currentValue);
-  };
-
-  // Handle blur
-  const handleBlur = () => {
-    setTimeout(() => {
-      if (activeField()) {
-        search.setQuery("");
-        setActiveField(null);
-      }
-    }, 200);
-  };
-
-  // Use my location
-  const handleUseMyLocation = () => {
-    if (!navigator.geolocation) return;
-
-    setIsLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        const place = {
-          name: "Current Location",
-          latitude,
-          longitude,
-          type: "location",
-        };
-        setOriginPlace(place);
-        setFromDisplay("Current Location");
-        setSearchParams({ from: undefined }, { replace: true });
-        search.setQuery("");
-        setActiveField(null);
-        setIsLocating(false);
-      },
-      () => setIsLocating(false),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
-
-  // Swap origin and destination
-  const handleSwap = () => {
-    const fromVal = fromDisplay();
-    const toVal = toDisplay();
-    swapOriginDestination();
-    setFromDisplay(toVal);
-    setToDisplay(fromVal);
-  };
-
-  // Plan trip
   const handlePlanTrip = () => {
-    if (origin() && destination()) {
-      planTrip();
-    }
+    if (origin() && destination()) planTrip();
   };
-
-  // Sync display values when origin/destination change externally
-  createEffect(() => {
-    const o = origin();
-    if (o && !fromDisplay()) {
-      setFromDisplay(o.name || "Current Location");
-    }
-  });
-
-  createEffect(() => {
-    const d = destination();
-    console.log(d?.properties.name, toDisplay())
-    if (d && !toDisplay()) {
-      setToDisplay(d?.properties.name || "Selected Location");
-    }
-  });
 
   return (
     <div class="space-y-2">
-      {/* Origin Input */}
-      <div class="flex items-center gap-2">
-        <div class="flex-shrink-0 w-7 h-7 rounded-full bg-green-500/20 flex items-center justify-center">
-          <Navigation size={12} class="text-green-400" />
-        </div>
-        <div class="flex-1">
-          <SearchInput
-            value={activeField() === "from" ? search.query() : fromDisplay()}
-            onChange={search.setQuery}
-            onKeyDown={navigation.handleKeyDown}
-            onFocus={() => handleFocus("from")}
-            onBlur={handleBlur}
-            onReset={() => {
-              setFromDisplay("");
-              setOriginPlace(null);
-              search.reset();
-            }}
-            placeholder="Choose starting point"
-            class="w-full px-3 py-2 bg-[var(--bg-secondary)] rounded-lg text-sm text-[var(--text-primary)] focus:outline-none focus:bg-[var(--bg-tertiary)] transition-all placeholder:text-[var(--text-tertiary)]"
-          />
-        </div>
-      </div>
-
-      {/* Swap Button */}
-      <div class="flex justify-center">
-        <button
-          onClick={handleSwap}
-          class="p-1.5 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)] rounded-md transition-all"
-          title="Swap origin and destination"
-        >
-          <ArrowUpDown size={16} />
-        </button>
-      </div>
-
-      {/* Destination Input */}
-      <div class="flex items-center gap-2">
-        <div class="flex-shrink-0 w-7 h-7 rounded-full bg-red-500/20 flex items-center justify-center">
-          <MapPin size={12} class="text-red-400" />
-        </div>
-        <div class="flex-1">
-          <SearchInput
-            value={activeField() === "to" ? search.query() : toDisplay()}
-            onChange={search.setQuery}
-            onKeyDown={navigation.handleKeyDown}
-            onFocus={() => handleFocus("to")}
-            onBlur={handleBlur}
-            onReset={() => {
-              setToDisplay("");
-              setDestinationPlace(null);
-              search.reset();
-            }}
-            placeholder="Choose destination"
-            class="w-full px-3 py-2 bg-[var(--bg-secondary)] rounded-lg text-sm text-[var(--text-primary)] focus:outline-none focus:bg-[var(--bg-tertiary)] transition-all placeholder:text-[var(--text-tertiary)]"
-          />
-        </div>
-      </div>
-
-      {/* Shared Search Results - shows below both inputs */}
-      <Show when={activeField() && search.query().length >= 2}>
-        <div class="relative">
-          {/* Use My Location - only for "from" field */}
-          <Show when={activeField() === "from"}>
-            <button
-              onClick={handleUseMyLocation}
-              class="w-full px-3 py-2 flex items-center gap-2 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-left mb-2"
-            >
-              <Show
-                when={!isLocating()}
-                fallback={
-                  <Loader2
-                    size={14}
-                    class="animate-spin text-[var(--accent-primary)]"
-                  />
-                }
-              >
-                <Crosshair size={14} class="text-[var(--accent-primary)]" />
-              </Show>
-              <span class="text-sm text-[var(--accent-primary)]">
-                Use my location
-              </span>
-            </button>
-          </Show>
-
-          <SearchResults
-            items={search.navigableItems()}
-            loading={search.isLoading()}
-            selectedIndex={navigation.selectedIndex}
-            setSelectedIndex={navigation.setSelectedIndex}
-            isSelected={navigation.isSelected}
-            onSelect={(index) => {
-              navigation.setSelectedIndex(index);
-              navigation.selectCurrent();
-            }}
-            onReset={search.reset}
-          />
-        </div>
-      </Show>
-
-      {/* Plan Trip Button */}
+      <DirectionSearch
+        field="from"
+        setPlace={setOriginPlace}
+        activeField={activeField()}
+        setActiveField={setActiveField}
+      />
+      <DirectionSearch
+        field="to"
+        setPlace={setDestinationPlace}
+        activeField={activeField()}
+        setActiveField={setActiveField}
+      />
       <button
         onClick={handlePlanTrip}
         disabled={!origin() || !destination() || isLoading()}
@@ -249,27 +54,48 @@ export default function DirectionsForm() {
   );
 }
 
-function directionSearch() {
+function DirectionSearch(props) {
+  const { getPlaceFromCache, fetchPlaceById } = usePlace();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [inputDisplay, setInputDisplay] = createSignal("");
+
+  // Initialisation au montage
+  onMount(async () => {
+    const id = searchParams[props.field];
+    if (!id) return;
+
+    const cache = getPlaceFromCache(id);
+    if (cache) {
+      props.setPlace(cache);
+      setInputDisplay(cache.name || cache.properties?.name || "");
+    } else {
+      const fetched = await fetchPlaceById(id);
+      if (fetched) {
+        props.setPlace(fetched);
+        setInputDisplay(fetched.name || fetched.properties?.name || "");
+      }
+    }
+  });
+
+  const handleSelectItem = (item) => {
+    // 1. Mettre à jour l'URL
+    setSearchParams(
+      { [props.field]: generatePlaceId(item) },
+      { replace: true }
+    );
+    // 2. Mettre à jour l'affichage
+    setInputDisplay(item.name || item.properties?.name || "");
+    search.setQuery("");
+    // 3. Mettre à jour le contexte global
+    props.setPlace(item);
+    props.setActiveField(null);
+  };
 
   const search = useSearch({
-    initialQuery: "",
-    onQueryChange: (q) => {
-      const field = activeField();
-      if (field === "from") {
-        setSearchParams({ from: q || undefined }, { replace: true });
-      } else if (field === "to") {
-        setSearchParams({ to: q || undefined }, { replace: true });
-      }
-    },
+    initialQuery: inputDisplay(),
+    field: props.field,
     onReset: () => {
-      const field = activeField();
-      if (field === "from") {
-        setSearchParams({ from: undefined }, { replace: true });
-        setFromDisplay("");
-      } else if (field === "to") {
-        setSearchParams({ to: undefined }, { replace: true });
-        setToDisplay("");
-      }
+      setSearchParams({ [props.field]: undefined }, { replace: true });
       navigation.reset();
     },
   });
@@ -278,56 +104,44 @@ function directionSearch() {
     items: search.navigableItems,
     onSelect: handleSelectItem,
     handlers: {
-      onTab: (item) => search.setQuery(item.name || item.properties?.name),
-      onEscape: () => {
-        search.reset();
-        setActiveField(null);
-      },
+      onTab: (item) => search.setQuery(item.properties?.name || item.name),
+      onEscape: () => search.reset(),
     },
   });
 
-
   return (
-    <div class="relative">
+    <div
+      class="relative"
+      onFocusOut={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget)) {
+          props.setActiveField(null);
+        }
+      }}
+    >
       <SearchInput
-        value={activeField() === "to" ? search.query() : toDisplay()}
-        onChange={search.setQuery}
-        onKeyDown={navigation.handleKeyDown}
-        onFocus={() => handleFocus("to")}
-        onBlur={handleBlur}
-        onReset={() => {
-          setToDisplay("");
-          setDestinationPlace(null);
-          search.reset();
+        // On affiche la recherche en cours, sinon le nom du lieu sélectionné
+        value={search.query() || inputDisplay()}
+        onChange={(val) => {
+          // Si on commence à taper, on "désélectionne" le lieu précédent
+          if (inputDisplay() && val !== "") setInputDisplay("");
+          search.setQuery(val);
         }}
-        placeholder="Choose destination"
+        onKeyDown={navigation.handleKeyDown}
+        onFocus={() => props.setActiveField(props.field)}
+        onReset={() => {
+          setInputDisplay("");
+          props.setPlace(null);
+          search.reset();
+          setSearchParams({ [props.field]: undefined }, { replace: true });
+        }}
+        placeholder={props.field === "from" ? "Origin" : "Destination"}
         icon={<MapPin size={16} class="text-[var(--text-tertiary)]" />}
       />
-      <Show when={activeField() && search.query().length >= 2}>
-        <div class="relative">
-          {/* Use My Location - only for "from" field */}
-          <Show when={activeField() === "from"}>
-            <button
-              onClick={handleUseMyLocation}
-              class="w-full px-3 py-2 flex items-center gap-2 bg-[var(--bg-secondary)] hover:bg-[var(--bg-hover)] rounded-lg transition-colors text-left mb-2"
-            >
-              <Show
-                when={!isLocating()}
-                fallback={
-                  <Loader2
-                    size={14}
-                    class="animate-spin text-[var(--accent-primary)]"
-                  />
-                }
-              >
-                <Crosshair size={14} class="text-[var(--accent-primary)]" />
-              </Show>
-              <span class="text-sm text-[var(--accent-primary)]">
-                Use my location
-              </span>
-            </button>
-          </Show>
 
+      <Show
+        when={search.query().length >= 2 && props.activeField === props.field}
+      >
+        <div class="absolute top-full left-0 right-0 z-50 mt-1 bg-[var(--bg-secondary)] rounded-lg shadow-xl border border-[var(--border-color)] overflow-y-auto">
           <SearchResults
             items={search.navigableItems()}
             loading={search.isLoading()}
@@ -343,5 +157,5 @@ function directionSearch() {
         </div>
       </Show>
     </div>
-  )
+  );
 }

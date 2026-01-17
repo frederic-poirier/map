@@ -11,13 +11,11 @@ import { getPlaceType } from "../place/placeTypeMap";
 
 // Extract display info from either saved location or search result
 const getItemInfo = (i) => {
-  const item = i.hasOwnProperty(`GeoJSON`) ? i.GeoJSON : i;
-  const props = item.properties || {};
   return {
-    name: i.name || props.name,
-    street: props.street,
-    latitude: item.geometry?.coordinates[1],
-    longitude: item.geometry?.coordinates[0],
+    name: i.name || i.properties?.name,
+    street: i.properties?.street,
+    latitude: i.geometry?.coordinates[1],
+    longitude: i.geometry?.coordinates[0],
   };
 };
 
@@ -41,8 +39,7 @@ export default function SearchResults(props) {
     }
 
     // Get the appropriate icon based on place type
-    const itemData = item.hasOwnProperty('GeoJSON') ? item.GeoJSON : item;
-    const properties = itemData.properties || {};
+    const properties = item.properties || {};
     const placeType = getPlaceType(properties);
     const IconComponent = placeType.icon;
 
@@ -206,7 +203,7 @@ function EmptyState(props) {
 
 function DirectionAndDistance({ coordinates }) {
   const { getDistance, getAngle } = useCoordinates();
-  const { mapCenter } = useMap();
+  const { getCenter } = useMap();
 
   return (
     <div class="flex items-center gap-1.5 text-[var(--text-tertiary)]">
@@ -214,11 +211,11 @@ function DirectionAndDistance({ coordinates }) {
         size={11}
         strokeWidth={2}
         style={{
-          transform: `rotate(${getAngle(coordinates, mapCenter())}deg)`,
+          transform: `rotate(${getAngle({ lon: coordinates[0], lat: coordinates[1] }, getCenter())}deg)`,
         }}
       />
       <span class="text-xs tabular-nums">
-        {getDistance(coordinates, mapCenter())}
+        {getDistance({ lon: coordinates[0], lat: coordinates[1] }, getCenter())}
       </span>
     </div>
   );

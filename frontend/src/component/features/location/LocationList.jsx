@@ -59,7 +59,7 @@ export function LocationList() {
                   class="group location-item-enter"
                   style={{ "animation-delay": `${index() * 30}ms` }}
                 >
-                  <div
+                  <button
                     class="flex items-center gap-2 px-2 py-2 -mx-2 rounded-lg hover:bg-[var(--bg-hover)] transition-all cursor-pointer"
                     onClick={() => goToLocation(savedPlace)}
                   >
@@ -73,7 +73,7 @@ export function LocationList() {
                         {savedPlace.name}
                       </p>
                     </div>
-                  </div>
+                  </button>
                 </li>
               )}
             </For>

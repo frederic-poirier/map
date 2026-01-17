@@ -1,92 +1,37 @@
-/* ============================================
-   Sheet Component - Scroll Snap Styles
-   Only contains CSS not available in Tailwind
-   ============================================ */
+/* Sheet.css - Animation keyframes for sheet content transitions */
 
-/* Tray - scroll container (scroll-snap not in Tailwind) */
-.sheet-tray {
-    position: fixed;
-    inset: 60svh 0 0 0;
-    width: 100%;
-    overflow-y: auto;
-    scroll-snap-type: none;
-    scrollbar-width: none;
-    overscroll-behavior: contain;
-    border-radius: 2rem 2rem 0 0;
-    z-index: 100;
-    /* Touch action allows vertical scrolling */
-    touch-action: pan-y;
+/* Slide in from right (forward navigation) */
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.sheet-tray.snap-enabled {
-    scroll-snap-type: y mandatory;
+/* Slide in from left (back navigation) */
+@keyframes slide-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
-.sheet-tray::-webkit-scrollbar {
-    display: none;
+.animate-slide-in-right {
+  animation: slide-in-right 0.25s ease-out forwards;
 }
 
-/* Spacer for closed state */
-.sheet-spacer {
-    width: 100%;
-    height: var(--spacer-closed-h);
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-    /* Let touches pass through to map */
-    pointer-events: none;
+.animate-slide-in-left {
+  animation: slide-in-left 0.25s ease-out forwards;
 }
 
-/* Sheet Panel scroll snap */
-.sheet-panel {
-    interpolate-size: allow-keywords;
-    height: auto;
-    transition: height 0.2s ease-out;
-
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-}
-
-/* Open snap anchor */
-.sheet-open-anchor {
-    height: 0;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-}
-
-/* ============================================
-   Animations
-   ============================================ */
-
-/* Sidebar enter animation */
-@keyframes sidebar-enter {
-    from {
-        opacity: 0;
-        transform: translateX(-8px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.sidebar-enter {
-    animation: sidebar-enter 0.2s ease-out;
-}
-
-/* Search item stagger animation */
-@keyframes search-item-enter {
-    from {
-        opacity: 0;
-        transform: translateY(4px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.search-item-enter {
-    animation: search-item-enter 0.15s ease-out both;
+.tray {
+  scrollbar-width: none;
 }

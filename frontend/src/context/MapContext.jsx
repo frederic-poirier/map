@@ -1,4 +1,10 @@
-import { createContext, useContext, createSignal } from "solid-js";
+import {
+  createContext,
+  useContext,
+  createSignal,
+  createEffect,
+  onCleanup,
+} from "solid-js";
 import maplibregl from "maplibre-gl";
 
 const MapContext = createContext();
@@ -6,175 +12,184 @@ const MapContext = createContext();
 // Decode Google Polyline Algorithm Format
 // OTP returns legGeometry.points in this format
 function decodePolyline(encoded) {
-    const points = [];
-    let index = 0;
-    let lat = 0;
-    let lng = 0;
+  const points = [];
+  let index = 0;
+  let lat = 0;
+  let lng = 0;
 
-    while (index < encoded.length) {
-        let b;
-        let shift = 0;
-        let result = 0;
+  while (index < encoded.length) {
+    let b;
+    let shift = 0;
+    let result = 0;
 
-        do {
-            b = encoded.charCodeAt(index++) - 63;
-            result |= (b & 0x1f) << shift;
-            shift += 5;
-        } while (b >= 0x20);
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
 
-        const dlat = result & 1 ? ~(result >> 1) : result >> 1;
-        lat += dlat;
+    const dlat = result & 1 ? ~(result >> 1) : result >> 1;
+    lat += dlat;
 
-        shift = 0;
-        result = 0;
+    shift = 0;
+    result = 0;
 
-        do {
-            b = encoded.charCodeAt(index++) - 63;
-            result |= (b & 0x1f) << shift;
-            shift += 5;
-        } while (b >= 0x20);
+    do {
+      b = encoded.charCodeAt(index++) - 63;
+      result |= (b & 0x1f) << shift;
+      shift += 5;
+    } while (b >= 0x20);
 
-        const dlng = result & 1 ? ~(result >> 1) : result >> 1;
-        lng += dlng;
+    const dlng = result & 1 ? ~(result >> 1) : result >> 1;
+    lng += dlng;
 
-        points.push([lng / 1e5, lat / 1e5]);
-    }
+    points.push([lng / 1e5, lat / 1e5]);
+  }
 
-    return points;
+  return points;
 }
 
 export function MapProvider(props) {
-    const [mapInstance, setMapInstance] = createSignal(null);
-    const [mapCenter, setMapCenter] = createSignal(null);
-    const [currentMarker, setCurrentMarker] = createSignal(null);
-    const [routeMarkers, setRouteMarkers] = createSignal([]);
-    const [routeLayers, setRouteLayers] = createSignal([]);
+  const [mapInstance, setMapInstance] = createSignal(null);
+  const [mapCenter, setMapCenter] = createSignal(null);
+  const [currentMarker, setCurrentMarker] = createSignal(null);
+  const [routeMarkers, setRouteMarkers] = createSignal([]);
+  const [routeLayers, setRouteLayers] = createSignal([]);
+  const [moveEndEvent, setMoveEndEvent] = createSignal(null);
 
-    // Clear all route-related layers and markers
-    const clearRoute = () => {
-        const map = mapInstance();
-        if (!map) return;
+  createEffect(() => {
+    const map = mapInstance();
+    if (!map) return;
+    const handler = (e) => setMoveEndEvent(e);
+    map.on("moveend", handler);
+    onCleanup(() => map.off("moveend", handler));
+  });
 
-        // Remove route layers
-        const layers = routeLayers();
-        layers.forEach((layerId) => {
-            if (map.getLayer(layerId)) {
-                map.removeLayer(layerId);
-            }
-        });
+  // Clear all route-related layers and markers
+  const clearRoute = () => {
+    const map = mapInstance();
+    if (!map) return;
 
-        // Remove route sources
-        layers.forEach((layerId) => {
-            const sourceId = layerId.replace("-layer", "-source");
-            if (map.getSource(sourceId)) {
-                map.removeSource(sourceId);
-            }
-        });
+    // Remove route layers
+    const layers = routeLayers();
+    layers.forEach((layerId) => {
+      if (map.getLayer(layerId)) {
+        map.removeLayer(layerId);
+      }
+    });
 
-        // Remove route markers
-        const markers = routeMarkers();
-        markers.forEach((marker) => marker.remove());
+    // Remove route sources
+    layers.forEach((layerId) => {
+      const sourceId = layerId.replace("-layer", "-source");
+      if (map.getSource(sourceId)) {
+        map.removeSource(sourceId);
+      }
+    });
 
-        setRouteLayers([]);
-        setRouteMarkers([]);
-    };
+    // Remove route markers
+    const markers = routeMarkers();
+    markers.forEach((marker) => marker.remove());
 
-    // Display an itinerary route on the map
-    const displayRoute = (itinerary) => {
-        const map = mapInstance();
-        if (!map || !itinerary) return;
+    setRouteLayers([]);
+    setRouteMarkers([]);
+  };
 
-        // Clear existing route
-        clearRoute();
+  // Display an itinerary route on the map
+  const displayRoute = (itinerary) => {
+    const map = mapInstance();
+    if (!map || !itinerary) return;
 
-        const newLayers = [];
-        const newMarkers = [];
-        const allCoords = [];
+    // Clear existing route
+    clearRoute();
 
-        // Add each leg as a separate layer
-        itinerary.legs.forEach((leg, index) => {
-            if (!leg.legGeometry?.points) return;
+    const newLayers = [];
+    const newMarkers = [];
+    const allCoords = [];
 
-            const coords = decodePolyline(leg.legGeometry.points);
-            allCoords.push(...coords);
+    // Add each leg as a separate layer
+    itinerary.legs.forEach((leg, index) => {
+      if (!leg.legGeometry?.points) return;
 
-            const sourceId = `route-${index}-source`;
-            const layerId = `route-${index}-layer`;
+      const coords = decodePolyline(leg.legGeometry.points);
+      allCoords.push(...coords);
 
-            // Determine color based on mode
-            let color = "#6B7280"; // gray for walk
-            let width = 4;
-            let dashArray = null;
+      const sourceId = `route-${index}-source`;
+      const layerId = `route-${index}-layer`;
 
-            if (leg.mode === "WALK") {
-                color = "#9CA3AF";
-                width = 3;
-                dashArray = [2, 2];
-            } else if (leg.route?.color) {
-                color = `#${leg.route.color}`;
-                width = 5;
-            } else {
-                // Default transit colors by mode
-                switch (leg.mode) {
-                    case "BUS":
-                        color = "#3B82F6";
-                        break;
-                    case "SUBWAY":
-                        color = "#F97316";
-                        break;
-                    case "RAIL":
-                    case "TRAM":
-                        color = "#22C55E";
-                        break;
-                    default:
-                        color = "#3B82F6";
-                }
-                width = 5;
-            }
+      // Determine color based on mode
+      let color = "#6B7280"; // gray for walk
+      let width = 4;
+      let dashArray = null;
 
-            // Add source
-            map.addSource(sourceId, {
-                type: "geojson",
-                data: {
-                    type: "Feature",
-                    properties: {},
-                    geometry: {
-                        type: "LineString",
-                        coordinates: coords,
-                    },
-                },
-            });
+      if (leg.mode === "WALK") {
+        color = "#9CA3AF";
+        width = 3;
+        dashArray = [2, 2];
+      } else if (leg.route?.color) {
+        color = `#${leg.route.color}`;
+        width = 5;
+      } else {
+        // Default transit colors by mode
+        switch (leg.mode) {
+          case "BUS":
+            color = "#3B82F6";
+            break;
+          case "SUBWAY":
+            color = "#F97316";
+            break;
+          case "RAIL":
+          case "TRAM":
+            color = "#22C55E";
+            break;
+          default:
+            color = "#3B82F6";
+        }
+        width = 5;
+      }
 
-            // Add layer
-            const layerConfig = {
-                id: layerId,
-                type: "line",
-                source: sourceId,
-                layout: {
-                    "line-join": "round",
-                    "line-cap": "round",
-                },
-                paint: {
-                    "line-color": color,
-                    "line-width": width,
-                    "line-opacity": 0.85,
-                },
-            };
+      // Add source
+      map.addSource(sourceId, {
+        type: "geojson",
+        data: {
+          type: "Feature",
+          properties: {},
+          geometry: {
+            type: "LineString",
+            coordinates: coords,
+          },
+        },
+      });
 
-            if (dashArray) {
-                layerConfig.paint["line-dasharray"] = dashArray;
-            }
+      // Add layer
+      const layerConfig = {
+        id: layerId,
+        type: "line",
+        source: sourceId,
+        layout: {
+          "line-join": "round",
+          "line-cap": "round",
+        },
+        paint: {
+          "line-color": color,
+          "line-width": width,
+          "line-opacity": 0.85,
+        },
+      };
 
-            map.addLayer(layerConfig);
-            newLayers.push(layerId);
-        });
+      if (dashArray) {
+        layerConfig.paint["line-dasharray"] = dashArray;
+      }
 
-        // Add origin marker (green)
-        if (itinerary.legs.length > 0) {
-            const firstLeg = itinerary.legs[0];
-            const originEl = document.createElement("div");
-            originEl.className = "route-marker origin-marker";
-            originEl.innerHTML = `
+      map.addLayer(layerConfig);
+      newLayers.push(layerId);
+    });
+
+    // Add origin marker (green)
+    if (itinerary.legs.length > 0) {
+      const firstLeg = itinerary.legs[0];
+      const originEl = document.createElement("div");
+      originEl.className = "route-marker origin-marker";
+      originEl.innerHTML = `
                 <div style="
                     width: 24px;
                     height: 24px;
@@ -184,18 +199,18 @@ export function MapProvider(props) {
                     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
                 "></div>
             `;
-            const originMarker = new maplibregl.Marker({ element: originEl })
-                .setLngLat([firstLeg.from.lon, firstLeg.from.lat])
-                .addTo(map);
-            newMarkers.push(originMarker);
-        }
+      const originMarker = new maplibregl.Marker({ element: originEl })
+        .setLngLat([firstLeg.from.lon, firstLeg.from.lat])
+        .addTo(map);
+      newMarkers.push(originMarker);
+    }
 
-        // Add destination marker (red)
-        if (itinerary.legs.length > 0) {
-            const lastLeg = itinerary.legs[itinerary.legs.length - 1];
-            const destEl = document.createElement("div");
-            destEl.className = "route-marker dest-marker";
-            destEl.innerHTML = `
+    // Add destination marker (red)
+    if (itinerary.legs.length > 0) {
+      const lastLeg = itinerary.legs[itinerary.legs.length - 1];
+      const destEl = document.createElement("div");
+      destEl.className = "route-marker dest-marker";
+      destEl.innerHTML = `
                 <div style="
                     width: 24px;
                     height: 24px;
@@ -205,124 +220,129 @@ export function MapProvider(props) {
                     box-shadow: 0 2px 6px rgba(0,0,0,0.3);
                 "></div>
             `;
-            const destMarker = new maplibregl.Marker({ element: destEl })
-                .setLngLat([lastLeg.to.lon, lastLeg.to.lat])
-                .addTo(map);
-            newMarkers.push(destMarker);
-        }
+      const destMarker = new maplibregl.Marker({ element: destEl })
+        .setLngLat([lastLeg.to.lon, lastLeg.to.lat])
+        .addTo(map);
+      newMarkers.push(destMarker);
+    }
 
-        setRouteLayers(newLayers);
-        setRouteMarkers(newMarkers);
+    setRouteLayers(newLayers);
+    setRouteMarkers(newMarkers);
 
-        // Fit map to route bounds
-        if (allCoords.length > 0) {
-            const bounds = allCoords.reduce(
-                (bounds, coord) => bounds.extend(coord),
-                new maplibregl.LngLatBounds(allCoords[0], allCoords[0])
-            );
-            map.fitBounds(bounds, {
-                padding: { top: 100, bottom: 300, left: 50, right: 50 },
-                maxZoom: 16,
-            });
-        }
-    };
+    // Fit map to route bounds
+    if (allCoords.length > 0) {
+      const bounds = allCoords.reduce(
+        (bounds, coord) => bounds.extend(coord),
+        new maplibregl.LngLatBounds(allCoords[0], allCoords[0])
+      );
+      map.fitBounds(bounds, {
+        padding: { top: 100, bottom: 300, left: 50, right: 50 },
+        maxZoom: 16,
+      });
+    }
+  };
 
-    const value = {
-        // State
-        mapInstance,
-        mapCenter,
+  const value = {
+    // State
+    mapInstance,
+    mapCenter,
+    moveEndEvent,
 
-        // Setters (for Map component)
-        setMapInstance,
-        setMapCenter,
+    // Setters (for Map component)
+    setMapInstance,
+    setMapCenter,
 
-        // Public API methods
-        flyTo: (coords, zoom = 16) => {
-            const map = mapInstance();
-            if (!map || !coords) return;
+    // Public API methods
+    flyTo: (coords, offset = 0) => {
+      const map = mapInstance();
+      if (!map || !coords) return;
 
-            map.flyTo({
-                center: [coords.lon, coords.lat],
-                zoom,
-                essential: true,
-                speed: 1.5,
-            });
-        },
+      if (offset !== 0) {
+        const mapHeight = map.getCanvas().clientHeight;
+        offset = (mapHeight / 2) * offset;
+      }
 
-        addMarker: (coords, options = {}) => {
-            const map = mapInstance();
-            if (!map || !coords) return null;
+      map.flyTo({
+        center: [coords.lon, coords.lat],
+        offset: [0, offset],
+        zoom: 16,
+        essential: true,
+        speed: 1.5,
+      });
+    },
 
-            // Remove existing marker if requested
-            if (options.removeExisting !== false) {
-                const existing = currentMarker();
-                if (existing) existing.remove();
-            }
+    addMarker: (coords, options = {}) => {
+      const map = mapInstance();
+      if (!map || !coords) return null;
 
-            const marker = new maplibregl.Marker()
-                .setLngLat([coords.lon, coords.lat])
-                .addTo(map);
+      // Remove existing marker if requested
+      if (options.removeExisting !== false) {
+        const existing = currentMarker();
+        if (existing) existing.remove();
+      }
 
-            setCurrentMarker(marker);
-            return marker;
-        },
+      const marker = new maplibregl.Marker()
+        .setLngLat([coords.lon, coords.lat])
+        .addTo(map);
 
-        removeMarker: () => {
-            const marker = currentMarker();
-            if (marker) {
-                marker.remove();
-                setCurrentMarker(null);
-            }
-        },
+      setCurrentMarker(marker);
+      return marker;
+    },
 
-        getCenter: () => {
-            const map = mapInstance();
-            if (!map) return null;
-            const center = map.getCenter();
-            return { lon: center.lng, lat: center.lat };
-        },
+    removeMarker: () => {
+      const marker = currentMarker();
+      if (marker) {
+        marker.remove();
+        setCurrentMarker(null);
+      }
+    },
 
-        getZoom: () => {
-            const map = mapInstance();
-            return map ? map.getZoom() : null;
-        },
+    getCenter: () => {
+      const map = mapInstance();
+      if (!map) return null;
+      const center = map.getCenter();
+      return { lon: center.lng, lat: center.lat };
+    },
 
-        setZoom: (zoom) => {
-            const map = mapInstance();
-            if (map) map.setZoom(zoom);
-        },
+    getZoom: () => {
+      const map = mapInstance();
+      return map ? map.getZoom() : null;
+    },
 
-        fitBounds: (bounds, options = {}) => {
-            const map = mapInstance();
-            if (map && bounds) {
-                map.fitBounds(bounds, options);
-            }
-        },
+    setZoom: (zoom) => {
+      const map = mapInstance();
+      if (map) map.setZoom(zoom);
+    },
 
-        toggleFullscreen: () => {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen();
-            } else {
-                document.exitFullscreen();
-            }
-        },
+    fitBounds: (bounds, options = {}) => {
+      const map = mapInstance();
+      if (map && bounds) {
+        map.fitBounds(bounds, options);
+      }
+    },
 
-        // Route display methods
-        displayRoute,
-        clearRoute,
-    };
+    toggleFullscreen: () => {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    },
 
-    return (
-        <MapContext.Provider value={value}>
-            {props.children}
-        </MapContext.Provider>
-    );
+    // Route display methods
+    displayRoute,
+    clearRoute,
+  };
+
+  return (
+    <MapContext.Provider value={value}>{props.children}</MapContext.Provider>
+  );
 }
 
 export function useMap() {
-    const context = useContext(MapContext);
-    if (!context) {
-        throw new Error("useMap must be used within a MapProvider");
-    }
-    return context;
+  const context = useContext(MapContext);
+  if (!context) {
+    throw new Error("useMap must be used within a MapProvider");
+  }
+  return context;
 }

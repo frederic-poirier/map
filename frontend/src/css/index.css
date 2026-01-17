@@ -15,7 +15,7 @@
   --border-secondary: #d4d4d4;
   --text-primary: #171717;
   --text-secondary: #525252;
-  --text-tertiary: #a3a3a3;
+--text-tertiary: #a3a3a3;
 }
 
 .dark {
@@ -78,15 +78,8 @@ body {
   }
 
   /* Search results on mobile - limit height within tray */
-  .search-results-enter>div {
+  .search-results-enter > div {
     max-height: 40vh;
-  }
-
-  /* Map controls adjust for mobile */
-  .controls-enter {
-    top: auto;
-    bottom: 20px;
-    right: 16px;
   }
 }
 
@@ -296,7 +289,6 @@ body {
 
 /* Skeleton loading animation */
 @keyframes skeleton-pulse {
-
   0%,
   100% {
     opacity: 0.4;
