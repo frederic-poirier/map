@@ -17,6 +17,7 @@ const SheetContext = createContext();
  */
 function Sheet(props) {
   let peekRef, trayRef, sheetRef;
+  let canScroll = false;
 
   const sheetLayout = useSheetLayout();
 
@@ -202,9 +203,28 @@ function Sheet(props) {
 
     trayRef.addEventListener('scroll', handleScroll, { passive: true });
 
+    // Touch handling - only allow scroll if touch starts on sheet
+    const onTouchStart = (e) => {
+      if (!sheetRef) return;
+      const touch = e.touches[0];
+      const sheetRect = sheetRef.getBoundingClientRect();
+      canScroll = touch.clientY >= sheetRect.top;
+    };
+
+    const onTouchMove = (e) => {
+      if (!canScroll) {
+        e.preventDefault();
+      }
+    };
+
+    trayRef.addEventListener('touchstart', onTouchStart, { passive: true });
+    trayRef.addEventListener('touchmove', onTouchMove, { passive: false });
+
     onCleanup(() => {
       resizeObserver.disconnect();
       trayRef.removeEventListener('scroll', handleScroll);
+      trayRef.removeEventListener('touchstart', onTouchStart);
+      trayRef.removeEventListener('touchmove', onTouchMove);
       clearTimeout(scrollTimeout);
       clearTimeout(animationTimer);
       sheetLayout?.setSheetRef?.(null);
