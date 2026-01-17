@@ -54,7 +54,7 @@ export default function SearchInput(props) {
       <input
         ref={inputRef}
         type="text"
-        class="w-full  pr-9 py-2.5 focus:outline-none bg-transparent"
+        class="w-full pr-9 py-2.5 text-[16px] focus:outline-none bg-transparent"
         placeholder={props.placeholder || "Search places..."}
         onFocus={props.onFocus}
         onBlur={props.onBlur}

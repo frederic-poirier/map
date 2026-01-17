@@ -1,16 +1,16 @@
-import { createSignal, createMemo, onMount, onCleanup, createContext, useContext, For, Show } from 'solid-js';
+import { createSignal, createMemo, onMount, onCleanup, createContext, useContext, For } from 'solid-js';
 import { useSheetLayout } from '~/context/SheetLayoutContext';
 
 const SheetContext = createContext();
 
 /**
  * Sheet - Apple Maps-style bottom sheet component
- * Uses CSS scroll-snap for native-feeling snap points
  * 
- * Tray height = highest snap point (e.g., 80vh)
- * - At scroll=0: only peek visible at bottom
- * - Snap between points until reaching max
- * - Once at max, snap disabled and content scrolls naturally
+ * New architecture: Sheet panel is the scroll container
+ * - Tray is just a positioning container with pointer-events-none
+ * - Sheet panel has overflow-y: auto and handles scrolling
+ * - Internal spacer creates the "closed" state
+ * - This allows map to receive touch events in the spacer area
  * 
  * @param {Object} props
  * @param {Array} props.snapPoints - Array of snap points: ['auto', 40, 80] where numbers are vh values
@@ -47,7 +47,7 @@ function Sheet(props) {
     return (highestSnap() / 100) * window.innerHeight;
   });
 
-  // Spacer height: pushes sheet down so only peek shows at scroll=0
+  // Spacer height: pushes content down so only peek shows at scroll=0
   // Spacer = trayHeight - peek
   const spacerHeight = createMemo(() => {
     return Math.max(0, trayHeight() - peekHeight());
@@ -63,15 +63,11 @@ function Sheet(props) {
     const vh = window.innerHeight;
     const peek = peekHeight();
     const snaps = numericSnaps();
-    const trayH = trayHeight();
 
     // Position 0: closed (only peek visible) = scroll 0
     const positions = [0];
 
     // For each numeric snap, calculate scroll position
-    // At a snap point, visible sheet height = snapVh% of viewport
-    // Scroll position = (visible height - peek)
-    // But capped by spacer height (can't scroll past it)
     snaps.forEach(snapVh => {
       const visibleHeight = (snapVh / 100) * vh;
       const scrollPos = Math.min(visibleHeight - peek, spacerHeight());
@@ -104,10 +100,10 @@ function Sheet(props) {
   });
 
   onMount(() => {
-    if (!peekRef || !trayRef) return;
+    if (!peekRef || !sheetRef) return;
 
-    // Register tray ref with context for programmatic control
-    sheetLayout?.setSheetRef?.(trayRef);
+    // Register sheet ref with context for programmatic control
+    sheetLayout?.setSheetRef?.(sheetRef);
 
     // Measure peek height dynamically
     const resizeObserver = new ResizeObserver((entries) => {
@@ -124,17 +120,15 @@ function Sheet(props) {
     const savedIndex = sheetLayout?.savedSnapIndex?.() ?? 0;
 
     if (savedScroll > 0) {
-      // Restore exact scroll position
-      trayRef.scrollTop = savedScroll;
+      sheetRef.scrollTop = savedScroll;
       setCurrentSnapIndex(savedIndex);
       setSnapEnabled(savedScroll < maxScrollPosition());
     } else if (sheetLayout?.isSheetOpen?.()) {
-      // Fallback: open to first snap point
       const positions = snapPositions();
-      trayRef.scrollTop = positions[1] ?? 0;
+      sheetRef.scrollTop = positions[1] ?? 0;
       setCurrentSnapIndex(1);
     } else {
-      trayRef.scrollTop = 0;
+      sheetRef.scrollTop = 0;
       setCurrentSnapIndex(0);
     }
 
@@ -147,7 +141,7 @@ function Sheet(props) {
     let scrollTimeout;
 
     const handleScroll = () => {
-      const { scrollTop } = trayRef;
+      const { scrollTop } = sheetRef;
       const positions = snapPositions();
       const maxScroll = maxScrollPosition();
 
@@ -190,21 +184,20 @@ function Sheet(props) {
       // Re-enable snap after scroll ends if we're back in snap zone
       clearTimeout(scrollTimeout);
       scrollTimeout = setTimeout(() => {
-        const currentScroll = trayRef.scrollTop;
+        const currentScroll = sheetRef.scrollTop;
         const maxScroll = maxScrollPosition();
 
-        // Only re-enable snap if we're not in content scroll area
         if (currentScroll < maxScroll - 10) {
           setSnapEnabled(true);
         }
       }, 150);
     };
 
-    trayRef.addEventListener('scroll', handleScroll, { passive: true });
+    sheetRef.addEventListener('scroll', handleScroll, { passive: true });
 
     onCleanup(() => {
       resizeObserver.disconnect();
-      trayRef.removeEventListener('scroll', handleScroll);
+      sheetRef.removeEventListener('scroll', handleScroll);
       clearTimeout(scrollTimeout);
       clearTimeout(animationTimer);
       sheetLayout?.setSheetRef?.(null);
@@ -213,11 +206,11 @@ function Sheet(props) {
 
   // Helper: Snap to specific index programmatically
   const snapToIndex = (index) => {
-    if (!trayRef) return;
+    if (!sheetRef) return;
     const positions = snapPositions();
     const targetScroll = positions[index] ?? 0;
 
-    trayRef.scrollTo({
+    sheetRef.scrollTo({
       top: targetScroll,
       behavior: 'smooth'
     });
@@ -239,58 +232,62 @@ function Sheet(props) {
         {/* Background content slot */}
         {props.background}
 
-        {/* TRAY CONTAINER - Height = max snap point, positioned at bottom */}
+        {/* TRAY CONTAINER - Just positioning, no scroll, pointer-events-none */}
         <div
           ref={trayRef}
-          class="tray fixed rounded-t-3xl inset-x-0 bottom-0 z-100 overflow-y-auto overscroll-contain touch-pan-y pointer-events-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
-          classList={{
-            'snap-y snap-mandatory': snapEnabled(),
-          }}
+          class="tray fixed rounded-t-3xl inset-x-0 bottom-0 z-100 pointer-events-none"
           style={{ height: 'var(--tray-height)' }}
         >
-          {/* Spacer - pushes sheet down so only peek visible at scroll=0 */}
-          <div
-            class="w-full pointer-events-none snap-start"
-            style={{ height: 'var(--spacer-height)' }}
-          />
-
-          {/* Snap anchors for middle snap points */}
-          <For each={snapPositions().slice(1, -1)}>
-            {(pos) => (
-              <div
-                class="absolute left-0 w-full h-0 snap-start snap-always pointer-events-none"
-                style={{ top: `${pos}px` }}
-              />
-            )}
-          </For>
-
-          {/* SHEET PANEL - sticky header, content flows naturally */}
+          {/* SHEET PANEL - This is now the scroll container */}
           <div
             ref={sheetRef}
-            class="bg-[var(--bg-primary)] rounded-t-3xl pointer-events-auto shadow-[0_-2px_16px_rgba(0,0,0,0.08),0_0_32px_rgba(0,0,0,0.04)] dark:shadow-[0_-2px_16px_rgba(0,0,0,0.4),0_0_32px_rgba(0,0,0,0.2)]"
-            style={{ 'min-height': 'var(--sheet-min-height)' }}
+            class="h-full overflow-y-auto overscroll-contain pointer-events-auto touch-pan-y [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
+            classList={{
+              'snap-y snap-mandatory': snapEnabled(),
+            }}
           >
-            {/* Peek/Header area - sticky */}
+            {/* Internal spacer - creates closed state, pointer-events-none so map works */}
             <div
-              ref={peekRef}
-              class="sticky top-0 bg-[var(--bg-primary)] rounded-t-3xl z-10 snap-start"
-            >
-              {/* Handle bar */}
-              <div class="flex justify-center pt-2 pb-1">
-                <div class="h-[5px] w-9 bg-[var(--border-secondary)] rounded-full opacity-60" />
-              </div>
-              {props.header}
-              {props.sticky}
-            </div>
+              class="w-full pointer-events-none snap-start"
+              style={{ height: 'var(--spacer-height)' }}
+            />
 
-            {/* Content wrapper with animation */}
-            <div
-              class="overflow-hidden rounded-t-2xl"
-              classList={{
-                [animationClass()]: isAnimating(),
-              }}
+            {/* Snap anchors for middle snap points */}
+            <For each={snapPositions().slice(1, -1)}>
+              {(pos) => (
+                <div
+                  class="absolute left-0 w-full h-0 snap-start snap-always pointer-events-none"
+                  style={{ top: `${pos}px` }}
+                />
+              )}
+            </For>
+
+            {/* Visible sheet content */}
+            <div class="bg-[var(--bg-primary)] rounded-t-3xl shadow-[0_-2px_16px_rgba(0,0,0,0.08),0_0_32px_rgba(0,0,0,0.04)] dark:shadow-[0_-2px_16px_rgba(0,0,0,0.4),0_0_32px_rgba(0,0,0,0.2)]"
+              style={{ 'min-height': 'var(--sheet-min-height)' }}
             >
-              {props.children}
+              {/* Peek/Header area - sticky */}
+              <div
+                ref={peekRef}
+                class="sticky top-0 bg-[var(--bg-primary)] rounded-t-3xl z-10 snap-start"
+              >
+                {/* Handle bar */}
+                <div class="flex justify-center pt-2 pb-1">
+                  <div class="h-[5px] w-9 bg-[var(--border-secondary)] rounded-full opacity-60" />
+                </div>
+                {props.header}
+                {props.sticky}
+              </div>
+
+              {/* Content wrapper with animation */}
+              <div
+                class="overflow-hidden rounded-t-2xl"
+                classList={{
+                  [animationClass()]: isAnimating(),
+                }}
+              >
+                {props.children}
+              </div>
             </div>
           </div>
         </div>

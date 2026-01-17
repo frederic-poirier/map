@@ -1,13 +1,13 @@
 {
-	"version": "2.0.0",
-	"tasks": [
-		{
-			"type": "npm",
-			"script": "tunnel",
-			"path": "backend",
-			"problemMatcher": [],
-			"label": "npm: tunnel - backend",
-			"detail": "cloudflared tunnel run --url http://127.0.0.1:3000 map-api"
-		}
-	]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "type": "npm",
+      "script": "tunnel",
+      "path": "backend",
+      "problemMatcher": [],
+      "label": "npm: tunnel - backend",
+      "detail": "cloudflared tunnel run --url http://127.0.0.1:4000 map-api"
+    }
+  ]
 }
