@@ -242,7 +242,7 @@ function Sheet(props) {
         {/* TRAY CONTAINER - Height = max snap point, positioned at bottom */}
         <div
           ref={trayRef}
-          class="tray fixed rounded-t-3xl inset-x-0 bottom-0 z-100 overflow-y-auto overscroll-contain touch-pan-y pointer-events-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
+          class="tray fixed rounded-t-3xl inset-x-0 bottom-0 z-100 overflow-y-auto overscroll-contain touch-pan-y [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
           classList={{
             'snap-y snap-mandatory': snapEnabled(),
           }}
