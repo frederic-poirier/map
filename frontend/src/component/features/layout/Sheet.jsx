@@ -17,6 +17,7 @@ const SheetContext = createContext();
  */
 function Sheet(props) {
   let peekRef, trayRef, sheetRef;
+  let canScroll = false;
 
   const sheetLayout = useSheetLayout();
 
@@ -202,9 +203,32 @@ function Sheet(props) {
 
     trayRef.addEventListener('scroll', handleScroll, { passive: true });
 
+    // Pointer handling - only allow scroll if interaction starts on sheet
+    const onPointerDown = (e) => {
+      if (!sheetRef) return;
+      const sheetRect = sheetRef.getBoundingClientRect();
+      canScroll = e.clientY >= sheetRect.top;
+      if (!canScroll) {
+        // Prevent scrolling if pointer is above sheet
+        trayRef.style.overflowY = 'hidden';
+      }
+    };
+
+    const onPointerUp = () => {
+      trayRef.style.overflowY = 'auto';
+      canScroll = false;
+    };
+
+    trayRef.addEventListener('pointerdown', onPointerDown);
+    trayRef.addEventListener('pointerup', onPointerUp);
+    trayRef.addEventListener('pointercancel', onPointerUp);
+
     onCleanup(() => {
       resizeObserver.disconnect();
       trayRef.removeEventListener('scroll', handleScroll);
+      trayRef.removeEventListener('pointerdown', onPointerDown);
+      trayRef.removeEventListener('pointerup', onPointerUp);
+      trayRef.removeEventListener('pointercancel', onPointerUp);
       clearTimeout(scrollTimeout);
       clearTimeout(animationTimer);
       sheetLayout?.setSheetRef?.(null);
@@ -242,7 +266,7 @@ function Sheet(props) {
         {/* TRAY CONTAINER - Height = max snap point, positioned at bottom */}
         <div
           ref={trayRef}
-          class="tray fixed rounded-t-3xl inset-x-0 bottom-0 z-100 overflow-y-auto overscroll-contain pointer-events-none [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
+          class="tray fixed rounded-t-3xl inset-x-0 bottom-0 z-100 overflow-y-auto overscroll-contain touch-pan-y [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden [-webkit-overflow-scrolling:touch]"
           classList={{
             'snap-y snap-mandatory': snapEnabled(),
           }}
