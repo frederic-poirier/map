@@ -1,7 +1,16 @@
 import "./css/index.css";
 import { render } from "solid-js/web";
+import { registerSheetElements } from "pure-web-bottom-sheet";
 
 import App from "./App";
+
+// Register bottom sheet web components
+registerSheetElements();
+
+// Enable VirtualKeyboard API for on-screen keyboard avoidance
+if ("virtualKeyboard" in navigator) {
+  navigator.virtualKeyboard.overlaysContent = true;
+}
 
 const root = document.getElementById("root");
 
