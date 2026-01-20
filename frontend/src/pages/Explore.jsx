@@ -10,7 +10,7 @@ import { useMap } from "~/context/MapContext";
 import { usePlace } from "~/context/PlaceContext";
 import { useTheme } from "~/context/ThemeContext";
 import { generatePlaceId } from "~/utils/placeId";
-import { StickySlot, useSheetLayout } from "~/context/SheetLayoutContext";
+import { StickySlot, FooterSlot, useSheetLayout } from "~/context/SheetLayoutContext";
 import useCoordinates from "~/utils/useCoordinates";
 import RefreshCcw from "lucide-solid/icons/refresh-ccw";
 
@@ -90,30 +90,31 @@ export default function Explore() {
   return (
     <>
       <StickySlot>
-        <div class="flex gap-2 items-center">
-          <SearchInput
-            value={search.query()}
-            onChange={search.setQuery}
-            onKeyDown={navigation.handleKeyDown}
-            onFocus={handleSearchFocus}
-            onReset={search.reset}
-          />
-          <Show when={showRefreshButton()}>
-            <button
-              class="flex items-center aspect-square justify-center gap-2 bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium rounded-xl p-1 transition-colors"
-              onClick={() => {
-                setCenter(getCenter());
-                setShowRefreshButton(false);
-                search.setQuery(search.query());
-                search.refetch();
-                sheetLayout.snapTo(1);
-              }}
-            >
-              <RefreshCcw class="w-4 h-4" />
-            </button>
-          </Show>
-        </div>
+        <SearchInput
+          value={search.query()}
+          onChange={search.setQuery}
+          onKeyDown={navigation.handleKeyDown}
+          onFocus={handleSearchFocus}
+          onReset={search.reset}
+        />
       </StickySlot>
+      <Show when={showRefreshButton()}>
+        <FooterSlot>
+          <button
+            class="flex items-center justify-center gap-2 w-full bg-[var(--color-primary)] hover:bg-[var(--color-primary-hover)] text-white font-medium rounded-xl py-2.5 px-4 transition-colors"
+            onClick={() => {
+              setCenter(getCenter());
+              setShowRefreshButton(false);
+              search.setQuery(search.query());
+              search.refetch();
+              sheetLayout.snapTo(1);
+            }}
+          >
+            <RefreshCcw class="w-4 h-4" />
+            <span>Search this area</span>
+          </button>
+        </FooterSlot>
+      </Show>
       <Show when={search.query().length >= 3} fallback={<LocationList />}>
         <SearchResults
           items={search.navigableItems()}

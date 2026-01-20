@@ -12,7 +12,7 @@ import Map from "../../Map";
 import { A } from "@solidjs/router";
 import { Show, createSignal, onMount, onCleanup } from "solid-js";
 import { useAuth } from "~/context/AuthContext";
-import { Sheet } from "./Sheet";
+import { BottomSheet } from "./BottomSheet";
 import { Toaster } from 'solid-toast'
 import "~/css/Sheet.css";
 
@@ -60,10 +60,10 @@ function LayoutContent(props) {
 }
 
 function MobileSheet(props) {
-  const { stickyContent } = useSheetLayout();
+  const { stickyContent, footerContent } = useSheetLayout();
 
   const header = (
-    <Sheet.Header>
+    <BottomSheet.Header>
       <div class="flex items-center gap-2">
         <h1 class="mr-auto text-lg font-semibold text-[var(--text-primary)]">Explore</h1>
         <Show when={props.user()} fallback={<HeaderSkeleton />}>
@@ -76,29 +76,39 @@ function MobileSheet(props) {
           </A>
         </Show>
       </div>
-    </Sheet.Header>
+    </BottomSheet.Header>
   );
 
   const sticky = (
     <Show when={stickyContent()}>
-      <Sheet.Sticky>
+      <BottomSheet.Sticky>
         {stickyContent()}
-      </Sheet.Sticky>
+      </BottomSheet.Sticky>
+    </Show>
+  );
+
+  const footer = (
+    <Show when={footerContent()}>
+      <BottomSheet.Footer>
+        {footerContent()}
+      </BottomSheet.Footer>
     </Show>
   );
 
   return (
-    <Sheet
-      snapPoints={['auto', 40, 80]}  // ← AJOUTÉ
+    <BottomSheet
+      snapPoints={[15, 40, 90]}
+      initialSnap={1}
       header={header}
       sticky={sticky}
+      footer={footer}
     >
-      <Sheet.Content>
+      <BottomSheet.Content>
         <Show when={props.user()} fallback={<ContentSkeleton />}>
           {props.children}
         </Show>
-      </Sheet.Content>
-    </Sheet>
+      </BottomSheet.Content>
+    </BottomSheet>
   );
 }
 

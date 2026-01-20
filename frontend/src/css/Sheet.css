@@ -1,4 +1,84 @@
-/* Sheet.css - Animation keyframes for sheet content transitions */
+/* Sheet.css - Styles for the pure-web-bottom-sheet integration */
+
+/* ============================================
+   Bottom Sheet Container Styles
+   ============================================ */
+
+bottom-sheet.sheet-container {
+  /* Override default colors to match theme */
+  --sheet-background: var(--bg-primary);
+  --sheet-border-radius: 16px;
+  --sheet-max-height: calc(100dvh - 24px);
+  
+  /* Ensure the sheet is above the map */
+  z-index: 100;
+}
+
+/* Style the sheet parts via ::part selectors */
+bottom-sheet.sheet-container::part(sheet) {
+  background: var(--bg-primary);
+  box-shadow: 
+    0 -2px 16px rgba(0, 0, 0, 0.08),
+    0 0 32px rgba(0, 0, 0, 0.04);
+}
+
+.dark bottom-sheet.sheet-container::part(sheet) {
+  box-shadow: 
+    0 -2px 16px rgba(0, 0, 0, 0.4),
+    0 0 32px rgba(0, 0, 0, 0.2);
+}
+
+bottom-sheet.sheet-container::part(handle) {
+  background: var(--border-secondary);
+  opacity: 0.6;
+}
+
+bottom-sheet.sheet-container::part(header) {
+  background: var(--bg-primary);
+}
+
+bottom-sheet.sheet-container::part(footer) {
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-primary);
+}
+
+bottom-sheet.sheet-container::part(content) {
+  /* Enable proximity snap for smoother scrolling */
+  scroll-snap-type: y proximity;
+}
+
+/* After pseudo-element for content scroll snap */
+bottom-sheet.sheet-container::part(content)::after {
+  display: block;
+  content: "";
+  scroll-snap-align: start;
+  height: 1px;
+}
+
+/* ============================================
+   Header Content Styles
+   ============================================ */
+
+.sheet-header-content {
+  padding-top: 0.25rem;
+}
+
+/* ============================================
+   Footer Content Styles  
+   ============================================ */
+
+.sheet-footer-content {
+  padding: 0.75rem 1rem;
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* ============================================
+   Content Wrapper with Animations
+   ============================================ */
+
+.sheet-content-wrapper {
+  /* Smooth content transitions */
+}
 
 /* Slide in from right (forward navigation) */
 @keyframes slide-in-right {
@@ -32,6 +112,34 @@
   animation: slide-in-left 0.25s ease-out forwards;
 }
 
-.tray {
+/* ============================================
+   Desktop Sidebar Animation
+   ============================================ */
+
+@keyframes sidebar-enter {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.sidebar-enter {
+  animation: sidebar-enter 0.3s ease-out forwards;
+}
+
+/* ============================================
+   Hide scrollbars on the sheet
+   ============================================ */
+
+bottom-sheet.sheet-container {
   scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+bottom-sheet.sheet-container::-webkit-scrollbar {
+  display: none;
 }

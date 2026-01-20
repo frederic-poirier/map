@@ -5,15 +5,19 @@ const SheetLayoutContext = createContext();
 
 export function SheetLayoutProvider(props) {
   const [stickyContent, setStickyContent] = createSignal(null);
+  const [footerContent, setFooterContent] = createSignal(null);
   const [isSheetOpen, setIsSheetOpen] = createSignal(false);
   const [sheetRef, setSheetRef] = createSignal(null);
 
   // Persist sheet state across navigation
-  const [savedSnapIndex, setSavedSnapIndex] = createSignal(0);
+  const [savedSnapIndex, setSavedSnapIndex] = createSignal(1);
   const [savedScrollPosition, setSavedScrollPosition] = createSignal(0);
 
+  // Handler for programmatic snapping (set by BottomSheet component)
+  const [snapToHandler, setSnapToHandler] = createSignal(null);
+
   // Navigation direction tracking
-  const [navigationDirection, setNavigationDirection] = createSignal('forward'); // 'forward' | 'back'
+  const [navigationDirection, setNavigationDirection] = createSignal('forward');
   const [historyStack, setHistoryStack] = createSignal([]);
 
   // Track navigation direction based on history
@@ -44,11 +48,9 @@ export function SheetLayoutProvider(props) {
 
   // Programmatically open the sheet to first snap point
   const openSheet = () => {
-    const tray = sheetRef();
-    if (tray) {
-      // Get spacer height from CSS var
-      const spacerHeight = parseFloat(getComputedStyle(tray).getPropertyValue('--spacer-height')) || 0;
-      tray.scrollTo({ top: spacerHeight, behavior: 'smooth' });
+    const handler = snapToHandler();
+    if (handler) {
+      handler(1); // Snap to first open position
     }
     setIsSheetOpen(true);
     setSavedSnapIndex(1);
@@ -56,9 +58,9 @@ export function SheetLayoutProvider(props) {
 
   // Programmatically close the sheet
   const closeSheet = () => {
-    const tray = sheetRef();
-    if (tray) {
-      tray.scrollTo({ top: 0, behavior: 'smooth' });
+    const handler = snapToHandler();
+    if (handler) {
+      handler(0); // Snap to closed position
     }
     setIsSheetOpen(false);
     setSavedSnapIndex(0);
@@ -67,12 +69,9 @@ export function SheetLayoutProvider(props) {
 
   // Snap to a specific index
   const snapTo = (index) => {
-    const tray = sheetRef();
-    if (tray) {
-      // Supposons que chaque snap point a une hauteur définie (ex: 300px par index)
-      // Ou utilise une logique basée sur tes variables CSS
-      const snapHeight = index * 300; // À adapter selon ta logique de design
-      tray.scrollTo({ top: snapHeight, behavior: 'smooth' });
+    const handler = snapToHandler();
+    if (handler) {
+      handler(index);
     }
     setSavedSnapIndex(index);
     setIsSheetOpen(index > 0);
@@ -86,6 +85,8 @@ export function SheetLayoutProvider(props) {
   const value = {
     stickyContent,
     setStickyContent,
+    footerContent,
+    setFooterContent,
     isSheetOpen,
     setIsSheetOpen,
     openSheet,
@@ -98,6 +99,8 @@ export function SheetLayoutProvider(props) {
     savedScrollPosition,
     saveScrollPosition,
     snapTo,
+    // Handler management
+    setSnapToHandler,
     // Navigation direction
     navigationDirection,
   };
@@ -134,5 +137,29 @@ export function StickySlot(props) {
   });
 
   // Return null - content is rendered by the Sheet/Sidebar via context
+  return null;
+}
+
+/**
+ * Component to render content in the footer area of the sheet
+ * Registers the content with the sheet context for rendering in the footer slot
+ */
+export function FooterSlot(props) {
+  const context = useSheetLayout();
+
+  // If no context (not in sheet layout), render inline
+  if (!context) {
+    return props.children;
+  }
+
+  // Register content with context for rendering in footer slot
+  context.setFooterContent(() => props.children);
+
+  // Clean up when component unmounts
+  onCleanup(() => {
+    context.setFooterContent(null);
+  });
+
+  // Return null - content is rendered by the Sheet via context
   return null;
 }
