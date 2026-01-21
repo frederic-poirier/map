@@ -37,7 +37,7 @@ export default function Map() {
     sources: {
       montreal: {
         type: "vector",
-        url: `pmtiles://https://map-bucket.frederic.dog/montreal.pmtiles`,
+        url: "/tiles/montreal.pmtiles",
         attribution:
           '<a href="https://protomaps.com">Protomaps</a> © <a href="https://openstreetmap.org">OpenStreetMap</a>',
       },

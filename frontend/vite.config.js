@@ -7,6 +7,11 @@ export default defineConfig({
   plugins: [solidPlugin(), tailwindcss(), tsconfigPaths()],
   server: {
     port: 3000,
+    proxy: {
+      "/api": "http://localhost:8788",
+      "/tiles": "http://localhost:8788",
+      "/auth": "http://localhost:8788",
+    }
   },
   build: {
     target: "esnext",

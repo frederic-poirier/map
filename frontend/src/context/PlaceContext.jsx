@@ -1,14 +1,13 @@
 import { createContext, createSignal, createResource, useContext } from "solid-js";
 import { generatePlaceId, parsePlaceId } from "~/utils/placeId";
-import { BACKEND_URL } from "~/config";
-import toast from "solid-toast";
+import { toast } from "solid-sonner";
 
 const PlaceContext = createContext();
 
 export function PlaceProvider(props) {
   const [placeCache, setPlaceCache] = createSignal({});
   const [savedPlaces, { mutate, refetch }] = createResource(async () => {
-    const response = await fetch(`${BACKEND_URL}/api/saved-place`, {
+    const response = await fetch("/api/saved-place", {
       credentials: "include",
     });
     const data = await response.json();
@@ -23,6 +22,8 @@ export function PlaceProvider(props) {
       };
     });
   });
+
+
   const getExistingPlaceByName = (name) => {
     return savedPlaces()?.find((p) => p.name === name);
   }
@@ -46,7 +47,7 @@ export function PlaceProvider(props) {
       const existingByLocation = getExistingPlaceByGeoJSON(osmObject);
       if (existingByLocation) {
         throw new Error(`This place is already save under the name of "${existingByLocation.name}"`);
-      } const response = await fetch(`${BACKEND_URL}/api/saved-place`, {
+      } const response = await fetch(`/api/saved-place`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -63,7 +64,7 @@ export function PlaceProvider(props) {
       };
       mutate((prev) => [...prev, formatted]);
     } catch (error) {
-      toast.error(error.message)
+      toast(error.message, { type: "error" });
       throw error;
     }
   };
@@ -72,7 +73,7 @@ export function PlaceProvider(props) {
     const previousState = savedPlaces()
     mutate((prev) => prev.filter((loc) => loc.id !== id));
     try {
-      const response = await fetch(`${BACKEND_URL}/api/saved-place/${id}`, {
+      const response = await fetch(`/api/saved-place/${id}`, {
         method: "DELETE",
         credentials: "include",
       });
@@ -102,10 +103,15 @@ export function PlaceProvider(props) {
       return Promise.resolve(cached);
     }
 
+    const saved = getSavedPlaceById(id);
+    if (saved) {
+      return Promise.resolve(saved);
+    }
+
     const place = parsePlaceId(id)
     if (!place) return Promise.resolve('Error parsing ID')
     try {
-      const response = await fetch(`${BACKEND_URL}/api/place?lat=${place.lat}&lon=${place.lon}`, { credentials: "include" });
+      const response = await fetch(`/api/place?lat=${place.lat}&lon=${place.lon}`, { credentials: "include" });
       if (!response.ok) throw new Error("Failed to fetch place");
       const data = await response.json();
       setPlaceCache((prev) => ({ ...prev, [id]: data }));

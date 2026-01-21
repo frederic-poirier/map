@@ -13,7 +13,7 @@ import { A } from "@solidjs/router";
 import { Show, createSignal, onMount, onCleanup } from "solid-js";
 import { useAuth } from "~/context/AuthContext";
 import { BottomSheet } from "./BottomSheet";
-import { Toaster } from 'solid-toast'
+import { Toaster } from "solid-sonner";
 import "~/css/Sheet.css";
 
 export default function Layout(props) {

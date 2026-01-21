@@ -1,5 +1,4 @@
 import { createSignal, createResource, createMemo } from "solid-js";
-import { BACKEND_URL } from "~/config";
 import { useMap } from "~/context/MapContext";
 import { usePlace } from "~/context/PlaceContext";
 
@@ -20,7 +19,7 @@ export function useSearch(options = {}) {
     async (q) => {
       const center = getCenter();
       const response = await fetch(
-        `${BACKEND_URL}/api/search?q=${encodeURIComponent(q)}&lon=${center.lon}&lat=${center.lat}&location_bias_scale=0.5`,
+        `/api/search?q=${encodeURIComponent(q)}&lon=${center.lon}&lat=${center.lat}&location_bias_scale=0.5`,
         { credentials: "include" }
       );
       const data = await response.json();
@@ -38,17 +37,17 @@ export function useSearch(options = {}) {
     const matchingSavedByName =
       q.length >= 2
         ? saved.filter((loc) =>
-            loc.name.toLowerCase().includes(q.toLowerCase())
-          )
+          loc.name.toLowerCase().includes(q.toLowerCase())
+        )
         : [];
 
     const matchingSavedByAddress =
       q.length >= 2
         ? saved.filter((loc) => {
-            const addr =
-              loc.properties?.street + " " + loc.properties?.housenumber || "";
-            return addr.toLowerCase().includes(q.toLowerCase());
-          })
+          const addr =
+            loc.properties?.street + " " + loc.properties?.housenumber || "";
+          return addr.toLowerCase().includes(q.toLowerCase());
+        })
         : [];
 
     // Combine: saved first, then search results

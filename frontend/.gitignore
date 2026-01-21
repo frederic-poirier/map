@@ -9,7 +9,8 @@ app.config.timestamp_*.js
 # Environment
 .env
 .env*.local
-
+.dev.vars
+montreal.pmtiles
 # dependencies
 /node_modules
 

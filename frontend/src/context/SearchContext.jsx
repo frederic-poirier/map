@@ -15,9 +15,6 @@ import useListNavigation from "../utils/useListNavigation";
 const SearchContext = createContext();
 const MIN_QUERY_LENGTH = 3;
 const DEBOUNCE_DELAY = 0;
-const BACKEND_URL = import.meta.env.DEV
-  ? "http://localhost:4000"
-  : "https://backend.frederic.dog";
 
 export function SearchProvider(props) {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -51,7 +48,7 @@ export function SearchProvider(props) {
       if (!q || q.length < MIN_QUERY_LENGTH) return [];
       // Default to Montreal center for search bias
       const response = await fetch(
-        `${BACKEND_URL}/api/search?q=${encodeURIComponent(q)}&lon=-73.5674&lat=45.5019&location_bias_scale=0.5`,
+        `/api/search?q=${encodeURIComponent(q)}&lon=-73.5674&lat=45.5019&location_bias_scale=0.5`,
         { credentials: "include" }
       );
       const data = await response.json();

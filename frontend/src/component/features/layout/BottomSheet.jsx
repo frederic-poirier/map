@@ -1,33 +1,32 @@
-import { createSignal, createEffect, onMount, onCleanup, Show, For } from 'solid-js';
-import { useSheetLayout } from '~/context/SheetLayoutContext';
+import { createEffect, onMount, onCleanup, Show, For } from "solid-js";
+import { useSheetLayout } from "~/context/SheetLayoutContext";
 
 /**
  * BottomSheet - SolidJS wrapper for pure-web-bottom-sheet web component
- * 
- * The web component is registered via registerSheetElements() in index.jsx
- * and handles its own shadow DOM construction.
- * 
+ *
+ * Uses CSS scroll snap for native-like smooth movement.
+ * The web component handles all scroll-based positioning internally.
+ *
  * @param {Object} props
  * @param {JSX.Element} props.header - Header content (sticky at top)
  * @param {JSX.Element} props.sticky - Sticky content below header
  * @param {JSX.Element} props.footer - Footer content (sticky at bottom)
  * @param {JSX.Element} props.children - Main scrollable content
- * @param {Array<number|string>} props.snapPoints - Snap points in vh, e.g. [15, 40, 90]
- * @param {number} props.initialSnap - Index of initial snap point (default: 1)
+ * @param {Array<number>} props.snapPoints - Snap points in vh, e.g. [15, 40, 90]
+ * @param {number} props.initialSnap - Index of initial snap point (1-based, default: 1)
  */
 function BottomSheet(props) {
   let sheetRef;
   const sheetLayout = useSheetLayout();
-  
-  // Parse snap points - filter to numeric values in vh
+
+  // Parse snap points - ensure they're sorted smallest to largest
   const snapPoints = () => {
     const points = props.snapPoints ?? [15, 40, 90];
-    return points.filter(p => typeof p === 'number').sort((a, b) => a - b);
+    return points.filter((p) => typeof p === "number").sort((a, b) => a - b);
   };
 
-  // Track current snap position from web component
-  const [snapPosition, setSnapPosition] = createSignal('1');
-  const [isAnimating, setIsAnimating] = createSignal(true);
+  // Initial snap index (1-based)
+  const initialSnapIndex = () => props.initialSnap ?? 1;
 
   onMount(() => {
     if (!sheetRef) return;
@@ -37,132 +36,98 @@ function BottomSheet(props) {
 
     // Handle snap position changes from the web component
     const handleSnapChange = (event) => {
-      const position = event.detail?.snapPosition ?? sheetRef.dataset.sheetSnapPosition;
-      setSnapPosition(position);
-      
-      // Map position to context state
-      // Position "0" = fully open, "1" = first custom snap, "2" = closed/dismissed
-      const isOpen = position !== '2' && position !== undefined;
-      sheetLayout?.setIsSheetOpen?.(isOpen);
-      
-      // Map to snap index for context compatibility
+      const position = event.detail?.snapPosition;
+      if (position === undefined) return;
+
+      // The web component emits position as string index
+      // Position corresponds to snap point index (0 = first/smallest, 1 = second, etc.)
+      // Special: when sheet is at bottom (closed), position may be the count of snap points
       const points = snapPoints();
-      let snapIndex;
-      if (position === '2') {
-        snapIndex = 0; // Closed
-      } else if (position === '0') {
-        snapIndex = points.length; // Fully open
-      } else {
-        snapIndex = parseInt(position) || 1;
-      }
+      const posNum = parseInt(position);
+
+      // Determine if sheet is open (not at the collapsed/bottom position)
+      const isOpen = posNum < points.length;
+      sheetLayout?.setIsSheetOpen?.(isOpen);
+
+      // Map to 1-based snap index for context (0 = closed, 1+ = snap points)
+      const snapIndex = isOpen ? posNum + 1 : 0;
       sheetLayout?.setSavedSnapIndex?.(snapIndex);
     };
 
-    sheetRef.addEventListener('snap-position-change', handleSnapChange);
-
-    // Initial scroll to the desired snap point
-    const initialIndex = props.initialSnap ?? (sheetLayout?.savedSnapIndex?.() || 1);
-    if (initialIndex > 0) {
-      // Use RAF to let the web component initialize
-      requestAnimationFrame(() => {
-        if (!sheetRef) return;
-        
-        // The snap points we add are in the light DOM
-        // The web component uses scroll position to determine snap
-        // We need to scroll to reveal the sheet at the initial snap point
-        const points = snapPoints();
-        const targetVh = points[initialIndex - 1] || points[0];
-        
-        // Calculate scroll position: sheet height is 100vh - 24px
-        // At scroll=0, sheet is at bottom (closed)
-        // At scroll=max, sheet is fully open
-        const sheetMaxHeight = window.innerHeight - 24;
-        const targetHeight = (targetVh / 100) * window.innerHeight;
-        const scrollTarget = sheetMaxHeight - (sheetMaxHeight - targetHeight);
-        
-        sheetRef.scrollTop = Math.max(0, scrollTarget);
-      });
-    }
-
-    // Clear animation after it completes
-    const animationTimer = setTimeout(() => {
-      setIsAnimating(false);
-    }, 300);
+    sheetRef.addEventListener("snap-position-change", handleSnapChange);
 
     onCleanup(() => {
-      sheetRef.removeEventListener('snap-position-change', handleSnapChange);
+      sheetRef.removeEventListener("snap-position-change", handleSnapChange);
       sheetLayout?.setSheetRef?.(null);
-      clearTimeout(animationTimer);
     });
   });
 
   // Programmatic snap control - expose to context
   createEffect(() => {
     if (sheetRef && sheetLayout) {
-      // Override the snapTo function in context to work with this component
       sheetLayout.setSnapToHandler?.((index) => {
         if (!sheetRef) return;
-        
+
         const points = snapPoints();
+
         if (index === 0) {
-          // Snap to closed position (scroll to 0)
-          sheetRef.scrollTo({ top: 0, behavior: 'smooth' });
+          // Snap to closed position - scroll to bottom (where sheet is hidden)
+          sheetRef.scrollTo({ top: sheetRef.scrollHeight, behavior: "smooth" });
         } else if (index <= points.length) {
-          // Calculate target scroll for this snap point
-          const targetVh = points[index - 1];
-          const sheetMaxHeight = window.innerHeight - 24;
-          const targetHeight = (targetVh / 100) * window.innerHeight;
-          const scrollTarget = sheetMaxHeight - (sheetMaxHeight - targetHeight);
-          
-          sheetRef.scrollTo({ top: Math.max(0, scrollTarget), behavior: 'smooth' });
-        } else {
-          // Fully open
-          sheetRef.scrollTo({ top: sheetRef.scrollHeight, behavior: 'smooth' });
+          // Find the snap point element and scroll to it
+          const snapElements = sheetRef.querySelectorAll('[slot="snap"]');
+          const targetElement = snapElements[index - 1];
+          if (targetElement) {
+            targetElement.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
         }
       });
     }
   });
 
-  // Animation class based on navigation direction
-  const animationClass = () => {
-    if (!isAnimating()) return '';
-    const direction = sheetLayout?.navigationDirection?.() ?? 'forward';
-    return direction === 'back' ? 'animate-slide-in-left' : 'animate-slide-in-right';
-  };
-
   return (
     <bottom-sheet
       ref={sheetRef}
       nested-scroll
+      nested-scroll-optimization
       class="sheet-container"
     >
-      {/* Snap points as slotted elements - ordered from smallest to largest vh */}
+      {/* 
+        Snap points as slotted elements
+        --snap defines distance from top of viewport where this snap occurs
+        Higher values = more sheet visible
+        The 'initial' class marks which snap point to start at
+      */}
       <For each={snapPoints()}>
         {(point, index) => (
           <div
             slot="snap"
-            style={{ '--snap': `${100 - point}vh` }}
-            classList={{ 'initial': index() === (props.initialSnap ?? 1) - 1 }}
+            style={{ "--snap": `${point}vh` }}
+            classList={{ initial: index() === initialSnapIndex() - 1 }}
           />
         )}
       </For>
 
       {/* Header slot */}
       <Show when={props.header || props.sticky}>
-        <div slot="header" class="sheet-header-content">
+        <div slot="header" class="pt-1">
           {props.header}
           {props.sticky}
         </div>
       </Show>
 
-      {/* Main content with animation */}
-      <div class={`sheet-content-wrapper ${animationClass()}`}>
-        {props.children}
-      </div>
+      {/* Main content - no animation wrapper needed, web component handles it */}
+      <div class="sheet-main-content">{props.children}</div>
 
       {/* Footer slot */}
       <Show when={props.footer}>
-        <div slot="footer" class="sheet-footer-content">
+        <div
+          slot="footer"
+          class="px-4 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+        >
           {props.footer}
         </div>
       </Show>
@@ -170,10 +135,10 @@ function BottomSheet(props) {
   );
 }
 
-// Sub-components for API compatibility with old Sheet component
+// Sub-components for API compatibility
 function Header(props) {
   return (
-    <div class={`px-4 pb-2 ${props.class || ''}`} style={props.style}>
+    <div class={`px-4 pb-2 ${props.class || ""}`} style={props.style}>
       {props.children}
     </div>
   );
@@ -181,7 +146,7 @@ function Header(props) {
 
 function Sticky(props) {
   return (
-    <div class={`px-4 pb-3 ${props.class || ''}`} style={props.style}>
+    <div class={`px-4 pb-3 ${props.class || ""}`} style={props.style}>
       {props.children}
     </div>
   );
@@ -189,7 +154,10 @@ function Sticky(props) {
 
 function Content(props) {
   return (
-    <div class={`px-4 pb-[max(24px,env(safe-area-inset-bottom))] ${props.class || ''}`} style={props.style}>
+    <div
+      class={`px-4 pb-[max(24px,env(safe-area-inset-bottom))] ${props.class || ""}`}
+      style={props.style}
+    >
       {props.children}
     </div>
   );
@@ -197,7 +165,7 @@ function Content(props) {
 
 function Footer(props) {
   return (
-    <div class={`px-4 py-3 ${props.class || ''}`} style={props.style}>
+    <div class={`${props.class || ""}`} style={props.style}>
       {props.children}
     </div>
   );

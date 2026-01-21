@@ -18,9 +18,9 @@ export function LocationList() {
   return (
     <div class="space-y-1 overflow-x-hidden px-2 pb-2">
       <div class="flex items-center justify-between px-1">
-        <span class="text-xs font-medium text-[var(--text-tertiary)] tracking-tight">
+        <h3 class="text-xs font-medium text-[var(--text-tertiary)] tracking-tight">
           Saved
-        </span>
+        </h3>
         <Show when={savedPlaces()?.length > 0}>
           <span class="text-xs text-[var(--text-tertiary)] tabular-nums">
             {savedPlaces()?.length}
@@ -60,7 +60,7 @@ export function LocationList() {
                   style={{ "animation-delay": `${index() * 30}ms` }}
                 >
                   <button
-                    class="flex items-center gap-2 px-2 py-2 -mx-2 rounded-lg hover:bg-[var(--bg-hover)] transition-all cursor-pointer"
+                    class="flex w-full text-left items-center gap-2 px-2 py-2 -mx-2 rounded-lg hover:bg-[var(--bg-hover)] transition-all cursor-pointer"
                     onClick={() => goToLocation(savedPlace)}
                   >
                     <MapPin

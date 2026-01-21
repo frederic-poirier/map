@@ -53,7 +53,6 @@ export default function Directions() {
       }
     }
   });
-
   const handleBack = () => {
     clearItinerary();
     navigate(-1);

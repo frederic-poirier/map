@@ -1,5 +1,4 @@
 import { createContext, useContext, createSignal } from "solid-js";
-import { BACKEND_URL } from "~/config";
 
 const ItineraryContext = createContext();
 
@@ -60,7 +59,7 @@ export function ItineraryProvider(props) {
 
       console.log(fromLat, fromLon, toLat, toLon);
 
-      const response = await fetch(`${BACKEND_URL}/api/otp/plan`, {
+      const response = await fetch(`api/otp/plan`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

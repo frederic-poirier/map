@@ -6,7 +6,7 @@ import {
   onCleanup,
 } from "solid-js";
 import { useNavigate, useLocation } from "@solidjs/router";
-import { BACKEND_URL } from "~/config";
+import { toast } from "solid-sonner";
 
 const AuthContext = createContext();
 
@@ -75,7 +75,7 @@ export function AuthProvider(props) {
     }
 
     try {
-      const response = await fetch(`${BACKEND_URL}/me`, {
+      const response = await fetch("/auth/me", {
         credentials: "include",
       });
 
@@ -97,6 +97,8 @@ export function AuthProvider(props) {
       // If no cache, redirect to login
       if (!cached?.user) {
         redirectToLogin();
+      } else {
+        toast("Network error during authentication check", { type: "error" });
       }
       return false;
     } finally {
@@ -109,7 +111,7 @@ export function AuthProvider(props) {
   // Silent refresh - renews the session cookie
   const silentRefresh = async () => {
     try {
-      const response = await fetch(`${BACKEND_URL}/refresh`, {
+      const response = await fetch("/auth/refresh", {
         credentials: "include",
       });
 
@@ -117,7 +119,6 @@ export function AuthProvider(props) {
         const data = await response.json();
         // Update cache timestamp
         setCachedAuth(data.email);
-        console.log("Session refreshed silently");
         return true;
       } else {
         // Refresh failed - session might be expired
@@ -126,6 +127,7 @@ export function AuthProvider(props) {
       }
     } catch (error) {
       console.error("Silent refresh failed:", error);
+      toast("Network error during silent refresh", { type: "error" });
       return false;
     }
   };
@@ -152,13 +154,14 @@ export function AuthProvider(props) {
   });
 
   const login = () => {
-    window.location.href = `${BACKEND_URL}/login`;
+    window.location.href = "/auth/login";
   };
 
   const logout = () => {
     setCachedAuth(null);
     setUser(null);
-    window.location.href = `${BACKEND_URL}/logout`;
+    toast.success("Logged out successfully");
+    window.location.href = "/auth/logout";
   };
 
   return (
