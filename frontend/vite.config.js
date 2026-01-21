@@ -1,14 +1,19 @@
-import tailwindcss from "@tailwindcss/vite";
-import { defineConfig } from "vite";
-import solidPlugin from "vite-plugin-solid";
-import tsconfigPaths from "vite-tsconfig-paths";
+import { defineConfig } from 'vite'
+import solid from 'vite-plugin-solid'
 
 export default defineConfig({
-  plugins: [solidPlugin(), tailwindcss(), tsconfigPaths()],
+  plugins: [solid()],
   server: {
-    port: 3000,
-  },
-  build: {
-    target: "esnext",
-  },
-});
+    proxy: {
+      "/api": {
+        target: "http://localhost:8787",
+        changeOrigin: true
+      },
+      "/auth": {
+        target: "http://localhost:8787",
+        changeOrigin: true
+      }
+
+    }
+  }
+})
