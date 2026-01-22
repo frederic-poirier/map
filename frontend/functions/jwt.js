@@ -18,3 +18,17 @@ export async function verifyJwt(token, secret) {
   );
   return payload;
 }
+
+export function decodeJwt(token) {
+  const parts = token.split(".");
+  if (parts.length !== 3) {
+    throw new Error("Invalid JWT format");
+  }
+  
+  const payloadB64 = parts[1];
+  // Handle base64url encoding
+  const base64 = payloadB64.replace(/-/g, "+").replace(/_/g, "/");
+  const payload = JSON.parse(atob(base64));
+  
+  return payload;
+}
