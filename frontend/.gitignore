@@ -12,6 +12,7 @@ dist
 dist-ssr
 *.local
 .dev.vars
+montreal.pmtiles
 **/.dev.vars
 
 # Editor directories and files
