@@ -5,5 +5,10 @@ compatibility_date = "2024-01-01"
 binding = "R2_BUCKET"
 bucket_name = "map-dev"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "map-auth"
+database_id = "3a99b737-7c97-41a3-ac03-38d68d1b2170"
+
 [vars]
 WHITELIST_EMAILS = "fredmpoirier@gmail.com,frederic8242@gmail.com,emeryseheb@gmail.com"

@@ -1,5 +1,4 @@
-
-import { verifyJwt, signJwt, decodeJwt } from "../jwt";
+import { signJwt } from "../jwt";
 
 function parseCookies(cookieHeader) {
   const cookies = {};
@@ -23,48 +22,47 @@ export async function onRequest({ request, env }) {
       return new Response("Missing JWT_SECRET", { status: 500 });
     }
 
+    if (!env.DB) {
+      return new Response("Missing DB binding", { status: 500 });
+    }
+
     const cookies = parseCookies(request.headers.get("cookie") || "");
     const refreshToken = cookies.refresh_token;
-    const currentToken = cookies.auth_token;
 
-    log("Tokens", { hasRefresh: !!refreshToken, hasCurrent: !!currentToken });
+    log("Refresh attempt", { hasRefreshToken: !!refreshToken });
 
     if (!refreshToken) {
       return new Response("No refresh token", { status: 401 });
     }
 
-    if (!currentToken) {
-      return new Response("No current token", { status: 401 });
+    // Validate refresh token from D1
+    const tokenResult = await env.DB.prepare(`
+      SELECT rt.id, rt.user_id, rt.expires_at, rt.revoked_at, u.email, u.name, u.picture
+      FROM refresh_tokens rt
+      JOIN users u ON u.id = rt.user_id
+      WHERE rt.token = ?
+    `).bind(refreshToken).first();
+
+    if (!tokenResult) {
+      log("Refresh token not found");
+      return new Response("Invalid refresh token", { status: 401 });
     }
 
-    let payload;
-    
-    // First try to verify the token (if still valid)
-    try {
-      log("Verifying current token...");
-      payload = await verifyJwt(currentToken, env.JWT_SECRET);
-      log("Token valid", { email: payload.email });
-    } catch (verifyError) {
-      // Token expired or invalid - try to decode it without verification
-      // This allows refresh even if the access token has expired
-      log("Token verification failed, attempting decode...", { error: verifyError.message });
-      
-      try {
-        payload = decodeJwt(currentToken);
-        log("Token decoded (expired but valid structure)", { email: payload.email });
-        
-        // Ensure we have the required fields
-        if (!payload.sub || !payload.email) {
-          throw new Error("Invalid token payload");
-        }
-      } catch (decodeError) {
-        log("Token decode failed", { error: decodeError.message });
-        return new Response("Invalid token", { status: 401 });
-      }
+    if (tokenResult.revoked_at) {
+      log("Refresh token revoked", { revokedAt: tokenResult.revoked_at });
+      return new Response("Refresh token revoked", { status: 401 });
     }
 
+    if (new Date(tokenResult.expires_at) < new Date()) {
+      log("Refresh token expired", { expiresAt: tokenResult.expires_at });
+      return new Response("Refresh token expired", { status: 401 });
+    }
+
+    log("Refresh token valid", { userId: tokenResult.user_id, email: tokenResult.email });
+
+    // Generate new JWT
     const newJwt = await signJwt(
-      { sub: payload.sub, email: payload.email },
+      { sub: tokenResult.email, email: tokenResult.email, userId: tokenResult.user_id },
       env.JWT_SECRET
     );
 
@@ -76,12 +74,12 @@ export async function onRequest({ request, env }) {
 
     response.headers.append(
       "Set-Cookie",
-      `auth_token=${newJwt}; Path=/; HttpOnly; SameSite=Lax; Max-Age=900`
+      `auth_token=${newJwt}; Path=/; HttpOnly; SameSite=Lax; Secure; Max-Age=900`
     );
 
     return response;
   } catch (error) {
     log("Error", { message: error.message });
-    return new Response("Invalid token", { status: 401 });
+    return new Response("Internal error", { status: 500 });
   }
 }
