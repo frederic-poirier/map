@@ -3,6 +3,7 @@ import Login from "./Login"
 import Home from "./Home"
 import Auth from "./Auth"
 import AuthGate from "./AuthGate"
+import Map from './Map'
 
 export default function App() {
 
@@ -14,6 +15,7 @@ export default function App() {
 
       <Route path="/" component={AuthGate}>
         <Route path="/" component={Home} />
+        <Route path="/map" component={Map} />
       </Route>
     </Router>
 
