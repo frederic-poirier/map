@@ -1,6 +1,7 @@
 import { onMount, onCleanup, createSignal } from 'solid-js';
 import maplibregl from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
+import { auth } from './hooks/useAuth';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -46,6 +47,8 @@ export default function Map() {
   });
 
   return (
-    <div ref={mapContainer} class="w-full h-full" />
+    <Show when={!auth().loading} fallback={<div>Loading Map...</div>}>
+      <div ref={mapContainer} class="w-full h-full" />
+    </Show>
   );
 }

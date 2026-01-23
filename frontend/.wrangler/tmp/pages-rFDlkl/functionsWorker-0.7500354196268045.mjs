@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-0Pondy/checked-fetch.js
+// ../.wrangler/tmp/bundle-fWSGHg/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -27,133 +27,90 @@ globalThis.fetch = new Proxy(globalThis.fetch, {
   }
 });
 
-// env.js
-function requireEnv(env, keys) {
-  for (const key of keys) {
-    if (!env[key]) {
-      throw new Error(`Missing env var: ${key}`);
+// tiles/montreal.pmtiles.js
+async function onRequest({ env, request }) {
+  const path = "montreal.pmtiles";
+  try {
+    const range = request.headers.get("Range");
+    if (range) {
+      const parts = range.replace(/bytes=/, "").split("-");
+      const start = parseInt(parts[0], 10);
+      const end = parts[1] ? parseInt(parts[1], 10) : void 0;
+      const head = await env.R2_BUCKET.head(path);
+      if (!head) {
+        return new Response("File not found", { status: 404 });
+      }
+      const objectSize = head.size;
+      const rangeEnd = end !== void 0 ? end : objectSize - 1;
+      const object2 = await env.R2_BUCKET.get(path, {
+        range: {
+          offset: start,
+          length: rangeEnd - start + 1
+        }
+      });
+      if (!object2) {
+        return new Response("File not found", { status: 404 });
+      }
+      return new Response(object2.body, {
+        status: 206,
+        headers: {
+          "Content-Type": "application/x-protobuf",
+          "Content-Length": (rangeEnd - start + 1).toString(),
+          "Content-Range": `bytes ${start}-${rangeEnd}/${objectSize}`,
+          "Accept-Ranges": "bytes",
+          "Access-Control-Allow-Origin": "*",
+          "Cache-Control": "public, max-age=31536000, immutable"
+        }
+      });
     }
+    const object = await env.R2_BUCKET.get(path);
+    if (!object) {
+      return new Response("File not found", { status: 404 });
+    }
+    return new Response(object.body, {
+      status: 200,
+      headers: {
+        "Content-Type": "application/x-protobuf",
+        "Content-Length": object.size.toString(),
+        "Accept-Ranges": "bytes",
+        "Access-Control-Allow-Origin": "*",
+        "Cache-Control": "public, max-age=31536000, immutable"
+      }
+    });
+  } catch (error) {
+    console.error("R2 Error:", error);
+    return new Response(`Error: ${error.message}`, { status: 500 });
   }
-}
-__name(requireEnv, "requireEnv");
-
-// auth/google/callback.js
-async function onRequest({ request, env }) {
-  requireEnv(env, [
-    "GOOGLE_CLIENT_ID",
-    "GOOGLE_CLIENT_SECRET",
-    "GOOGLE_REDIRECT_URI",
-    "JWT_SECRET",
-    "WHITELIST_EMAILS",
-    "FRONTEND_ORIGIN"
-  ]);
-  const url = new URL(request.url);
-  const code = url.searchParams.get("code");
-  if (!code) return new Response("Missing code", { status: 400 });
-  const tokenRes = await fetch("https://oauth2.googleapis.com/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      code,
-      client_id: env.GOOGLE_CLIENT_ID,
-      client_secret: env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: env.GOOGLE_REDIRECT_URI,
-      grant_type: "authorization_code"
-    })
-  });
-  const tokenData = await tokenRes.json();
-  const [, payloadB64] = tokenData.id_token.split(".");
-  const payload = JSON.parse(atob(payloadB64));
-  const email = payload.email;
-  const whitelist = env.WHITELIST_EMAILS.split(",");
-  if (!whitelist.includes(email)) {
-    return new Response("Forbidden", { status: 403 });
-  }
-  const jwt = await (void 0)({ sub: email, email }, env.JWT_SECRET);
-  return Response.redirect(
-    `${env.FRONTEND_ORIGIN}/callback?token=${encodeURIComponent(jwt)}`,
-    302
-  );
 }
 __name(onRequest, "onRequest");
-
-// auth/google/start.js
-async function onRequest2({ env }) {
-  const state = crypto.randomUUID();
-  const googleUrl = new URL("https://accounts.google.com/o/oauth2/v2/auth");
-  googleUrl.searchParams.set("client_id", env.GOOGLE_CLIENT_ID);
-  googleUrl.searchParams.set("redirect_uri", env.GOOGLE_REDIRECT_URI);
-  googleUrl.searchParams.set("response_type", "code");
-  googleUrl.searchParams.set("scope", "openid email profile");
-  googleUrl.searchParams.set("state", state);
+async function onRequestOptions() {
   return new Response(null, {
-    status: 302,
+    status: 204,
     headers: {
-      Location: googleUrl.toString(),
-      "Set-Cookie": `oauth_state=${state}; Path=/; HttpOnly; SameSite=Lax`
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, HEAD, OPTIONS",
+      "Access-Control-Allow-Headers": "Range",
+      "Access-Control-Max-Age": "86400"
     }
   });
 }
-__name(onRequest2, "onRequest");
-
-// api/me.js
-async function onRequest3({ request, env }) {
-  requireEnv(env, ["JWT_SECRET"]);
-  const auth = request.headers.get("authorization");
-  if (!auth?.startsWith("Bearer ")) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-  try {
-    const payload = await (void 0)(auth.slice(7), env.JWT_SECRET);
-    return Response.json({
-      userId: payload.sub,
-      email: payload.email
-    });
-  } catch {
-    return new Response("Unauthorized", { status: 401 });
-  }
-}
-__name(onRequest3, "onRequest");
-
-// _middleware.js
-async function onRequest4(context) {
-  try {
-    return await context.next();
-  } catch (err) {
-    return new Response(err.message || "Internal Error", { status: 500 });
-  }
-}
-__name(onRequest4, "onRequest");
+__name(onRequestOptions, "onRequestOptions");
 
 // ../.wrangler/tmp/pages-rFDlkl/functionsRoutes-0.31491980021027977.mjs
 var routes = [
   {
-    routePath: "/auth/google/callback",
-    mountPath: "/auth/google",
+    routePath: "/tiles/montreal.pmtiles",
+    mountPath: "/tiles",
+    method: "OPTIONS",
+    middlewares: [],
+    modules: [onRequestOptions]
+  },
+  {
+    routePath: "/tiles/montreal.pmtiles",
+    mountPath: "/tiles",
     method: "",
     middlewares: [],
     modules: [onRequest]
-  },
-  {
-    routePath: "/auth/google/start",
-    mountPath: "/auth/google",
-    method: "",
-    middlewares: [],
-    modules: [onRequest2]
-  },
-  {
-    routePath: "/api/me",
-    mountPath: "/api",
-    method: "",
-    middlewares: [],
-    modules: [onRequest3]
-  },
-  {
-    routePath: "/",
-    mountPath: "/",
-    method: "",
-    middlewares: [onRequest4],
-    modules: []
   }
 ];
 
@@ -644,7 +601,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-0Pondy/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-fWSGHg/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -676,7 +633,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-0Pondy/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-fWSGHg/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
