@@ -1,25 +1,21 @@
--- Users table
 CREATE TABLE IF NOT EXISTS users (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  email TEXT UNIQUE NOT NULL,
+  google_sub TEXT UNIQUE NOT NULL,
+  email TEXT NOT NULL,
   name TEXT,
-  picture TEXT,
-  created_at TEXT DEFAULT (datetime('now')),
-  updated_at TEXT DEFAULT (datetime('now'))
+  created_at INTEGER DEFAULT (strftime('%s', 'now'))
 );
 
--- Refresh tokens table
-CREATE TABLE IF NOT EXISTS refresh_tokens (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  token TEXT UNIQUE NOT NULL,
+-- Table sessions
+CREATE TABLE IF NOT EXISTS sessions (
+  id TEXT PRIMARY KEY,
   user_id INTEGER NOT NULL,
-  expires_at TEXT NOT NULL,
-  created_at TEXT DEFAULT (datetime('now')),
-  revoked_at TEXT,
+  expires_at INTEGER NOT NULL,
+  created_at INTEGER DEFAULT (strftime('%s', 'now')),
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
--- Index for faster token lookups
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_token ON refresh_tokens(token);
-CREATE INDEX IF NOT EXISTS idx_refresh_tokens_user_id ON refresh_tokens(user_id);
-CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+-- Index pour améliorer les performances
+CREATE INDEX IF NOT EXISTS idx_sessions_expires ON sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_sessions_user ON sessions(user_id);
+CREATE INDEX IF NOT EXISTS idx_users_google_sub ON users(google_sub);
