@@ -8,7 +8,7 @@ bucket_name = "map-dev"
 [[d1_databases]]
 binding = "DB"
 database_name = "map-auth"
-database_id = "3a99b737-7c97-41a3-ac03-38d68d1b2170"
+database_id = "5cf5c86c-1cf7-4329-8895-9cd309dcfe11"
 
 [vars]
 WHITELIST_EMAILS = "fredmpoirier@gmail.com,frederic8242@gmail.com,emeryseheb@gmail.com"
