@@ -155,6 +155,16 @@ export async function onRequest({ request, env }) {
     });
 
   } catch (error) {
-    return new Response('Authentification échouée', { status: 500 });
+    return new Response(
+      JSON.stringify({
+        name: error?.name,
+        message: error?.message,
+        stack: error?.stack
+      }, null, 2),
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    );
   }
 }
