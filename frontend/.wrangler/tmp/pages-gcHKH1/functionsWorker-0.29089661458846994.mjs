@@ -1,7 +1,7 @@
 var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
-// ../.wrangler/tmp/bundle-wUFosU/checked-fetch.js
+// ../.wrangler/tmp/bundle-FLRbbP/checked-fetch.js
 var urls = /* @__PURE__ */ new Set();
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
@@ -310,17 +310,7 @@ async function onRequest2({ request, env }) {
       headers
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({
-        name: error?.name,
-        message: error?.message,
-        stack: error?.stack
-      }, null, 2),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    return new Response("Authentification \xE9chou\xE9e", { status: 500 });
   }
 }
 __name(onRequest2, "onRequest");
@@ -880,7 +870,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-wUFosU/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-FLRbbP/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -912,7 +902,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-wUFosU/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-FLRbbP/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

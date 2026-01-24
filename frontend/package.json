@@ -16,6 +16,7 @@
     "lucide-solid": "^0.562.0",
     "maplibre-gl": "^5.16.0",
     "pmtiles": "^4.3.2",
+    "pure-web-bottom-sheet": "^0.1.0",
     "solid-js": "^1.9.6",
     "tailwindcss": "^4.1.18"
   },
