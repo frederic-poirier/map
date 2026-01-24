@@ -1,28 +1,26 @@
-// functions/api/me.js
 
-import { requireAuth } from '../utils/auth.js';
+import { createEdgeToken } from '../utils/auth/edgeToken';
+import { requireAuth } from '../utils/auth/requireAuth';
 
 export async function onRequestGet({ request, env }) {
-  console.log('me')
+  const result = await requireAuth(request, env);
+  if (result instanceof Response) return result;
 
-  const userOrError = await requireAuth(request, env);
+  const { auth, headers } = result;
 
-  if (userOrError instanceof Response) {
-    return userOrError;
-  }
-
-  const user = userOrError;
+  const edgeToken = await createEdgeToken(
+    auth.userId,
+    env.EDGE_TOKEN_SECRET,
+    120
+  )
 
   return new Response(JSON.stringify({
-    id: user.userId,
-    email: user.email,
-    name: user.name,
-    sessionExpiresAt: user.expiresAt
-  }), {
-    status: 200,
-    headers: {
-      'Content-Type': 'application/json',
-      'Cache-Control': 'private, no-cache'
-    }
-  });
+    id: auth.userId,
+    email: auth.email,
+    name: auth.name,
+    edgeToken,
+    edgeTokenExpiresAt: Math.floor(Date.now() / 1000) + 120,
+    sessionExpiresAt: auth.expiresAt
+  }), { status: 200, headers });
 }
+

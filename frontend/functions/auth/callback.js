@@ -1,64 +1,6 @@
-// functions/api/auth/callback.js
-
-import { getCookie, createSession } from "../utils/auth";
-
-async function verifyIdToken(idToken, clientId) {
-  const [headerB64, payloadB64, signatureB64] = idToken.split('.');
-  if (!headerB64 || !payloadB64 || !signatureB64) {
-    throw new Error('Invalid token format');
-  }
-
-  const header = JSON.parse(atob(headerB64.replace(/-/g, '+').replace(/_/g, '/')));
-
-  const jwksRes = await fetch('https://www.googleapis.com/oauth2/v3/certs');
-  const { keys } = await jwksRes.json();
-  const key = keys.find(k => k.kid === header.kid);
-  if (!key) throw new Error('Invalid key id');
-
-  const cryptoKey = await crypto.subtle.importKey(
-    'jwk',
-    key,
-    { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' },
-    false,
-    ['verify']
-  );
-
-  const enc = new TextEncoder();
-  const data = enc.encode(`${headerB64}.${payloadB64}`);
-  const signature = Uint8Array.from(
-    atob(signatureB64.replace(/-/g, '+').replace(/_/g, '/')),
-    c => c.charCodeAt(0)
-  );
-
-  const valid = await crypto.subtle.verify(
-    'RSASSA-PKCS1-v1_5',
-    cryptoKey,
-    signature,
-    data
-  );
-
-  if (!valid) throw new Error('Invalid signature');
-
-  const payload = JSON.parse(atob(payloadB64.replace(/-/g, '+').replace(/_/g, '/')));
-
-  if (payload.iss !== 'https://accounts.google.com' &&
-    payload.iss !== 'accounts.google.com') {
-    throw new Error('Invalid issuer');
-  }
-  if (payload.aud !== clientId) throw new Error('Invalid audience');
-  if (payload.exp * 1000 < Date.now()) throw new Error('Token expired');
-
-  return payload;
-}
-
-function timingSafeEqual(a, b) {
-  if (a.length !== b.length) return false;
-  let result = 0;
-  for (let i = 0; i < a.length; i++) {
-    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
-  }
-  return result === 0;
-}
+import { buildSessionCookie, clearOAuthStateCookie, getCookie } from "../utils/auth/cookies";
+import { createUserFromGoogle, findUserByGoogleSub } from "../utils/db/userStore";
+import { verifyIdToken, timingSafeEqual } from '../utils/auth/googleOAuth';
 
 export async function onRequest({ request, env }) {
   try {
@@ -68,16 +10,9 @@ export async function onRequest({ request, env }) {
     const stateCookie = getCookie(request, 'oauth_state');
 
 
-    // Valider le state (anti-CSRF)
-    if (!code || !state || !stateCookie) {
-      return new Response('Requête invalide', { status: 400 });
-    }
+    if (!code || !state || !stateCookie) return new Response('Requête invalide', { status: 400 });
+    if (!timingSafeEqual(state, stateCookie)) return new Response('État invalide', { status: 400 });
 
-    if (!timingSafeEqual(state, stateCookie)) {
-      return new Response('État invalide', { status: 400 });
-    }
-
-    // Échanger le code contre des tokens
     const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
       method: 'POST',
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -90,14 +25,9 @@ export async function onRequest({ request, env }) {
       })
     });
 
-    if (!tokenRes.ok) {
-      return new Response('Authentification échouée', { status: 500 });
-    }
+    if (!tokenRes.ok) return new Response('Authentification échouée', { status: 500 });
 
-    const token = await tokenRes.json();
-    const { id_token } = token;
-
-    // Vérifier et décoder le ID token
+    const { id_token } = await tokenRes.json();
     const payload = await verifyIdToken(id_token, env.GOOGLE_CLIENT_ID);
     const { sub, email, name } = payload;
 
@@ -113,40 +43,14 @@ export async function onRequest({ request, env }) {
       );
     }
 
-    // Trouver ou créer l'utilisateur
-    let user = await env.DB
-      .prepare('SELECT id FROM users WHERE google_sub = ?')
-      .bind(sub)
-      .first();
-
-    if (!user) {
-      const res = await env.DB
-        .prepare('INSERT INTO users (google_sub, email, name) VALUES (?, ?, ?)')
-        .bind(sub, email, name)
-        .run();
-      user = { id: res.meta.last_row_id };
-    }
-
-    // Créer la session
+    let user = await findUserByGoogleSub(sub, env);
+    if (!user) user = await createUserFromGoogle({ sub, email, name }, env);
     const sessionId = await createSession(user.id, env);
-
-
-    const isLocalhost = new URL(request.url).hostname === 'localhost';
 
     const headers = new Headers();
     headers.set('Location', '/');
-
-    // Suppression du cookie oauth_state
-    headers.append(
-      'Set-Cookie',
-      `oauth_state=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax`
-    );
-
-    // Création du cookie de session
-    headers.append(
-      'Set-Cookie',
-      `session=${sessionId}; Path=/; Max-Age=604800; HttpOnly; SameSite=Lax${isLocalhost ? '' : '; Secure'}`
-    );
+    headers.append('Set-Cookie', clearOAuthStateCookie());
+    headers.append('Set-Cookie', buildSessionCookie(sessionId, request));
 
 
     return new Response(null, {
@@ -155,16 +59,6 @@ export async function onRequest({ request, env }) {
     });
 
   } catch (error) {
-    return new Response(
-      JSON.stringify({
-        name: error?.name,
-        message: error?.message,
-        stack: error?.stack
-      }, null, 2),
-      {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response('Authentification échouée', { status: 500 });
   }
 }

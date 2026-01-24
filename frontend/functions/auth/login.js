@@ -1,3 +1,5 @@
+import { buildOAuthStateCookie } from "../utils/auth/cookies";
+
 export function onRequest(context) {
   const url = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   const state = crypto.randomUUID();
@@ -9,14 +11,11 @@ export function onRequest(context) {
   url.searchParams.set('prompt', 'consent');
   url.searchParams.set('state', state);
 
-
-  const isLocalhost = new URL(context.request.url).hostname === 'localhost';
-
   return new Response(null, {
     status: 302,
     headers: {
       Location: url.toString(),
-      'Set-Cookie': `oauth_state=${state}; Path=/; Max-Age=600; ${isLocalhost ? '' : 'Secure; '}HttpOnly; SameSite=Lax`
+      'Set-Cookie': buildOAuthStateCookie(state, context.request)
     }
   });
 }

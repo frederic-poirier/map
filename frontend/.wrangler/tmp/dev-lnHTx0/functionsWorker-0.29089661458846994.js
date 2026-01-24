@@ -341,17 +341,7 @@ async function onRequest2({ request, env }) {
       headers
     });
   } catch (error) {
-    return new Response(
-      JSON.stringify({
-        name: error?.name,
-        message: error?.message,
-        stack: error?.stack
-      }, null, 2),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" }
-      }
-    );
+    return new Response("Authentification \xE9chou\xE9e", { status: 500 });
   }
 }
 __name(onRequest2, "onRequest2");
