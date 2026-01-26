@@ -12,12 +12,8 @@ export default function App() {
         path="/"
         component={(props) => (
           <AuthGate>
-            <div class="fixed inset-0">
-              <Map />
-              <div class="absolute inset-0 pointer-events-none">
-                {props.children}
-              </div>
-            </div>
+            <Map />
+            {props.children}
           </AuthGate>
         )}
       >

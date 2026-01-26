@@ -1,6 +1,8 @@
 import { buildSessionCookie, clearOAuthStateCookie, getCookie } from "../utils/auth/cookies";
 import { createUserFromGoogle, findUserByGoogleSub } from "../utils/db/userStore";
+import { createSession } from "../utils/db/sessionStore";
 import { verifyIdToken, timingSafeEqual } from '../utils/auth/googleOAuth';
+import { SESSION_DURATION } from "../utils/auth/constants";
 
 export async function onRequest({ request, env }) {
   try {
@@ -43,9 +45,11 @@ export async function onRequest({ request, env }) {
       );
     }
 
+
     let user = await findUserByGoogleSub(sub, env);
     if (!user) user = await createUserFromGoogle({ sub, email, name }, env);
-    const sessionId = await createSession(user.id, env);
+    const expiresAt = Math.floor(Date.now() / 1000) + SESSION_DURATION;
+    const sessionId = await createSession(user.id, expiresAt,env);
 
     const headers = new Headers();
     headers.set('Location', '/');
@@ -59,6 +63,6 @@ export async function onRequest({ request, env }) {
     });
 
   } catch (error) {
-    return new Response('Authentification échouée', { status: 500 });
+    return new Response(`Authentification échouée`, { status: 500 });
   }
 }

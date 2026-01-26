@@ -16,6 +16,7 @@ export default function AuthGate(props) {
     const currentAuth = auth();
     if (currentAuth.loading) return;
 
+
     const isPublic = PUBLIC_PATHS.some((path) =>
       location.pathname.startsWith(path)
     );
@@ -25,29 +26,7 @@ export default function AuthGate(props) {
       return;
     }
 
-    console.log(currentAuth)
-    if (!currentAuth.user.edgeToken) return; // ⬅️ CRITIQUE
-
-    (async () => {
-      try {
-        console.log('salut mon chou')
-        const res = await fetch('/edge/photon?q=montreal', {
-          headers: {
-            Authorization: `Bearer ${currentAuth.user.edgeToken}`
-          }
-        });
-
-        if (!res.ok) {
-          console.error('Photon HTTP error', res.status);
-          return;
-        }
-
-        const data = await res.json();
-        console.log(data);
-      } catch (err) {
-        console.error('Photon error', err);
-      }
-    })();
+    if (!currentAuth.user.edgeToken) return;
   });
 
   return (

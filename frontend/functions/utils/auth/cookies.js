@@ -1,4 +1,4 @@
-import { SESSION_DURATION } from "./constants";
+import { SESSION_DURATION, SESSION_COOKIE } from "./constants";
 
 function isSecureRequest(request) {
   return request.url.startsWith('https://')

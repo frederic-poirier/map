@@ -9,7 +9,7 @@ var __export = (target, all) => {
     __defProp(target, name, { get: all[name], enumerable: true });
 };
 
-// ../.wrangler/tmp/bundle-bPbjTq/checked-fetch.js
+// ../.wrangler/tmp/bundle-GDjCIn/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -27,7 +27,7 @@ function checkURL(request, init) {
 }
 var urls;
 var init_checked_fetch = __esm({
-  "../.wrangler/tmp/bundle-bPbjTq/checked-fetch.js"() {
+  "../.wrangler/tmp/bundle-GDjCIn/checked-fetch.js"() {
     urls = /* @__PURE__ */ new Set();
     __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
@@ -37,6 +37,133 @@ var init_checked_fetch = __esm({
         return Reflect.apply(target, thisArg, argArray);
       }
     });
+  }
+});
+
+// utils/auth/edgeToken.js
+function base64urlEncode(str) {
+  return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function base64urlDecode(str) {
+  return atob(str.replace(/-/g, "+").replace(/_/g, "/"));
+}
+async function hmacSign(data, secret) {
+  const key = await crypto.subtle.importKey(
+    "raw",
+    new TextEncoder().encode(secret),
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const signature = await crypto.subtle.sign(
+    "HMAC",
+    key,
+    new TextEncoder().encode(data)
+  );
+  return base64urlEncode(
+    String.fromCharCode(...new Uint8Array(signature))
+  );
+}
+async function createEdgeToken(userId, secret, ttlSeconds = 120) {
+  const payload = {
+    sub: userId,
+    exp: Math.floor(Date.now() / 1e3) + ttlSeconds
+  };
+  const payloadB64 = base64urlEncode(JSON.stringify(payload));
+  const signature = await hmacSign(payloadB64, secret);
+  return `${payloadB64}.${signature}`;
+}
+async function verifyEdgeToken(token, secret) {
+  const [payloadB64, signature] = token.split(".");
+  if (!payloadB64 || !signature) return null;
+  const expectedSig = await hmacSign(payloadB64, secret);
+  if (expectedSig !== signature) return null;
+  const payload = JSON.parse(base64urlDecode(payloadB64));
+  if (payload.exp < Math.floor(Date.now() / 1e3)) return null;
+  return payload;
+}
+var init_edgeToken = __esm({
+  "utils/auth/edgeToken.js"() {
+    init_functionsRoutes_0_45844092527989533();
+    init_checked_fetch();
+    __name(base64urlEncode, "base64urlEncode");
+    __name(base64urlDecode, "base64urlDecode");
+    __name(hmacSign, "hmacSign");
+    __name(createEdgeToken, "createEdgeToken");
+    __name(verifyEdgeToken, "verifyEdgeToken");
+  }
+});
+
+// edge/otp/[path].js
+async function onRequest({ request, env, params }) {
+  const authHeader = request.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+  const token = authHeader.slice(7);
+  const payload = await verifyEdgeToken(token, env.EDGE_TOKEN_SECRET);
+  if (!payload) return new Response("Unauthorized", { status: 401 });
+  const url = new URL(request.url);
+  const subPath = params.path ? params.path : "";
+  const target = `${env.OTP_INTERNAL_URL}/${subPath}${url.search}`;
+  const res = await fetch(target, {
+    headers: {
+      "Accept": "application/json",
+      "CF-Access-Client-Id": env.CF_ACCESS_CLIENT_ID,
+      "CF-Access-Client-Secret": env.CF_ACCESS_CLIENT_SECRET
+    }
+  });
+  return new Response(res.body, {
+    status: res.status,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store"
+    }
+  });
+}
+var init_path = __esm({
+  "edge/otp/[path].js"() {
+    init_functionsRoutes_0_45844092527989533();
+    init_checked_fetch();
+    init_edgeToken();
+    __name(onRequest, "onRequest");
+  }
+});
+
+// edge/photon/[path].js
+async function onRequest2({ request, env, params }) {
+  const authHeader = request.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+  const token = authHeader.slice(7);
+  const payload = await verifyEdgeToken(token, env.EDGE_TOKEN_SECRET);
+  if (!payload) return new Response("Unauthorized", { status: 401 });
+  const url = new URL(request.url);
+  console.log(params);
+  const subPath = params.path ? params.path : "";
+  const target = `${env.PHOTON_INTERNAL_URL}/${subPath}${url.search}`;
+  const res = await fetch(target, {
+    headers: {
+      "Accept": "application/json",
+      "CF-Access-Client-Id": env.CF_ACCESS_CLIENT_ID,
+      "CF-Access-Client-Secret": env.CF_ACCESS_CLIENT_SECRET
+    }
+  });
+  return new Response(res.body, {
+    status: res.status,
+    headers: {
+      "Content-Type": "application/json",
+      "Cache-Control": "no-store"
+    }
+  });
+}
+var init_path2 = __esm({
+  "edge/photon/[path].js"() {
+    init_functionsRoutes_0_45844092527989533();
+    init_checked_fetch();
+    init_edgeToken();
+    __name(onRequest2, "onRequest");
   }
 });
 
@@ -219,10 +346,17 @@ async function onRequestGet({ request, env }) {
   const result = await requireAuth(request, env);
   if (result instanceof Response) return result;
   const { auth, headers } = result;
+  const edgeToken = await createEdgeToken(
+    auth.userId,
+    env.EDGE_TOKEN_SECRET,
+    120
+  );
   return new Response(JSON.stringify({
     id: auth.userId,
     email: auth.email,
     name: auth.name,
+    edgeToken,
+    edgeTokenExpiresAt: Math.floor(Date.now() / 1e3) + 120,
     sessionExpiresAt: auth.expiresAt
   }), { status: 200, headers });
 }
@@ -230,6 +364,7 @@ var init_me = __esm({
   "auth/me.js"() {
     init_functionsRoutes_0_45844092527989533();
     init_checked_fetch();
+    init_edgeToken();
     init_requireAuth();
     __name(onRequestGet, "onRequestGet");
   }
@@ -3845,8 +3980,8 @@ var init_schema_date_utils = __esm({
       const date2 = new Date(Date.UTC(Number(yearStr), Number(monthStr) - 1, Number(dayStr), Number(hours), Number(minutes), Number(seconds), Number(ms) ? Math.round(parseFloat(`0.${ms}`) * 1e3) : 0));
       date2.setUTCFullYear(Number(yearStr));
       if (offsetStr.toUpperCase() != "Z") {
-        const [, sign2, offsetH, offsetM] = /([+-])(\d\d):(\d\d)/.exec(offsetStr) || [void 0, "+", 0, 0];
-        const scalar = sign2 === "-" ? 1 : -1;
+        const [, sign, offsetH, offsetM] = /([+-])(\d\d):(\d\d)/.exec(offsetStr) || [void 0, "+", 0, 0];
+        const scalar = sign === "-" ? 1 : -1;
         date2.setTime(date2.getTime() + scalar * (Number(offsetH) * 60 * 60 * 1e3 + Number(offsetM) * 60 * 1e3));
       }
       return date2;
@@ -25613,7 +25748,7 @@ var init_dist_es61 = __esm({
 });
 
 // tiles/montreal.pmtiles.js
-async function onRequest({ env, request }) {
+async function onRequest3({ env, request }) {
   const fileName = "montreal.pmtiles";
   const bucketName = "map";
   try {
@@ -25667,57 +25802,8 @@ var init_montreal_pmtiles = __esm({
     init_checked_fetch();
     init_dist_es59();
     init_dist_es61();
-    __name(onRequest, "onRequest");
+    __name(onRequest3, "onRequest");
     __name(onRequestOptions, "onRequestOptions");
-  }
-});
-
-// tunnel/sign.js
-async function onRequestGet2({ request, env }) {
-  const { searchParams } = new URL(request.url);
-  const path = searchParams.get("path");
-  if (!path || !path.startsWith("/")) {
-    return new Response("Invalid path", { status: 400 });
-  }
-  const params = {};
-  for (const [k2, v2] of searchParams.entries()) {
-    if (k2 !== "path") params[k2] = v2;
-  }
-  const ttl = 120;
-  const exp = Math.floor(Date.now() / 1e3) + ttl;
-  const query = new URLSearchParams({
-    ...params,
-    exp
-  }).toString();
-  const base = `${path}?${query}`;
-  const sig = await sign(base, env.TUNNEL_SECRET);
-  const signedUrl = `https://tunnel.frederic.dog${base}&sig=${sig}`;
-  return Response.json({
-    url: signedUrl,
-    exp
-  });
-}
-async function sign(data, secret) {
-  const key = await crypto.subtle.importKey(
-    "raw",
-    new TextEncoder().encode(secret),
-    { name: "HMAC", hash: "SHA-256" },
-    false,
-    ["sign"]
-  );
-  const signature = await crypto.subtle.sign(
-    "HMAC",
-    key,
-    new TextEncoder().encode(data)
-  );
-  return Buffer.from(signature).toString("base64url");
-}
-var init_sign = __esm({
-  "tunnel/sign.js"() {
-    init_functionsRoutes_0_45844092527989533();
-    init_checked_fetch();
-    __name(onRequestGet2, "onRequestGet");
-    __name(sign, "sign");
   }
 });
 
@@ -25803,7 +25889,7 @@ var init_googleOAuth = __esm({
 });
 
 // auth/callback.js
-async function onRequest2({ request, env }) {
+async function onRequest4({ request, env }) {
   try {
     const url = new URL(request.url);
     const code = url.searchParams.get("code");
@@ -25858,12 +25944,12 @@ var init_callback = __esm({
     init_sessionStore();
     init_googleOAuth();
     init_constants();
-    __name(onRequest2, "onRequest");
+    __name(onRequest4, "onRequest");
   }
 });
 
 // auth/login.js
-function onRequest3(context) {
+function onRequest5(context) {
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   const state = crypto.randomUUID();
   url.searchParams.set("client_id", context.env.GOOGLE_CLIENT_ID);
@@ -25886,7 +25972,7 @@ var init_login = __esm({
     init_functionsRoutes_0_45844092527989533();
     init_checked_fetch();
     init_cookies();
-    __name(onRequest3, "onRequest");
+    __name(onRequest5, "onRequest");
   }
 });
 
@@ -25894,14 +25980,29 @@ var init_login = __esm({
 var routes;
 var init_functionsRoutes_0_45844092527989533 = __esm({
   "../.wrangler/tmp/pages-DvbCKv/functionsRoutes-0.45844092527989533.mjs"() {
+    init_path();
+    init_path2();
     init_logout();
     init_me();
     init_montreal_pmtiles();
-    init_sign();
     init_callback();
     init_login();
     init_montreal_pmtiles();
     routes = [
+      {
+        routePath: "/edge/otp/:path",
+        mountPath: "/edge/otp",
+        method: "",
+        middlewares: [],
+        modules: [onRequest]
+      },
+      {
+        routePath: "/edge/photon/:path",
+        mountPath: "/edge/photon",
+        method: "",
+        middlewares: [],
+        modules: [onRequest2]
+      },
       {
         routePath: "/auth/logout",
         mountPath: "/auth",
@@ -25924,42 +26025,35 @@ var init_functionsRoutes_0_45844092527989533 = __esm({
         modules: [onRequestOptions]
       },
       {
-        routePath: "/tunnel/sign",
-        mountPath: "/tunnel",
-        method: "GET",
-        middlewares: [],
-        modules: [onRequestGet2]
-      },
-      {
         routePath: "/auth/callback",
         mountPath: "/auth",
         method: "",
         middlewares: [],
-        modules: [onRequest2]
+        modules: [onRequest4]
       },
       {
         routePath: "/auth/login",
         mountPath: "/auth",
         method: "",
         middlewares: [],
-        modules: [onRequest3]
+        modules: [onRequest5]
       },
       {
         routePath: "/tiles/montreal.pmtiles",
         mountPath: "/tiles",
         method: "",
         middlewares: [],
-        modules: [onRequest]
+        modules: [onRequest3]
       }
     ];
   }
 });
 
-// ../.wrangler/tmp/bundle-bPbjTq/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-GDjCIn/middleware-loader.entry.ts
 init_functionsRoutes_0_45844092527989533();
 init_checked_fetch();
 
-// ../.wrangler/tmp/bundle-bPbjTq/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-GDjCIn/middleware-insertion-facade.js
 init_functionsRoutes_0_45844092527989533();
 init_checked_fetch();
 
@@ -26460,7 +26554,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// ../.wrangler/tmp/bundle-bPbjTq/middleware-insertion-facade.js
+// ../.wrangler/tmp/bundle-GDjCIn/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -26494,7 +26588,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// ../.wrangler/tmp/bundle-bPbjTq/middleware-loader.entry.ts
+// ../.wrangler/tmp/bundle-GDjCIn/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

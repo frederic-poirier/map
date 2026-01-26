@@ -1,8 +1,15 @@
 var __defProp = Object.defineProperty;
+var __getOwnPropNames = Object.getOwnPropertyNames;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
+var __esm = (fn, res) => function __init() {
+  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
+};
+var __export = (target, all) => {
+  for (var name in all)
+    __defProp(target, name, { get: all[name], enumerable: true });
+};
 
-// .wrangler/tmp/bundle-hf613y/checked-fetch.js
-var urls = /* @__PURE__ */ new Set();
+// ../.wrangler/tmp/bundle-H5ZURG/checked-fetch.js
 function checkURL(request, init) {
   const url = request instanceof URL ? request : new URL(
     (typeof request === "string" ? new Request(request, init) : request).url
@@ -18,64 +25,28 @@ function checkURL(request, init) {
     }
   }
 }
-__name(checkURL, "checkURL");
-globalThis.fetch = new Proxy(globalThis.fetch, {
-  apply(target, thisArg, argArray) {
-    const [request, init] = argArray;
-    checkURL(request, init);
-    return Reflect.apply(target, thisArg, argArray);
-  }
-});
-
-// .wrangler/tmp/pages-DvbCKv/functionsWorker-0.4828238764724163.mjs
-var __defProp2 = Object.defineProperty;
-var __getOwnPropNames = Object.getOwnPropertyNames;
-var __name2 = /* @__PURE__ */ __name((target, value) => __defProp2(target, "name", { value, configurable: true }), "__name");
-var __esm = /* @__PURE__ */ __name((fn, res) => /* @__PURE__ */ __name(function __init() {
-  return fn && (res = (0, fn[__getOwnPropNames(fn)[0]])(fn = 0)), res;
-}, "__init"), "__esm");
-var __export = /* @__PURE__ */ __name((target, all) => {
-  for (var name in all)
-    __defProp2(target, name, { get: all[name], enumerable: true });
-}, "__export");
-function checkURL2(request, init) {
-  const url = request instanceof URL ? request : new URL(
-    (typeof request === "string" ? new Request(request, init) : request).url
-  );
-  if (url.port && url.port !== "443" && url.protocol === "https:") {
-    if (!urls2.has(url.toString())) {
-      urls2.add(url.toString());
-      console.warn(
-        `WARNING: known issue with \`fetch()\` requests to custom HTTPS ports in published Workers:
- - ${url.toString()} - the custom port will be ignored when the Worker is published using the \`wrangler deploy\` command.
-`
-      );
-    }
-  }
-}
-__name(checkURL2, "checkURL");
-var urls2;
+var urls;
 var init_checked_fetch = __esm({
-  "../.wrangler/tmp/bundle-GDjCIn/checked-fetch.js"() {
-    urls2 = /* @__PURE__ */ new Set();
-    __name2(checkURL2, "checkURL");
+  "../.wrangler/tmp/bundle-H5ZURG/checked-fetch.js"() {
+    urls = /* @__PURE__ */ new Set();
+    __name(checkURL, "checkURL");
     globalThis.fetch = new Proxy(globalThis.fetch, {
       apply(target, thisArg, argArray) {
         const [request, init] = argArray;
-        checkURL2(request, init);
+        checkURL(request, init);
         return Reflect.apply(target, thisArg, argArray);
       }
     });
   }
 });
+
+// utils/auth/edgeToken.js
 function base64urlEncode(str) {
   return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
-__name(base64urlEncode, "base64urlEncode");
 function base64urlDecode(str) {
   return atob(str.replace(/-/g, "+").replace(/_/g, "/"));
 }
-__name(base64urlDecode, "base64urlDecode");
 async function hmacSign(data, secret) {
   const key = await crypto.subtle.importKey(
     "raw",
@@ -93,7 +64,6 @@ async function hmacSign(data, secret) {
     String.fromCharCode(...new Uint8Array(signature))
   );
 }
-__name(hmacSign, "hmacSign");
 async function createEdgeToken(userId, secret, ttlSeconds = 120) {
   const payload = {
     sub: userId,
@@ -103,7 +73,6 @@ async function createEdgeToken(userId, secret, ttlSeconds = 120) {
   const signature = await hmacSign(payloadB64, secret);
   return `${payloadB64}.${signature}`;
 }
-__name(createEdgeToken, "createEdgeToken");
 async function verifyEdgeToken(token, secret) {
   const [payloadB64, signature] = token.split(".");
   if (!payloadB64 || !signature) return null;
@@ -113,18 +82,19 @@ async function verifyEdgeToken(token, secret) {
   if (payload.exp < Math.floor(Date.now() / 1e3)) return null;
   return payload;
 }
-__name(verifyEdgeToken, "verifyEdgeToken");
 var init_edgeToken = __esm({
   "utils/auth/edgeToken.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(base64urlEncode, "base64urlEncode");
-    __name2(base64urlDecode, "base64urlDecode");
-    __name2(hmacSign, "hmacSign");
-    __name2(createEdgeToken, "createEdgeToken");
-    __name2(verifyEdgeToken, "verifyEdgeToken");
+    __name(base64urlEncode, "base64urlEncode");
+    __name(base64urlDecode, "base64urlDecode");
+    __name(hmacSign, "hmacSign");
+    __name(createEdgeToken, "createEdgeToken");
+    __name(verifyEdgeToken, "verifyEdgeToken");
   }
 });
+
+// edge/otp/[path].js
 async function onRequest({ request, env, params }) {
   const authHeader = request.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) {
@@ -151,15 +121,16 @@ async function onRequest({ request, env, params }) {
     }
   });
 }
-__name(onRequest, "onRequest");
 var init_path = __esm({
   "edge/otp/[path].js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_edgeToken();
-    __name2(onRequest, "onRequest");
+    __name(onRequest, "onRequest");
   }
 });
+
+// edge/photon/[path].js
 async function onRequest2({ request, env, params }) {
   const authHeader = request.headers.get("Authorization");
   if (!authHeader?.startsWith("Bearer ")) {
@@ -187,15 +158,16 @@ async function onRequest2({ request, env, params }) {
     }
   });
 }
-__name(onRequest2, "onRequest2");
 var init_path2 = __esm({
   "edge/photon/[path].js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_edgeToken();
-    __name2(onRequest2, "onRequest");
+    __name(onRequest2, "onRequest");
   }
 });
+
+// utils/db/sessionStore.js
 async function getSession(sessionId, env) {
   const now = Math.floor(Date.now() / 1e3);
   return env.DB.prepare(`
@@ -210,11 +182,9 @@ async function getSession(sessionId, env) {
       WHERE s.id = ? AND s.expires_at > ?
     `).bind(sessionId, now).first();
 }
-__name(getSession, "getSession");
 async function refreshSession(sessionId, newExpiresAt, env) {
   await env.DB.prepare(`UPDATE sessions SET expires_at = ? WHERE id = ?`).bind(newExpiresAt, sessionId).run();
 }
-__name(refreshSession, "refreshSession");
 async function createSession(userId, expiresAt, env) {
   const sessionId = crypto.randomUUID();
   await env.DB.prepare(
@@ -222,69 +192,66 @@ async function createSession(userId, expiresAt, env) {
   ).bind(sessionId, userId, expiresAt).run();
   return sessionId;
 }
-__name(createSession, "createSession");
 async function deleteSession(sessionId, env) {
   await env.DB.prepare(`DELETE FROM sessions WHERE id = ?`).bind(sessionId).run();
 }
-__name(deleteSession, "deleteSession");
 var init_sessionStore = __esm({
   "utils/db/sessionStore.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(getSession, "getSession");
-    __name2(refreshSession, "refreshSession");
-    __name2(createSession, "createSession");
-    __name2(deleteSession, "deleteSession");
+    __name(getSession, "getSession");
+    __name(refreshSession, "refreshSession");
+    __name(createSession, "createSession");
+    __name(deleteSession, "deleteSession");
   }
 });
-var SESSION_DURATION;
-var REFRESH_THRESHOLD;
-var SESSION_COOKIE;
+
+// utils/auth/constants.js
+var SESSION_DURATION, REFRESH_THRESHOLD, SESSION_COOKIE;
 var init_constants = __esm({
   "utils/auth/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     SESSION_DURATION = 60 * 60 * 24 * 7;
     REFRESH_THRESHOLD = 60 * 60 * 24;
     SESSION_COOKIE = "session";
   }
 });
+
+// utils/auth/cookies.js
 function isSecureRequest(request) {
   return request.url.startsWith("https://");
 }
-__name(isSecureRequest, "isSecureRequest");
 function buildOAuthStateCookie(state, request) {
   const secure = isSecureRequest(request) ? "; Secure" : "";
   return `oauth_state=${state}; Path=/; Max-Age=600; HttpOnly; SameSite=Lax${secure}`;
 }
-__name(buildOAuthStateCookie, "buildOAuthStateCookie");
 function clearOAuthStateCookie() {
   return "oauth_state=; Path=/; Max-Age=0; HttpOnly; SameSite=Lax";
 }
-__name(clearOAuthStateCookie, "clearOAuthStateCookie");
 function buildSessionCookie(sessionId, request, maxAge = SESSION_DURATION) {
   const secure = isSecureRequest(request) ? "; Secure" : "";
   return `${SESSION_COOKIE}=${sessionId}; Path=/; Max-Age=${maxAge}; HttpOnly; SameSite=Lax${secure}`;
 }
-__name(buildSessionCookie, "buildSessionCookie");
 function getCookie(request, name) {
   const cookie = request.headers.get("Cookie") || "";
   const match2 = cookie.split("; ").find((c2) => c2.startsWith(name + "="));
   return match2 ? decodeURIComponent(match2.split("=")[1]) : null;
 }
-__name(getCookie, "getCookie");
 var init_cookies = __esm({
   "utils/auth/cookies.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_constants();
-    __name2(isSecureRequest, "isSecureRequest");
-    __name2(buildOAuthStateCookie, "buildOAuthStateCookie");
-    __name2(clearOAuthStateCookie, "clearOAuthStateCookie");
-    __name2(buildSessionCookie, "buildSessionCookie");
-    __name2(getCookie, "getCookie");
+    __name(isSecureRequest, "isSecureRequest");
+    __name(buildOAuthStateCookie, "buildOAuthStateCookie");
+    __name(clearOAuthStateCookie, "clearOAuthStateCookie");
+    __name(buildSessionCookie, "buildSessionCookie");
+    __name(getCookie, "getCookie");
   }
 });
+
+// auth/logout.js
 async function onRequestPost({ request, env }) {
   const sessionId = getCookie(request, "session");
   if (sessionId) await deleteSession(sessionId, env);
@@ -301,16 +268,17 @@ async function onRequestPost({ request, env }) {
     }
   }));
 }
-__name(onRequestPost, "onRequestPost");
 var init_logout = __esm({
   "auth/logout.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_sessionStore();
     init_cookies();
-    __name2(onRequestPost, "onRequestPost");
+    __name(onRequestPost, "onRequestPost");
   }
 });
+
+// utils/auth/authenticate.js
 async function authenticateUser(request, env) {
   let refreshed = true;
   const sessionId = getCookie(request, SESSION_COOKIE);
@@ -334,17 +302,18 @@ async function authenticateUser(request, env) {
     refreshed
   };
 }
-__name(authenticateUser, "authenticateUser");
 var init_authenticate = __esm({
   "utils/auth/authenticate.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_cookies();
     init_sessionStore();
     init_constants();
-    __name2(authenticateUser, "authenticateUser");
+    __name(authenticateUser, "authenticateUser");
   }
 });
+
+// utils/auth/requireAuth.js
 async function requireAuth(request, env) {
   const auth = await authenticateUser(request, env);
   if (!auth) {
@@ -362,16 +331,17 @@ async function requireAuth(request, env) {
   }
   return { auth, headers };
 }
-__name(requireAuth, "requireAuth");
 var init_requireAuth = __esm({
   "utils/auth/requireAuth.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_authenticate();
     init_cookies();
-    __name2(requireAuth, "requireAuth");
+    __name(requireAuth, "requireAuth");
   }
 });
+
+// auth/me.js
 async function onRequestGet({ request, env }) {
   const result = await requireAuth(request, env);
   if (result instanceof Response) return result;
@@ -390,23 +360,23 @@ async function onRequestGet({ request, env }) {
     sessionExpiresAt: auth.expiresAt
   }), { status: 200, headers });
 }
-__name(onRequestGet, "onRequestGet");
 var init_me = __esm({
   "auth/me.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_edgeToken();
     init_requireAuth();
-    __name2(onRequestGet, "onRequestGet");
+    __name(onRequestGet, "onRequestGet");
   }
 });
-var getHttpHandlerExtensionConfiguration;
-var resolveHttpHandlerRuntimeConfig;
+
+// ../node_modules/@smithy/protocol-http/dist-es/extensions/httpExtensionConfiguration.js
+var getHttpHandlerExtensionConfiguration, resolveHttpHandlerRuntimeConfig;
 var init_httpExtensionConfiguration = __esm({
   "../node_modules/@smithy/protocol-http/dist-es/extensions/httpExtensionConfiguration.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    getHttpHandlerExtensionConfiguration = /* @__PURE__ */ __name2((runtimeConfig) => {
+    getHttpHandlerExtensionConfiguration = /* @__PURE__ */ __name((runtimeConfig) => {
       return {
         setHttpHandler(handler) {
           runtimeConfig.httpHandler = handler;
@@ -422,30 +392,36 @@ var init_httpExtensionConfiguration = __esm({
         }
       };
     }, "getHttpHandlerExtensionConfiguration");
-    resolveHttpHandlerRuntimeConfig = /* @__PURE__ */ __name2((httpHandlerExtensionConfiguration) => {
+    resolveHttpHandlerRuntimeConfig = /* @__PURE__ */ __name((httpHandlerExtensionConfiguration) => {
       return {
         httpHandler: httpHandlerExtensionConfiguration.httpHandler()
       };
     }, "resolveHttpHandlerRuntimeConfig");
   }
 });
+
+// ../node_modules/@smithy/protocol-http/dist-es/extensions/index.js
 var init_extensions = __esm({
   "../node_modules/@smithy/protocol-http/dist-es/extensions/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_httpExtensionConfiguration();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/abort.js
 var init_abort = __esm({
   "../node_modules/@smithy/types/dist-es/abort.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/auth/auth.js
 var HttpAuthLocation;
 var init_auth = __esm({
   "../node_modules/@smithy/types/dist-es/auth/auth.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     (function(HttpAuthLocation2) {
       HttpAuthLocation2["HEADER"] = "header";
@@ -453,10 +429,12 @@ var init_auth = __esm({
     })(HttpAuthLocation || (HttpAuthLocation = {}));
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/auth/HttpApiKeyAuth.js
 var HttpApiKeyAuthLocation;
 var init_HttpApiKeyAuth = __esm({
   "../node_modules/@smithy/types/dist-es/auth/HttpApiKeyAuth.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     (function(HttpApiKeyAuthLocation2) {
       HttpApiKeyAuthLocation2["HEADER"] = "header";
@@ -464,33 +442,43 @@ var init_HttpApiKeyAuth = __esm({
     })(HttpApiKeyAuthLocation || (HttpApiKeyAuthLocation = {}));
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/auth/HttpAuthScheme.js
 var init_HttpAuthScheme = __esm({
   "../node_modules/@smithy/types/dist-es/auth/HttpAuthScheme.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/auth/HttpAuthSchemeProvider.js
 var init_HttpAuthSchemeProvider = __esm({
   "../node_modules/@smithy/types/dist-es/auth/HttpAuthSchemeProvider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/auth/HttpSigner.js
 var init_HttpSigner = __esm({
   "../node_modules/@smithy/types/dist-es/auth/HttpSigner.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/auth/IdentityProviderConfig.js
 var init_IdentityProviderConfig = __esm({
   "../node_modules/@smithy/types/dist-es/auth/IdentityProviderConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/auth/index.js
 var init_auth2 = __esm({
   "../node_modules/@smithy/types/dist-es/auth/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_auth();
     init_HttpApiKeyAuth();
@@ -500,73 +488,95 @@ var init_auth2 = __esm({
     init_IdentityProviderConfig();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/blob/blob-payload-input-types.js
 var init_blob_payload_input_types = __esm({
   "../node_modules/@smithy/types/dist-es/blob/blob-payload-input-types.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/checksum.js
 var init_checksum = __esm({
   "../node_modules/@smithy/types/dist-es/checksum.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/client.js
 var init_client = __esm({
   "../node_modules/@smithy/types/dist-es/client.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/command.js
 var init_command = __esm({
   "../node_modules/@smithy/types/dist-es/command.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/connection/config.js
 var init_config = __esm({
   "../node_modules/@smithy/types/dist-es/connection/config.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/connection/manager.js
 var init_manager = __esm({
   "../node_modules/@smithy/types/dist-es/connection/manager.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/connection/pool.js
 var init_pool = __esm({
   "../node_modules/@smithy/types/dist-es/connection/pool.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/connection/index.js
 var init_connection = __esm({
   "../node_modules/@smithy/types/dist-es/connection/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_config();
     init_manager();
     init_pool();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/crypto.js
 var init_crypto = __esm({
   "../node_modules/@smithy/types/dist-es/crypto.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/encode.js
 var init_encode = __esm({
   "../node_modules/@smithy/types/dist-es/encode.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/endpoint.js
 var EndpointURLScheme;
 var init_endpoint = __esm({
   "../node_modules/@smithy/types/dist-es/endpoint.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     (function(EndpointURLScheme2) {
       EndpointURLScheme2["HTTP"] = "http";
@@ -574,39 +584,51 @@ var init_endpoint = __esm({
     })(EndpointURLScheme || (EndpointURLScheme = {}));
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/endpoints/EndpointRuleObject.js
 var init_EndpointRuleObject = __esm({
   "../node_modules/@smithy/types/dist-es/endpoints/EndpointRuleObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/endpoints/ErrorRuleObject.js
 var init_ErrorRuleObject = __esm({
   "../node_modules/@smithy/types/dist-es/endpoints/ErrorRuleObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/endpoints/RuleSetObject.js
 var init_RuleSetObject = __esm({
   "../node_modules/@smithy/types/dist-es/endpoints/RuleSetObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/endpoints/shared.js
 var init_shared = __esm({
   "../node_modules/@smithy/types/dist-es/endpoints/shared.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/endpoints/TreeRuleObject.js
 var init_TreeRuleObject = __esm({
   "../node_modules/@smithy/types/dist-es/endpoints/TreeRuleObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/endpoints/index.js
 var init_endpoints = __esm({
   "../node_modules/@smithy/types/dist-es/endpoints/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_EndpointRuleObject();
     init_ErrorRuleObject();
@@ -615,16 +637,20 @@ var init_endpoints = __esm({
     init_TreeRuleObject();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/eventStream.js
 var init_eventStream = __esm({
   "../node_modules/@smithy/types/dist-es/eventStream.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/extensions/checksum.js
 var AlgorithmId;
 var init_checksum2 = __esm({
   "../node_modules/@smithy/types/dist-es/extensions/checksum.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     (function(AlgorithmId2) {
       AlgorithmId2["MD5"] = "md5";
@@ -635,37 +661,47 @@ var init_checksum2 = __esm({
     })(AlgorithmId || (AlgorithmId = {}));
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/extensions/defaultClientConfiguration.js
 var init_defaultClientConfiguration = __esm({
   "../node_modules/@smithy/types/dist-es/extensions/defaultClientConfiguration.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/extensions/defaultExtensionConfiguration.js
 var init_defaultExtensionConfiguration = __esm({
   "../node_modules/@smithy/types/dist-es/extensions/defaultExtensionConfiguration.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/extensions/index.js
 var init_extensions2 = __esm({
   "../node_modules/@smithy/types/dist-es/extensions/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_defaultClientConfiguration();
     init_defaultExtensionConfiguration();
     init_checksum2();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/feature-ids.js
 var init_feature_ids = __esm({
   "../node_modules/@smithy/types/dist-es/feature-ids.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/http.js
 var FieldPosition;
 var init_http = __esm({
   "../node_modules/@smithy/types/dist-es/http.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     (function(FieldPosition2) {
       FieldPosition2[FieldPosition2["HEADER"] = 0] = "HEADER";
@@ -673,39 +709,51 @@ var init_http = __esm({
     })(FieldPosition || (FieldPosition = {}));
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/http/httpHandlerInitialization.js
 var init_httpHandlerInitialization = __esm({
   "../node_modules/@smithy/types/dist-es/http/httpHandlerInitialization.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/identity/apiKeyIdentity.js
 var init_apiKeyIdentity = __esm({
   "../node_modules/@smithy/types/dist-es/identity/apiKeyIdentity.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/identity/awsCredentialIdentity.js
 var init_awsCredentialIdentity = __esm({
   "../node_modules/@smithy/types/dist-es/identity/awsCredentialIdentity.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/identity/identity.js
 var init_identity = __esm({
   "../node_modules/@smithy/types/dist-es/identity/identity.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/identity/tokenIdentity.js
 var init_tokenIdentity = __esm({
   "../node_modules/@smithy/types/dist-es/identity/tokenIdentity.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/identity/index.js
 var init_identity2 = __esm({
   "../node_modules/@smithy/types/dist-es/identity/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_apiKeyIdentity();
     init_awsCredentialIdentity();
@@ -713,30 +761,38 @@ var init_identity2 = __esm({
     init_tokenIdentity();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/logger.js
 var init_logger = __esm({
   "../node_modules/@smithy/types/dist-es/logger.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/middleware.js
 var SMITHY_CONTEXT_KEY;
 var init_middleware = __esm({
   "../node_modules/@smithy/types/dist-es/middleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     SMITHY_CONTEXT_KEY = "__smithy_context";
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/pagination.js
 var init_pagination = __esm({
   "../node_modules/@smithy/types/dist-es/pagination.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/profile.js
 var IniSectionType;
 var init_profile = __esm({
   "../node_modules/@smithy/types/dist-es/profile.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     (function(IniSectionType2) {
       IniSectionType2["PROFILE"] = "profile";
@@ -745,94 +801,124 @@ var init_profile = __esm({
     })(IniSectionType || (IniSectionType = {}));
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/response.js
 var init_response = __esm({
   "../node_modules/@smithy/types/dist-es/response.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/retry.js
 var init_retry = __esm({
   "../node_modules/@smithy/types/dist-es/retry.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/schema/schema.js
 var init_schema = __esm({
   "../node_modules/@smithy/types/dist-es/schema/schema.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/schema/traits.js
 var init_traits = __esm({
   "../node_modules/@smithy/types/dist-es/schema/traits.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/schema/schema-deprecated.js
 var init_schema_deprecated = __esm({
   "../node_modules/@smithy/types/dist-es/schema/schema-deprecated.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/schema/sentinels.js
 var init_sentinels = __esm({
   "../node_modules/@smithy/types/dist-es/schema/sentinels.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/schema/static-schemas.js
 var init_static_schemas = __esm({
   "../node_modules/@smithy/types/dist-es/schema/static-schemas.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/serde.js
 var init_serde = __esm({
   "../node_modules/@smithy/types/dist-es/serde.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/shapes.js
 var init_shapes = __esm({
   "../node_modules/@smithy/types/dist-es/shapes.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/signature.js
 var init_signature = __esm({
   "../node_modules/@smithy/types/dist-es/signature.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/stream.js
 var init_stream = __esm({
   "../node_modules/@smithy/types/dist-es/stream.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/streaming-payload/streaming-blob-common-types.js
 var init_streaming_blob_common_types = __esm({
   "../node_modules/@smithy/types/dist-es/streaming-payload/streaming-blob-common-types.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/streaming-payload/streaming-blob-payload-input-types.js
 var init_streaming_blob_payload_input_types = __esm({
   "../node_modules/@smithy/types/dist-es/streaming-payload/streaming-blob-payload-input-types.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/streaming-payload/streaming-blob-payload-output-types.js
 var init_streaming_blob_payload_output_types = __esm({
   "../node_modules/@smithy/types/dist-es/streaming-payload/streaming-blob-payload-output-types.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/transfer.js
 var RequestHandlerProtocol;
 var init_transfer = __esm({
   "../node_modules/@smithy/types/dist-es/transfer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     (function(RequestHandlerProtocol2) {
       RequestHandlerProtocol2["HTTP_0_9"] = "http/0.9";
@@ -841,51 +927,67 @@ var init_transfer = __esm({
     })(RequestHandlerProtocol || (RequestHandlerProtocol = {}));
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/transform/client-payload-blob-type-narrow.js
 var init_client_payload_blob_type_narrow = __esm({
   "../node_modules/@smithy/types/dist-es/transform/client-payload-blob-type-narrow.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/transform/mutable.js
 var init_mutable = __esm({
   "../node_modules/@smithy/types/dist-es/transform/mutable.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/transform/no-undefined.js
 var init_no_undefined = __esm({
   "../node_modules/@smithy/types/dist-es/transform/no-undefined.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/transform/type-transform.js
 var init_type_transform = __esm({
   "../node_modules/@smithy/types/dist-es/transform/type-transform.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/uri.js
 var init_uri = __esm({
   "../node_modules/@smithy/types/dist-es/uri.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/util.js
 var init_util = __esm({
   "../node_modules/@smithy/types/dist-es/util.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/waiter.js
 var init_waiter = __esm({
   "../node_modules/@smithy/types/dist-es/waiter.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/types/dist-es/index.js
 var init_dist_es = __esm({
   "../node_modules/@smithy/types/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_abort();
     init_auth2();
@@ -932,24 +1034,32 @@ var init_dist_es = __esm({
     init_waiter();
   }
 });
+
+// ../node_modules/@smithy/protocol-http/dist-es/Field.js
 var init_Field = __esm({
   "../node_modules/@smithy/protocol-http/dist-es/Field.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/protocol-http/dist-es/Fields.js
 var init_Fields = __esm({
   "../node_modules/@smithy/protocol-http/dist-es/Fields.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/protocol-http/dist-es/httpHandler.js
 var init_httpHandler = __esm({
   "../node_modules/@smithy/protocol-http/dist-es/httpHandler.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/protocol-http/dist-es/httpRequest.js
 function cloneQuery(query) {
   return Object.keys(query).reduce((carry, paramName) => {
     const param = query[paramName];
@@ -959,18 +1069,14 @@ function cloneQuery(query) {
     };
   }, {});
 }
-__name(cloneQuery, "cloneQuery");
 var HttpRequest;
 var init_httpRequest = __esm({
   "../node_modules/@smithy/protocol-http/dist-es/httpRequest.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     HttpRequest = class _HttpRequest {
       static {
-        __name(this, "_HttpRequest");
-      }
-      static {
-        __name2(this, "HttpRequest");
+        __name(this, "HttpRequest");
       }
       method;
       protocol;
@@ -1017,20 +1123,19 @@ var init_httpRequest = __esm({
         return _HttpRequest.clone(this);
       }
     };
-    __name2(cloneQuery, "cloneQuery");
+    __name(cloneQuery, "cloneQuery");
   }
 });
+
+// ../node_modules/@smithy/protocol-http/dist-es/httpResponse.js
 var HttpResponse;
 var init_httpResponse = __esm({
   "../node_modules/@smithy/protocol-http/dist-es/httpResponse.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     HttpResponse = class {
       static {
         __name(this, "HttpResponse");
-      }
-      static {
-        __name2(this, "HttpResponse");
       }
       statusCode;
       reason;
@@ -1051,21 +1156,27 @@ var init_httpResponse = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/protocol-http/dist-es/isValidHostname.js
 var init_isValidHostname = __esm({
   "../node_modules/@smithy/protocol-http/dist-es/isValidHostname.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/protocol-http/dist-es/types.js
 var init_types = __esm({
   "../node_modules/@smithy/protocol-http/dist-es/types.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/protocol-http/dist-es/index.js
 var init_dist_es2 = __esm({
   "../node_modules/@smithy/protocol-http/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_extensions();
     init_Field();
@@ -1077,6 +1188,8 @@ var init_dist_es2 = __esm({
     init_types();
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-expect-continue/dist-es/index.js
 function addExpectContinueMiddleware(options) {
   return (next) => async (args) => {
     const { request } = args;
@@ -1101,38 +1214,32 @@ function addExpectContinueMiddleware(options) {
     });
   };
 }
-__name(addExpectContinueMiddleware, "addExpectContinueMiddleware");
-var addExpectContinueMiddlewareOptions;
-var getAddExpectContinuePlugin;
+var addExpectContinueMiddlewareOptions, getAddExpectContinuePlugin;
 var init_dist_es3 = __esm({
   "../node_modules/@aws-sdk/middleware-expect-continue/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
-    __name2(addExpectContinueMiddleware, "addExpectContinueMiddleware");
+    __name(addExpectContinueMiddleware, "addExpectContinueMiddleware");
     addExpectContinueMiddlewareOptions = {
       step: "build",
       tags: ["SET_EXPECT_HEADER", "EXPECT_HEADER"],
       name: "addExpectContinueMiddleware",
       override: true
     };
-    getAddExpectContinuePlugin = /* @__PURE__ */ __name2((options) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getAddExpectContinuePlugin = /* @__PURE__ */ __name((options) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(addExpectContinueMiddleware(options), addExpectContinueMiddlewareOptions);
       }, "applyToStack")
     }), "getAddExpectContinuePlugin");
   }
 });
-var RequestChecksumCalculation;
-var DEFAULT_REQUEST_CHECKSUM_CALCULATION;
-var ResponseChecksumValidation;
-var DEFAULT_RESPONSE_CHECKSUM_VALIDATION;
-var ChecksumAlgorithm;
-var ChecksumLocation;
-var DEFAULT_CHECKSUM_ALGORITHM;
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/constants.js
+var RequestChecksumCalculation, DEFAULT_REQUEST_CHECKSUM_CALCULATION, ResponseChecksumValidation, DEFAULT_RESPONSE_CHECKSUM_VALIDATION, ChecksumAlgorithm, ChecksumLocation, DEFAULT_CHECKSUM_ALGORITHM;
 var init_constants2 = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     RequestChecksumCalculation = {
       WHEN_SUPPORTED: "WHEN_SUPPORTED",
@@ -1159,24 +1266,32 @@ var init_constants2 = __esm({
     DEFAULT_CHECKSUM_ALGORITHM = ChecksumAlgorithm.CRC32;
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/NODE_REQUEST_CHECKSUM_CALCULATION_CONFIG_OPTIONS.js
 var init_NODE_REQUEST_CHECKSUM_CALCULATION_CONFIG_OPTIONS = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/NODE_REQUEST_CHECKSUM_CALCULATION_CONFIG_OPTIONS.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/NODE_RESPONSE_CHECKSUM_VALIDATION_CONFIG_OPTIONS.js
 var init_NODE_RESPONSE_CHECKSUM_VALIDATION_CONFIG_OPTIONS = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/NODE_RESPONSE_CHECKSUM_VALIDATION_CONFIG_OPTIONS.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/client/emitWarningIfUnsupportedVersion.js
 var init_emitWarningIfUnsupportedVersion = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/client/emitWarningIfUnsupportedVersion.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/client/setCredentialFeature.js
 function setCredentialFeature(credentials, feature, value) {
   if (!credentials.$source) {
     credentials.$source = {};
@@ -1184,14 +1299,15 @@ function setCredentialFeature(credentials, feature, value) {
   credentials.$source[feature] = value;
   return credentials;
 }
-__name(setCredentialFeature, "setCredentialFeature");
 var init_setCredentialFeature = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/client/setCredentialFeature.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(setCredentialFeature, "setCredentialFeature");
+    __name(setCredentialFeature, "setCredentialFeature");
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/client/setFeature.js
 function setFeature(context, feature, value) {
   if (!context.__aws_sdk_context) {
     context.__aws_sdk_context = {
@@ -1202,23 +1318,26 @@ function setFeature(context, feature, value) {
   }
   context.__aws_sdk_context.features[feature] = value;
 }
-__name(setFeature, "setFeature");
 var init_setFeature = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/client/setFeature.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(setFeature, "setFeature");
+    __name(setFeature, "setFeature");
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/client/setTokenFeature.js
 var init_setTokenFeature = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/client/setTokenFeature.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/client/index.js
 var init_client2 = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/client/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_emitWarningIfUnsupportedVersion();
     init_setCredentialFeature();
@@ -1226,39 +1345,47 @@ var init_client2 = __esm({
     init_setTokenFeature();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/getDateHeader.js
 var getDateHeader;
 var init_getDateHeader = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/getDateHeader.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
-    getDateHeader = /* @__PURE__ */ __name2((response) => HttpResponse.isInstance(response) ? response.headers?.date ?? response.headers?.Date : void 0, "getDateHeader");
+    getDateHeader = /* @__PURE__ */ __name((response) => HttpResponse.isInstance(response) ? response.headers?.date ?? response.headers?.Date : void 0, "getDateHeader");
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/getSkewCorrectedDate.js
 var getSkewCorrectedDate;
 var init_getSkewCorrectedDate = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/getSkewCorrectedDate.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    getSkewCorrectedDate = /* @__PURE__ */ __name2((systemClockOffset) => new Date(Date.now() + systemClockOffset), "getSkewCorrectedDate");
+    getSkewCorrectedDate = /* @__PURE__ */ __name((systemClockOffset) => new Date(Date.now() + systemClockOffset), "getSkewCorrectedDate");
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/isClockSkewed.js
 var isClockSkewed;
 var init_isClockSkewed = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/isClockSkewed.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_getSkewCorrectedDate();
-    isClockSkewed = /* @__PURE__ */ __name2((clockTime, systemClockOffset) => Math.abs(getSkewCorrectedDate(systemClockOffset).getTime() - clockTime) >= 3e5, "isClockSkewed");
+    isClockSkewed = /* @__PURE__ */ __name((clockTime, systemClockOffset) => Math.abs(getSkewCorrectedDate(systemClockOffset).getTime() - clockTime) >= 3e5, "isClockSkewed");
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/getUpdatedSystemClockOffset.js
 var getUpdatedSystemClockOffset;
 var init_getUpdatedSystemClockOffset = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/getUpdatedSystemClockOffset.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_isClockSkewed();
-    getUpdatedSystemClockOffset = /* @__PURE__ */ __name2((clockTime, currentSystemClockOffset) => {
+    getUpdatedSystemClockOffset = /* @__PURE__ */ __name((clockTime, currentSystemClockOffset) => {
       const clockTimeInMs = Date.parse(clockTime);
       if (isClockSkewed(clockTimeInMs, currentSystemClockOffset)) {
         return clockTimeInMs - Date.now();
@@ -1267,31 +1394,33 @@ var init_getUpdatedSystemClockOffset = __esm({
     }, "getUpdatedSystemClockOffset");
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/index.js
 var init_utils = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_getDateHeader();
     init_getSkewCorrectedDate();
     init_getUpdatedSystemClockOffset();
   }
 });
-var throwSigningPropertyError;
-var validateSigningProperties;
-var AwsSdkSigV4Signer;
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/AwsSdkSigV4Signer.js
+var throwSigningPropertyError, validateSigningProperties, AwsSdkSigV4Signer;
 var init_AwsSdkSigV4Signer = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/AwsSdkSigV4Signer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_utils();
-    throwSigningPropertyError = /* @__PURE__ */ __name2((name, property) => {
+    throwSigningPropertyError = /* @__PURE__ */ __name((name, property) => {
       if (!property) {
         throw new Error(`Property \`${name}\` is not resolved for AWS SDK SigV4Auth`);
       }
       return property;
     }, "throwSigningPropertyError");
-    validateSigningProperties = /* @__PURE__ */ __name2(async (signingProperties) => {
+    validateSigningProperties = /* @__PURE__ */ __name(async (signingProperties) => {
       const context = throwSigningPropertyError("context", signingProperties.context);
       const config = throwSigningPropertyError("config", signingProperties.config);
       const authScheme = context.endpointV2?.properties?.authSchemes?.[0];
@@ -1311,9 +1440,6 @@ var init_AwsSdkSigV4Signer = __esm({
     AwsSdkSigV4Signer = class {
       static {
         __name(this, "AwsSdkSigV4Signer");
-      }
-      static {
-        __name2(this, "AwsSdkSigV4Signer");
       }
       async sign(httpRequest, identity, signingProperties) {
         if (!HttpRequest.isInstance(httpRequest)) {
@@ -1362,10 +1488,12 @@ var init_AwsSdkSigV4Signer = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/AwsSdkSigV4ASigner.js
 var AwsSdkSigV4ASigner;
 var init_AwsSdkSigV4ASigner = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/AwsSdkSigV4ASigner.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_utils();
@@ -1373,9 +1501,6 @@ var init_AwsSdkSigV4ASigner = __esm({
     AwsSdkSigV4ASigner = class extends AwsSdkSigV4Signer {
       static {
         __name(this, "AwsSdkSigV4ASigner");
-      }
-      static {
-        __name2(this, "AwsSdkSigV4ASigner");
       }
       async sign(httpRequest, identity, signingProperties) {
         if (!HttpRequest.isInstance(httpRequest)) {
@@ -1394,39 +1519,49 @@ var init_AwsSdkSigV4ASigner = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/getBearerTokenEnvKey.js
 var init_getBearerTokenEnvKey = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/utils/getBearerTokenEnvKey.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/NODE_AUTH_SCHEME_PREFERENCE_OPTIONS.js
 var init_NODE_AUTH_SCHEME_PREFERENCE_OPTIONS = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/NODE_AUTH_SCHEME_PREFERENCE_OPTIONS.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/getSmithyContext.js
 var init_getSmithyContext = __esm({
   "../node_modules/@smithy/core/dist-es/getSmithyContext.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/util-middleware/dist-es/getSmithyContext.js
 var getSmithyContext;
 var init_getSmithyContext2 = __esm({
   "../node_modules/@smithy/util-middleware/dist-es/getSmithyContext.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es();
-    getSmithyContext = /* @__PURE__ */ __name2((context) => context[SMITHY_CONTEXT_KEY] || (context[SMITHY_CONTEXT_KEY] = {}), "getSmithyContext");
+    getSmithyContext = /* @__PURE__ */ __name((context) => context[SMITHY_CONTEXT_KEY] || (context[SMITHY_CONTEXT_KEY] = {}), "getSmithyContext");
   }
 });
+
+// ../node_modules/@smithy/util-middleware/dist-es/normalizeProvider.js
 var normalizeProvider;
 var init_normalizeProvider = __esm({
   "../node_modules/@smithy/util-middleware/dist-es/normalizeProvider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    normalizeProvider = /* @__PURE__ */ __name2((input) => {
+    normalizeProvider = /* @__PURE__ */ __name((input) => {
       if (typeof input === "function")
         return input;
       const promisified = Promise.resolve(input);
@@ -1434,20 +1569,24 @@ var init_normalizeProvider = __esm({
     }, "normalizeProvider");
   }
 });
+
+// ../node_modules/@smithy/util-middleware/dist-es/index.js
 var init_dist_es4 = __esm({
   "../node_modules/@smithy/util-middleware/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_getSmithyContext2();
     init_normalizeProvider();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/resolveAuthOptions.js
 var resolveAuthOptions;
 var init_resolveAuthOptions = __esm({
   "../node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/resolveAuthOptions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    resolveAuthOptions = /* @__PURE__ */ __name2((candidateAuthOptions, authSchemePreference) => {
+    resolveAuthOptions = /* @__PURE__ */ __name((candidateAuthOptions, authSchemePreference) => {
       if (!authSchemePreference || authSchemePreference.length === 0) {
         return candidateAuthOptions;
       }
@@ -1469,6 +1608,8 @@ var init_resolveAuthOptions = __esm({
     }, "resolveAuthOptions");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/httpAuthSchemeMiddleware.js
 function convertHttpAuthSchemesToMap(httpAuthSchemes) {
   const map = /* @__PURE__ */ new Map();
   for (const scheme of httpAuthSchemes) {
@@ -1476,16 +1617,15 @@ function convertHttpAuthSchemesToMap(httpAuthSchemes) {
   }
   return map;
 }
-__name(convertHttpAuthSchemesToMap, "convertHttpAuthSchemesToMap");
 var httpAuthSchemeMiddleware;
 var init_httpAuthSchemeMiddleware = __esm({
   "../node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/httpAuthSchemeMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es4();
     init_resolveAuthOptions();
-    __name2(convertHttpAuthSchemesToMap, "convertHttpAuthSchemesToMap");
-    httpAuthSchemeMiddleware = /* @__PURE__ */ __name2((config, mwOptions) => (next, context) => async (args) => {
+    __name(convertHttpAuthSchemesToMap, "convertHttpAuthSchemesToMap");
+    httpAuthSchemeMiddleware = /* @__PURE__ */ __name((config, mwOptions) => (next, context) => async (args) => {
       const options = config.httpAuthSchemeProvider(await mwOptions.httpAuthSchemeParametersProvider(config, context, args.input));
       const authSchemePreference = config.authSchemePreference ? await config.authSchemePreference() : [];
       const resolvedOptions = resolveAuthOptions(options, authSchemePreference);
@@ -1520,11 +1660,12 @@ var init_httpAuthSchemeMiddleware = __esm({
     }, "httpAuthSchemeMiddleware");
   }
 });
-var httpAuthSchemeEndpointRuleSetMiddlewareOptions;
-var getHttpAuthSchemeEndpointRuleSetPlugin;
+
+// ../node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/getHttpAuthSchemeEndpointRuleSetPlugin.js
+var httpAuthSchemeEndpointRuleSetMiddlewareOptions, getHttpAuthSchemeEndpointRuleSetPlugin;
 var init_getHttpAuthSchemeEndpointRuleSetPlugin = __esm({
   "../node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/getHttpAuthSchemeEndpointRuleSetPlugin.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_httpAuthSchemeMiddleware();
     httpAuthSchemeEndpointRuleSetMiddlewareOptions = {
@@ -1535,8 +1676,8 @@ var init_getHttpAuthSchemeEndpointRuleSetPlugin = __esm({
       relation: "before",
       toMiddleware: "endpointV2Middleware"
     };
-    getHttpAuthSchemeEndpointRuleSetPlugin = /* @__PURE__ */ __name2((config, { httpAuthSchemeParametersProvider, identityProviderConfigProvider }) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getHttpAuthSchemeEndpointRuleSetPlugin = /* @__PURE__ */ __name((config, { httpAuthSchemeParametersProvider, identityProviderConfigProvider }) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.addRelativeTo(httpAuthSchemeMiddleware(config, {
           httpAuthSchemeParametersProvider,
           identityProviderConfigProvider
@@ -1545,22 +1686,28 @@ var init_getHttpAuthSchemeEndpointRuleSetPlugin = __esm({
     }), "getHttpAuthSchemeEndpointRuleSetPlugin");
   }
 });
+
+// ../node_modules/@smithy/middleware-serde/dist-es/deserializerMiddleware.js
 var init_deserializerMiddleware = __esm({
   "../node_modules/@smithy/middleware-serde/dist-es/deserializerMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/middleware-serde/dist-es/serializerMiddleware.js
 var init_serializerMiddleware = __esm({
   "../node_modules/@smithy/middleware-serde/dist-es/serializerMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/middleware-serde/dist-es/serdePlugin.js
 var serializerMiddlewareOption;
 var init_serdePlugin = __esm({
   "../node_modules/@smithy/middleware-serde/dist-es/serdePlugin.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     serializerMiddlewareOption = {
       name: "serializerMiddleware",
@@ -1570,19 +1717,23 @@ var init_serdePlugin = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/middleware-serde/dist-es/index.js
 var init_dist_es5 = __esm({
   "../node_modules/@smithy/middleware-serde/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_deserializerMiddleware();
     init_serdePlugin();
     init_serializerMiddleware();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/getHttpAuthSchemePlugin.js
 var httpAuthSchemeMiddlewareOptions;
 var init_getHttpAuthSchemePlugin = __esm({
   "../node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/getHttpAuthSchemePlugin.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es5();
     httpAuthSchemeMiddlewareOptions = {
@@ -1595,30 +1746,32 @@ var init_getHttpAuthSchemePlugin = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/index.js
 var init_middleware_http_auth_scheme = __esm({
   "../node_modules/@smithy/core/dist-es/middleware-http-auth-scheme/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_httpAuthSchemeMiddleware();
     init_getHttpAuthSchemeEndpointRuleSetPlugin();
     init_getHttpAuthSchemePlugin();
   }
 });
-var defaultErrorHandler;
-var defaultSuccessHandler;
-var httpSigningMiddleware;
+
+// ../node_modules/@smithy/core/dist-es/middleware-http-signing/httpSigningMiddleware.js
+var defaultErrorHandler, defaultSuccessHandler, httpSigningMiddleware;
 var init_httpSigningMiddleware = __esm({
   "../node_modules/@smithy/core/dist-es/middleware-http-signing/httpSigningMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_dist_es4();
-    defaultErrorHandler = /* @__PURE__ */ __name2((signingProperties) => (error) => {
+    defaultErrorHandler = /* @__PURE__ */ __name((signingProperties) => (error) => {
       throw error;
     }, "defaultErrorHandler");
-    defaultSuccessHandler = /* @__PURE__ */ __name2((httpResponse, signingProperties) => {
+    defaultSuccessHandler = /* @__PURE__ */ __name((httpResponse, signingProperties) => {
     }, "defaultSuccessHandler");
-    httpSigningMiddleware = /* @__PURE__ */ __name2((config) => (next, context) => async (args) => {
+    httpSigningMiddleware = /* @__PURE__ */ __name((config) => (next, context) => async (args) => {
       if (!HttpRequest.isInstance(args.request)) {
         return next(args);
       }
@@ -1637,11 +1790,12 @@ var init_httpSigningMiddleware = __esm({
     }, "httpSigningMiddleware");
   }
 });
-var httpSigningMiddlewareOptions;
-var getHttpSigningPlugin;
+
+// ../node_modules/@smithy/core/dist-es/middleware-http-signing/getHttpSigningMiddleware.js
+var httpSigningMiddlewareOptions, getHttpSigningPlugin;
 var init_getHttpSigningMiddleware = __esm({
   "../node_modules/@smithy/core/dist-es/middleware-http-signing/getHttpSigningMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_httpSigningMiddleware();
     httpSigningMiddlewareOptions = {
@@ -1653,27 +1807,31 @@ var init_getHttpSigningMiddleware = __esm({
       relation: "after",
       toMiddleware: "retryMiddleware"
     };
-    getHttpSigningPlugin = /* @__PURE__ */ __name2((config) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getHttpSigningPlugin = /* @__PURE__ */ __name((config) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.addRelativeTo(httpSigningMiddleware(config), httpSigningMiddlewareOptions);
       }, "applyToStack")
     }), "getHttpSigningPlugin");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/middleware-http-signing/index.js
 var init_middleware_http_signing = __esm({
   "../node_modules/@smithy/core/dist-es/middleware-http-signing/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_httpSigningMiddleware();
     init_getHttpSigningMiddleware();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/normalizeProvider.js
 var normalizeProvider2;
 var init_normalizeProvider2 = __esm({
   "../node_modules/@smithy/core/dist-es/normalizeProvider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    normalizeProvider2 = /* @__PURE__ */ __name2((input) => {
+    normalizeProvider2 = /* @__PURE__ */ __name((input) => {
       if (typeof input === "function")
         return input;
       const promisified = Promise.resolve(input);
@@ -1681,8 +1839,10 @@ var init_normalizeProvider2 = __esm({
     }, "normalizeProvider");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/pagination/createPaginator.js
 function createPaginator(ClientCtor, CommandCtor, inputTokenName, outputTokenName, pageSizeTokenName) {
-  return /* @__PURE__ */ __name2(/* @__PURE__ */ __name(async function* paginateOperation(config, input, ...additionalArguments) {
+  return /* @__PURE__ */ __name(async function* paginateOperation(config, input, ...additionalArguments) {
     const _input = input;
     let token = config.startingToken ?? _input[inputTokenName];
     let hasNext = true;
@@ -1703,22 +1863,20 @@ function createPaginator(ClientCtor, CommandCtor, inputTokenName, outputTokenNam
       hasNext = !!(token && (!config.stopOnSameToken || token !== prevToken));
     }
     return void 0;
-  }, "paginateOperation"), "paginateOperation");
+  }, "paginateOperation");
 }
-__name(createPaginator, "createPaginator");
-var makePagedClientRequest;
-var get;
+var makePagedClientRequest, get;
 var init_createPaginator = __esm({
   "../node_modules/@smithy/core/dist-es/pagination/createPaginator.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    makePagedClientRequest = /* @__PURE__ */ __name2(async (CommandCtor, client, input, withCommand = (_) => _, ...args) => {
+    makePagedClientRequest = /* @__PURE__ */ __name(async (CommandCtor, client, input, withCommand = (_) => _, ...args) => {
       let command = new CommandCtor(input);
       command = withCommand(command) ?? command;
       return await client.send(command, ...args);
     }, "makePagedClientRequest");
-    __name2(createPaginator, "createPaginator");
-    get = /* @__PURE__ */ __name2((fromObject, path) => {
+    __name(createPaginator, "createPaginator");
+    get = /* @__PURE__ */ __name((fromObject, path) => {
       let cursor = fromObject;
       const pathComponents = path.split(".");
       for (const step of pathComponents) {
@@ -1731,15 +1889,12 @@ var init_createPaginator = __esm({
     }, "get");
   }
 });
-var chars;
-var alphabetByEncoding;
-var alphabetByValue;
-var bitsPerLetter;
-var bitsPerByte;
-var maxLetterValue;
+
+// ../node_modules/@smithy/util-base64/dist-es/constants.browser.js
+var chars, alphabetByEncoding, alphabetByValue, bitsPerLetter, bitsPerByte, maxLetterValue;
 var init_constants_browser = __esm({
   "../node_modules/@smithy/util-base64/dist-es/constants.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     chars = `ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/`;
     alphabetByEncoding = Object.entries(chars).reduce((acc, [i2, c2]) => {
@@ -1752,13 +1907,15 @@ var init_constants_browser = __esm({
     maxLetterValue = 63;
   }
 });
+
+// ../node_modules/@smithy/util-base64/dist-es/fromBase64.browser.js
 var fromBase64;
 var init_fromBase64_browser = __esm({
   "../node_modules/@smithy/util-base64/dist-es/fromBase64.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_constants_browser();
-    fromBase64 = /* @__PURE__ */ __name2((input) => {
+    fromBase64 = /* @__PURE__ */ __name((input) => {
       let totalByteLength = input.length / 4 * 3;
       if (input.slice(-2) === "==") {
         totalByteLength -= 2;
@@ -1793,21 +1950,25 @@ var init_fromBase64_browser = __esm({
     }, "fromBase64");
   }
 });
+
+// ../node_modules/@smithy/util-utf8/dist-es/fromUtf8.browser.js
 var fromUtf8;
 var init_fromUtf8_browser = __esm({
   "../node_modules/@smithy/util-utf8/dist-es/fromUtf8.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    fromUtf8 = /* @__PURE__ */ __name2((input) => new TextEncoder().encode(input), "fromUtf8");
+    fromUtf8 = /* @__PURE__ */ __name((input) => new TextEncoder().encode(input), "fromUtf8");
   }
 });
+
+// ../node_modules/@smithy/util-utf8/dist-es/toUint8Array.js
 var toUint8Array;
 var init_toUint8Array = __esm({
   "../node_modules/@smithy/util-utf8/dist-es/toUint8Array.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_fromUtf8_browser();
-    toUint8Array = /* @__PURE__ */ __name2((data) => {
+    toUint8Array = /* @__PURE__ */ __name((data) => {
       if (typeof data === "string") {
         return fromUtf8(data);
       }
@@ -1818,12 +1979,14 @@ var init_toUint8Array = __esm({
     }, "toUint8Array");
   }
 });
+
+// ../node_modules/@smithy/util-utf8/dist-es/toUtf8.browser.js
 var toUtf8;
 var init_toUtf8_browser = __esm({
   "../node_modules/@smithy/util-utf8/dist-es/toUtf8.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    toUtf8 = /* @__PURE__ */ __name2((input) => {
+    toUtf8 = /* @__PURE__ */ __name((input) => {
       if (typeof input === "string") {
         return input;
       }
@@ -1834,15 +1997,19 @@ var init_toUtf8_browser = __esm({
     }, "toUtf8");
   }
 });
+
+// ../node_modules/@smithy/util-utf8/dist-es/index.js
 var init_dist_es6 = __esm({
   "../node_modules/@smithy/util-utf8/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_fromUtf8_browser();
     init_toUint8Array();
     init_toUtf8_browser();
   }
 });
+
+// ../node_modules/@smithy/util-base64/dist-es/toBase64.browser.js
 function toBase64(_input) {
   let input;
   if (typeof _input === "string") {
@@ -1873,37 +2040,37 @@ function toBase64(_input) {
   }
   return str;
 }
-__name(toBase64, "toBase64");
 var init_toBase64_browser = __esm({
   "../node_modules/@smithy/util-base64/dist-es/toBase64.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es6();
     init_constants_browser();
-    __name2(toBase64, "toBase64");
+    __name(toBase64, "toBase64");
   }
 });
+
+// ../node_modules/@smithy/util-base64/dist-es/index.js
 var init_dist_es7 = __esm({
   "../node_modules/@smithy/util-base64/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_fromBase64_browser();
     init_toBase64_browser();
   }
 });
+
+// ../node_modules/@smithy/util-stream/dist-es/blob/Uint8ArrayBlobAdapter.js
 var Uint8ArrayBlobAdapter;
 var init_Uint8ArrayBlobAdapter = __esm({
   "../node_modules/@smithy/util-stream/dist-es/blob/Uint8ArrayBlobAdapter.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es7();
     init_dist_es6();
     Uint8ArrayBlobAdapter = class _Uint8ArrayBlobAdapter extends Uint8Array {
       static {
-        __name(this, "_Uint8ArrayBlobAdapter");
-      }
-      static {
-        __name2(this, "Uint8ArrayBlobAdapter");
+        __name(this, "Uint8ArrayBlobAdapter");
       }
       static fromString(source, encoding = "utf-8") {
         if (typeof source === "string") {
@@ -1927,11 +2094,12 @@ var init_Uint8ArrayBlobAdapter = __esm({
     };
   }
 });
-var ReadableStreamRef;
-var ChecksumStream;
+
+// ../node_modules/@smithy/util-stream/dist-es/checksum/ChecksumStream.browser.js
+var ReadableStreamRef, ChecksumStream;
 var init_ChecksumStream_browser = __esm({
   "../node_modules/@smithy/util-stream/dist-es/checksum/ChecksumStream.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     ReadableStreamRef = typeof ReadableStream === "function" ? ReadableStream : function() {
     };
@@ -1939,29 +2107,30 @@ var init_ChecksumStream_browser = __esm({
       static {
         __name(this, "ChecksumStream");
       }
-      static {
-        __name2(this, "ChecksumStream");
-      }
     };
   }
 });
+
+// ../node_modules/@smithy/util-stream/dist-es/stream-type-check.js
 var isReadableStream;
 var init_stream_type_check = __esm({
   "../node_modules/@smithy/util-stream/dist-es/stream-type-check.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    isReadableStream = /* @__PURE__ */ __name2((stream) => typeof ReadableStream === "function" && (stream?.constructor?.name === ReadableStream.name || stream instanceof ReadableStream), "isReadableStream");
+    isReadableStream = /* @__PURE__ */ __name((stream) => typeof ReadableStream === "function" && (stream?.constructor?.name === ReadableStream.name || stream instanceof ReadableStream), "isReadableStream");
   }
 });
+
+// ../node_modules/@smithy/util-stream/dist-es/checksum/createChecksumStream.browser.js
 var createChecksumStream;
 var init_createChecksumStream_browser = __esm({
   "../node_modules/@smithy/util-stream/dist-es/checksum/createChecksumStream.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es7();
     init_stream_type_check();
     init_ChecksumStream_browser();
-    createChecksumStream = /* @__PURE__ */ __name2(({ expectedChecksum, checksum, source, checksumSourceLocation, base64Encoder }) => {
+    createChecksumStream = /* @__PURE__ */ __name(({ expectedChecksum, checksum, source, checksumSourceLocation, base64Encoder }) => {
       if (!isReadableStream(source)) {
         throw new Error(`@smithy/util-stream: unsupported source type ${source?.constructor?.name ?? source} in ChecksumStream.`);
       }
@@ -1994,17 +2163,16 @@ var init_createChecksumStream_browser = __esm({
     }, "createChecksumStream");
   }
 });
+
+// ../node_modules/@smithy/util-stream/dist-es/ByteArrayCollector.js
 var ByteArrayCollector;
 var init_ByteArrayCollector = __esm({
   "../node_modules/@smithy/util-stream/dist-es/ByteArrayCollector.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     ByteArrayCollector = class {
       static {
         __name(this, "ByteArrayCollector");
-      }
-      static {
-        __name2(this, "ByteArrayCollector");
       }
       allocByteArray;
       byteLength = 0;
@@ -2039,13 +2207,15 @@ var init_ByteArrayCollector = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/util-stream/dist-es/createBufferedReadableStream.js
 function createBufferedReadableStream(upstream, size, logger2) {
   const reader = upstream.getReader();
   let streamBufferingLoggedWarning = false;
   let bytesSeen = 0;
   const buffers = ["", new ByteArrayCollector((size2) => new Uint8Array(size2))];
   let mode = -1;
-  const pull = /* @__PURE__ */ __name2(async (controller) => {
+  const pull = /* @__PURE__ */ __name(async (controller) => {
     const { value, done } = await reader.read();
     const chunk = value;
     if (done) {
@@ -2091,7 +2261,6 @@ function createBufferedReadableStream(upstream, size, logger2) {
     pull
   });
 }
-__name(createBufferedReadableStream, "createBufferedReadableStream");
 function merge(buffers, mode, chunk) {
   switch (mode) {
     case 0:
@@ -2103,7 +2272,6 @@ function merge(buffers, mode, chunk) {
       return sizeOf(buffers[mode]);
   }
 }
-__name(merge, "merge");
 function flush(buffers, mode) {
   switch (mode) {
     case 0:
@@ -2116,11 +2284,9 @@ function flush(buffers, mode) {
   }
   throw new Error(`@smithy/util-stream - invalid index ${mode} given to flush()`);
 }
-__name(flush, "flush");
 function sizeOf(chunk) {
   return chunk?.byteLength ?? chunk?.length ?? 0;
 }
-__name(sizeOf, "sizeOf");
 function modeOf(chunk, allowBuffer = true) {
   if (allowBuffer && typeof Buffer !== "undefined" && chunk instanceof Buffer) {
     return 2;
@@ -2133,27 +2299,28 @@ function modeOf(chunk, allowBuffer = true) {
   }
   return -1;
 }
-__name(modeOf, "modeOf");
 var createBufferedReadable;
 var init_createBufferedReadableStream = __esm({
   "../node_modules/@smithy/util-stream/dist-es/createBufferedReadableStream.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_ByteArrayCollector();
-    __name2(createBufferedReadableStream, "createBufferedReadableStream");
+    __name(createBufferedReadableStream, "createBufferedReadableStream");
     createBufferedReadable = createBufferedReadableStream;
-    __name2(merge, "merge");
-    __name2(flush, "flush");
-    __name2(sizeOf, "sizeOf");
-    __name2(modeOf, "modeOf");
+    __name(merge, "merge");
+    __name(flush, "flush");
+    __name(sizeOf, "sizeOf");
+    __name(modeOf, "modeOf");
   }
 });
+
+// ../node_modules/@smithy/util-stream/dist-es/getAwsChunkedEncodingStream.browser.js
 var getAwsChunkedEncodingStream;
 var init_getAwsChunkedEncodingStream_browser = __esm({
   "../node_modules/@smithy/util-stream/dist-es/getAwsChunkedEncodingStream.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    getAwsChunkedEncodingStream = /* @__PURE__ */ __name2((readableStream, options) => {
+    getAwsChunkedEncodingStream = /* @__PURE__ */ __name((readableStream, options) => {
       const { base64Encoder, bodyLengthChecker, checksumAlgorithmFn, checksumLocationName, streamHasher } = options;
       const checksumRequired = base64Encoder !== void 0 && bodyLengthChecker !== void 0 && checksumAlgorithmFn !== void 0 && checksumLocationName !== void 0 && streamHasher !== void 0;
       const digest = checksumRequired ? streamHasher(checksumAlgorithmFn, readableStream) : void 0;
@@ -2182,6 +2349,8 @@ ${value}\r
     }, "getAwsChunkedEncodingStream");
   }
 });
+
+// ../node_modules/@smithy/util-stream/dist-es/headStream.browser.js
 async function headStream(stream, bytes) {
   let byteLengthCounter = 0;
   const chunks = [];
@@ -2212,38 +2381,44 @@ async function headStream(stream, bytes) {
   }
   return collected;
 }
-__name(headStream, "headStream");
 var init_headStream_browser = __esm({
   "../node_modules/@smithy/util-stream/dist-es/headStream.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(headStream, "headStream");
+    __name(headStream, "headStream");
   }
 });
-var escapeUri;
-var hexEncode;
+
+// ../node_modules/@smithy/util-uri-escape/dist-es/escape-uri.js
+var escapeUri, hexEncode;
 var init_escape_uri = __esm({
   "../node_modules/@smithy/util-uri-escape/dist-es/escape-uri.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    escapeUri = /* @__PURE__ */ __name2((uri) => encodeURIComponent(uri).replace(/[!'()*]/g, hexEncode), "escapeUri");
-    hexEncode = /* @__PURE__ */ __name2((c2) => `%${c2.charCodeAt(0).toString(16).toUpperCase()}`, "hexEncode");
+    escapeUri = /* @__PURE__ */ __name((uri) => encodeURIComponent(uri).replace(/[!'()*]/g, hexEncode), "escapeUri");
+    hexEncode = /* @__PURE__ */ __name((c2) => `%${c2.charCodeAt(0).toString(16).toUpperCase()}`, "hexEncode");
   }
 });
+
+// ../node_modules/@smithy/util-uri-escape/dist-es/escape-uri-path.js
 var init_escape_uri_path = __esm({
   "../node_modules/@smithy/util-uri-escape/dist-es/escape-uri-path.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/util-uri-escape/dist-es/index.js
 var init_dist_es8 = __esm({
   "../node_modules/@smithy/util-uri-escape/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_escape_uri();
     init_escape_uri_path();
   }
 });
+
+// ../node_modules/@smithy/querystring-builder/dist-es/index.js
 function buildQueryString(query) {
   const parts = [];
   for (let key of Object.keys(query).sort()) {
@@ -2263,26 +2438,28 @@ function buildQueryString(query) {
   }
   return parts.join("&");
 }
-__name(buildQueryString, "buildQueryString");
 var init_dist_es9 = __esm({
   "../node_modules/@smithy/querystring-builder/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es8();
-    __name2(buildQueryString, "buildQueryString");
+    __name(buildQueryString, "buildQueryString");
   }
 });
+
+// ../node_modules/@smithy/fetch-http-handler/dist-es/create-request.js
 function createRequest(url, requestOptions) {
   return new Request(url, requestOptions);
 }
-__name(createRequest, "createRequest");
 var init_create_request = __esm({
   "../node_modules/@smithy/fetch-http-handler/dist-es/create-request.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(createRequest, "createRequest");
+    __name(createRequest, "createRequest");
   }
 });
+
+// ../node_modules/@smithy/fetch-http-handler/dist-es/request-timeout.js
 function requestTimeout(timeoutInMs = 0) {
   return new Promise((resolve, reject) => {
     if (timeoutInMs) {
@@ -2294,19 +2471,19 @@ function requestTimeout(timeoutInMs = 0) {
     }
   });
 }
-__name(requestTimeout, "requestTimeout");
 var init_request_timeout = __esm({
   "../node_modules/@smithy/fetch-http-handler/dist-es/request-timeout.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(requestTimeout, "requestTimeout");
+    __name(requestTimeout, "requestTimeout");
   }
 });
-var keepAliveSupport;
-var FetchHttpHandler;
+
+// ../node_modules/@smithy/fetch-http-handler/dist-es/fetch-http-handler.js
+var keepAliveSupport, FetchHttpHandler;
 var init_fetch_http_handler = __esm({
   "../node_modules/@smithy/fetch-http-handler/dist-es/fetch-http-handler.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_dist_es9();
@@ -2317,10 +2494,7 @@ var init_fetch_http_handler = __esm({
     };
     FetchHttpHandler = class _FetchHttpHandler {
       static {
-        __name(this, "_FetchHttpHandler");
-      }
-      static {
-        __name2(this, "FetchHttpHandler");
+        __name(this, "FetchHttpHandler");
       }
       config;
       configProvider;
@@ -2393,7 +2567,7 @@ var init_fetch_http_handler = __esm({
         if (typeof this.config.requestInit === "function") {
           Object.assign(requestOptions, this.config.requestInit(request));
         }
-        let removeSignalEventListener = /* @__PURE__ */ __name2(() => {
+        let removeSignalEventListener = /* @__PURE__ */ __name(() => {
         }, "removeSignalEventListener");
         const fetchRequest = createRequest(url, requestOptions);
         const raceOfPromises = [
@@ -2427,7 +2601,7 @@ var init_fetch_http_handler = __esm({
         ];
         if (abortSignal) {
           raceOfPromises.push(new Promise((resolve, reject) => {
-            const onAbort = /* @__PURE__ */ __name2(() => {
+            const onAbort = /* @__PURE__ */ __name(() => {
               const abortError = new Error("Request aborted");
               abortError.name = "AbortError";
               reject(abortError);
@@ -2435,7 +2609,7 @@ var init_fetch_http_handler = __esm({
             if (typeof abortSignal.addEventListener === "function") {
               const signal = abortSignal;
               signal.addEventListener("abort", onAbort, { once: true });
-              removeSignalEventListener = /* @__PURE__ */ __name2(() => signal.removeEventListener("abort", onAbort), "removeSignalEventListener");
+              removeSignalEventListener = /* @__PURE__ */ __name(() => signal.removeEventListener("abort", onAbort), "removeSignalEventListener");
             } else {
               abortSignal.onabort = onAbort;
             }
@@ -2456,12 +2630,13 @@ var init_fetch_http_handler = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/fetch-http-handler/dist-es/stream-collector.js
 async function collectBlob(blob) {
   const base64 = await readToBase64(blob);
   const arrayBuffer = fromBase64(base64);
   return new Uint8Array(arrayBuffer);
 }
-__name(collectBlob, "collectBlob");
 async function collectStream(stream) {
   const chunks = [];
   const reader = stream.getReader();
@@ -2483,7 +2658,6 @@ async function collectStream(stream) {
   }
   return collected;
 }
-__name(collectStream, "collectStream");
 function readToBase64(blob) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -2501,14 +2675,13 @@ function readToBase64(blob) {
     reader.readAsDataURL(blob);
   });
 }
-__name(readToBase64, "readToBase64");
 var streamCollector;
 var init_stream_collector = __esm({
   "../node_modules/@smithy/fetch-http-handler/dist-es/stream-collector.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es7();
-    streamCollector = /* @__PURE__ */ __name2(async (stream) => {
+    streamCollector = /* @__PURE__ */ __name(async (stream) => {
       if (typeof Blob === "function" && stream instanceof Blob || stream.constructor?.name === "Blob") {
         if (Blob.prototype.arrayBuffer !== void 0) {
           return new Uint8Array(await stream.arrayBuffer());
@@ -2517,19 +2690,23 @@ var init_stream_collector = __esm({
       }
       return collectStream(stream);
     }, "streamCollector");
-    __name2(collectBlob, "collectBlob");
-    __name2(collectStream, "collectStream");
-    __name2(readToBase64, "readToBase64");
+    __name(collectBlob, "collectBlob");
+    __name(collectStream, "collectStream");
+    __name(readToBase64, "readToBase64");
   }
 });
+
+// ../node_modules/@smithy/fetch-http-handler/dist-es/index.js
 var init_dist_es10 = __esm({
   "../node_modules/@smithy/fetch-http-handler/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_fetch_http_handler();
     init_stream_collector();
   }
 });
+
+// ../node_modules/@smithy/util-hex-encoding/dist-es/index.js
 function fromHex(encoded) {
   if (encoded.length % 2 !== 0) {
     throw new Error("Hex encoded strings must have an even number length");
@@ -2545,7 +2722,6 @@ function fromHex(encoded) {
   }
   return out;
 }
-__name(fromHex, "fromHex");
 function toHex(bytes) {
   let out = "";
   for (let i2 = 0; i2 < bytes.byteLength; i2++) {
@@ -2553,12 +2729,10 @@ function toHex(bytes) {
   }
   return out;
 }
-__name(toHex, "toHex");
-var SHORT_TO_HEX;
-var HEX_TO_SHORT;
+var SHORT_TO_HEX, HEX_TO_SHORT;
 var init_dist_es11 = __esm({
   "../node_modules/@smithy/util-hex-encoding/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     SHORT_TO_HEX = {};
     HEX_TO_SHORT = {};
@@ -2570,16 +2744,16 @@ var init_dist_es11 = __esm({
       SHORT_TO_HEX[i2] = encodedByte;
       HEX_TO_SHORT[encodedByte] = i2;
     }
-    __name2(fromHex, "fromHex");
-    __name2(toHex, "toHex");
+    __name(fromHex, "fromHex");
+    __name(toHex, "toHex");
   }
 });
-var ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED;
-var sdkStreamMixin;
-var isBlobInstance;
+
+// ../node_modules/@smithy/util-stream/dist-es/sdk-stream-mixin.browser.js
+var ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED, sdkStreamMixin, isBlobInstance;
 var init_sdk_stream_mixin_browser = __esm({
   "../node_modules/@smithy/util-stream/dist-es/sdk-stream-mixin.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es10();
     init_dist_es7();
@@ -2587,20 +2761,20 @@ var init_sdk_stream_mixin_browser = __esm({
     init_dist_es6();
     init_stream_type_check();
     ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED = "The stream has already been transformed.";
-    sdkStreamMixin = /* @__PURE__ */ __name2((stream) => {
+    sdkStreamMixin = /* @__PURE__ */ __name((stream) => {
       if (!isBlobInstance(stream) && !isReadableStream(stream)) {
         const name = stream?.__proto__?.constructor?.name || stream;
         throw new Error(`Unexpected stream implementation, expect Blob or ReadableStream, got ${name}`);
       }
       let transformed = false;
-      const transformToByteArray = /* @__PURE__ */ __name2(async () => {
+      const transformToByteArray = /* @__PURE__ */ __name(async () => {
         if (transformed) {
           throw new Error(ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED);
         }
         transformed = true;
         return await streamCollector(stream);
       }, "transformToByteArray");
-      const blobToWebStream = /* @__PURE__ */ __name2((blob) => {
+      const blobToWebStream = /* @__PURE__ */ __name((blob) => {
         if (typeof blob.stream !== "function") {
           throw new Error("Cannot transform payload Blob to web stream. Please make sure the Blob.stream() is polyfilled.\nIf you are using React Native, this API is not yet supported, see: https://react-native.canny.io/feature-requests/p/fetch-streaming-body");
         }
@@ -2608,7 +2782,7 @@ var init_sdk_stream_mixin_browser = __esm({
       }, "blobToWebStream");
       return Object.assign(stream, {
         transformToByteArray,
-        transformToString: /* @__PURE__ */ __name2(async (encoding) => {
+        transformToString: /* @__PURE__ */ __name(async (encoding) => {
           const buf = await transformToByteArray();
           if (encoding === "base64") {
             return toBase64(buf);
@@ -2622,7 +2796,7 @@ var init_sdk_stream_mixin_browser = __esm({
             throw new Error("TextDecoder is not available, please make sure polyfill is provided.");
           }
         }, "transformToString"),
-        transformToWebStream: /* @__PURE__ */ __name2(() => {
+        transformToWebStream: /* @__PURE__ */ __name(() => {
           if (transformed) {
             throw new Error(ERR_MSG_STREAM_HAS_BEEN_TRANSFORMED);
           }
@@ -2637,9 +2811,11 @@ var init_sdk_stream_mixin_browser = __esm({
         }, "transformToWebStream")
       });
     }, "sdkStreamMixin");
-    isBlobInstance = /* @__PURE__ */ __name2((stream) => typeof Blob === "function" && stream instanceof Blob, "isBlobInstance");
+    isBlobInstance = /* @__PURE__ */ __name((stream) => typeof Blob === "function" && stream instanceof Blob, "isBlobInstance");
   }
 });
+
+// ../node_modules/@smithy/util-stream/dist-es/splitStream.browser.js
 async function splitStream(stream) {
   if (typeof stream.stream === "function") {
     stream = stream.stream();
@@ -2647,17 +2823,18 @@ async function splitStream(stream) {
   const readableStream = stream;
   return readableStream.tee();
 }
-__name(splitStream, "splitStream");
 var init_splitStream_browser = __esm({
   "../node_modules/@smithy/util-stream/dist-es/splitStream.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(splitStream, "splitStream");
+    __name(splitStream, "splitStream");
   }
 });
+
+// ../node_modules/@smithy/util-stream/dist-es/index.js
 var init_dist_es12 = __esm({
   "../node_modules/@smithy/util-stream/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_Uint8ArrayBlobAdapter();
     init_ChecksumStream_browser();
@@ -2669,13 +2846,15 @@ var init_dist_es12 = __esm({
     init_splitStream_browser();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/collect-stream-body.js
 var collectBody;
 var init_collect_stream_body = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/collect-stream-body.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es12();
-    collectBody = /* @__PURE__ */ __name2(async (streamBody = new Uint8Array(), context) => {
+    collectBody = /* @__PURE__ */ __name(async (streamBody = new Uint8Array(), context) => {
       if (streamBody instanceof Uint8Array) {
         return Uint8ArrayBlobAdapter.mutate(streamBody);
       }
@@ -2687,25 +2866,28 @@ var init_collect_stream_body = __esm({
     }, "collectBody");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/extended-encode-uri-component.js
 function extendedEncodeURIComponent(str) {
   return encodeURIComponent(str).replace(/[!'()*]/g, function(c2) {
     return "%" + c2.charCodeAt(0).toString(16).toUpperCase();
   });
 }
-__name(extendedEncodeURIComponent, "extendedEncodeURIComponent");
 var init_extended_encode_uri_component = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/extended-encode-uri-component.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(extendedEncodeURIComponent, "extendedEncodeURIComponent");
+    __name(extendedEncodeURIComponent, "extendedEncodeURIComponent");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/deref.js
 var deref;
 var init_deref = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/deref.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    deref = /* @__PURE__ */ __name2((schemaRef) => {
+    deref = /* @__PURE__ */ __name((schemaRef) => {
       if (typeof schemaRef === "function") {
         return schemaRef();
       }
@@ -2713,12 +2895,14 @@ var init_deref = __esm({
     }, "deref");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/operation.js
 var operation;
 var init_operation = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/operation.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    operation = /* @__PURE__ */ __name2((namespace, name, traits, input, output) => ({
+    operation = /* @__PURE__ */ __name((namespace, name, traits, input, output) => ({
       name,
       namespace,
       traits,
@@ -2727,16 +2911,17 @@ var init_operation = __esm({
     }), "operation");
   }
 });
-var schemaDeserializationMiddleware;
-var findHeader;
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/middleware/schemaDeserializationMiddleware.js
+var schemaDeserializationMiddleware, findHeader;
 var init_schemaDeserializationMiddleware = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/middleware/schemaDeserializationMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_dist_es4();
     init_operation();
-    schemaDeserializationMiddleware = /* @__PURE__ */ __name2((config) => (next, context) => async (args) => {
+    schemaDeserializationMiddleware = /* @__PURE__ */ __name((config) => (next, context) => async (args) => {
       const { response } = await next(args);
       const { operationSchema } = getSmithyContext(context);
       const [, ns, n2, t8, i2, o2] = operationSchema ?? [];
@@ -2789,21 +2974,23 @@ var init_schemaDeserializationMiddleware = __esm({
         throw error;
       }
     }, "schemaDeserializationMiddleware");
-    findHeader = /* @__PURE__ */ __name2((pattern, headers) => {
+    findHeader = /* @__PURE__ */ __name((pattern, headers) => {
       return (headers.find(([k2]) => {
         return k2.match(pattern);
       }) || [void 0, void 0])[1];
     }, "findHeader");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/middleware/schemaSerializationMiddleware.js
 var schemaSerializationMiddleware;
 var init_schemaSerializationMiddleware = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/middleware/schemaSerializationMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es4();
     init_operation();
-    schemaSerializationMiddleware = /* @__PURE__ */ __name2((config) => (next, context) => async (args) => {
+    schemaSerializationMiddleware = /* @__PURE__ */ __name((config) => (next, context) => async (args) => {
       const { operationSchema } = getSmithyContext(context);
       const [, ns, n2, t8, i2, o2] = operationSchema ?? [];
       const endpoint = context.endpointV2?.url && config.urlParser ? async () => config.urlParser(context.endpointV2.url) : config.endpoint;
@@ -2819,21 +3006,21 @@ var init_schemaSerializationMiddleware = __esm({
     }, "schemaSerializationMiddleware");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/middleware/getSchemaSerdePlugin.js
 function getSchemaSerdePlugin(config) {
   return {
-    applyToStack: /* @__PURE__ */ __name2((commandStack) => {
+    applyToStack: /* @__PURE__ */ __name((commandStack) => {
       commandStack.add(schemaSerializationMiddleware(config), serializerMiddlewareOption2);
       commandStack.add(schemaDeserializationMiddleware(config), deserializerMiddlewareOption);
       config.protocol.setSerdeContext(config);
     }, "applyToStack")
   };
 }
-__name(getSchemaSerdePlugin, "getSchemaSerdePlugin");
-var deserializerMiddlewareOption;
-var serializerMiddlewareOption2;
+var deserializerMiddlewareOption, serializerMiddlewareOption2;
 var init_getSchemaSerdePlugin = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/middleware/getSchemaSerdePlugin.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schemaDeserializationMiddleware();
     init_schemaSerializationMiddleware();
@@ -2849,20 +3036,19 @@ var init_getSchemaSerdePlugin = __esm({
       tags: ["SERIALIZER"],
       override: true
     };
-    __name2(getSchemaSerdePlugin, "getSchemaSerdePlugin");
+    __name(getSchemaSerdePlugin, "getSchemaSerdePlugin");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/Schema.js
 var Schema;
 var init_Schema = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/Schema.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     Schema = class {
       static {
         __name(this, "Schema");
-      }
-      static {
-        __name2(this, "Schema");
       }
       name;
       namespace;
@@ -2885,18 +3071,17 @@ var init_Schema = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/ListSchema.js
 var ListSchema;
 var init_ListSchema = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/ListSchema.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_Schema();
     ListSchema = class _ListSchema extends Schema {
       static {
-        __name(this, "_ListSchema");
-      }
-      static {
-        __name2(this, "ListSchema");
+        __name(this, "ListSchema");
       }
       static symbol = Symbol.for("@smithy/lis");
       name;
@@ -2906,18 +3091,17 @@ var init_ListSchema = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/MapSchema.js
 var MapSchema;
 var init_MapSchema = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/MapSchema.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_Schema();
     MapSchema = class _MapSchema extends Schema {
       static {
-        __name(this, "_MapSchema");
-      }
-      static {
-        __name2(this, "MapSchema");
+        __name(this, "MapSchema");
       }
       static symbol = Symbol.for("@smithy/map");
       name;
@@ -2928,18 +3112,17 @@ var init_MapSchema = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/OperationSchema.js
 var OperationSchema;
 var init_OperationSchema = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/OperationSchema.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_Schema();
     OperationSchema = class _OperationSchema extends Schema {
       static {
-        __name(this, "_OperationSchema");
-      }
-      static {
-        __name2(this, "OperationSchema");
+        __name(this, "OperationSchema");
       }
       static symbol = Symbol.for("@smithy/ope");
       name;
@@ -2950,18 +3133,17 @@ var init_OperationSchema = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/StructureSchema.js
 var StructureSchema;
 var init_StructureSchema = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/StructureSchema.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_Schema();
     StructureSchema = class _StructureSchema extends Schema {
       static {
-        __name(this, "_StructureSchema");
-      }
-      static {
-        __name2(this, "StructureSchema");
+        __name(this, "StructureSchema");
       }
       static symbol = Symbol.for("@smithy/str");
       name;
@@ -2972,18 +3154,17 @@ var init_StructureSchema = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/ErrorSchema.js
 var ErrorSchema;
 var init_ErrorSchema = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/ErrorSchema.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_StructureSchema();
     ErrorSchema = class _ErrorSchema extends StructureSchema {
       static {
-        __name(this, "_ErrorSchema");
-      }
-      static {
-        __name2(this, "ErrorSchema");
+        __name(this, "ErrorSchema");
       }
       static symbol = Symbol.for("@smithy/err");
       ctor;
@@ -2991,6 +3172,8 @@ var init_ErrorSchema = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/translateTraits.js
 function translateTraits(indicator) {
   if (typeof indicator === "object") {
     return indicator;
@@ -3013,14 +3196,15 @@ function translateTraits(indicator) {
   }
   return traits;
 }
-__name(translateTraits, "translateTraits");
 var init_translateTraits = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/translateTraits.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(translateTraits, "translateTraits");
+    __name(translateTraits, "translateTraits");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/NormalizedSchema.js
 function member(memberSchema, memberName) {
   if (memberSchema instanceof NormalizedSchema) {
     return Object.assign(memberSchema, {
@@ -3031,14 +3215,10 @@ function member(memberSchema, memberName) {
   const internalCtorAccess = NormalizedSchema;
   return new internalCtorAccess(memberSchema, memberName);
 }
-__name(member, "member");
-var anno;
-var NormalizedSchema;
-var isMemberSchema;
-var isStaticSchema;
+var anno, NormalizedSchema, isMemberSchema, isStaticSchema;
 var init_NormalizedSchema = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/NormalizedSchema.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_deref();
     init_translateTraits();
@@ -3047,10 +3227,7 @@ var init_NormalizedSchema = __esm({
     };
     NormalizedSchema = class _NormalizedSchema {
       static {
-        __name(this, "_NormalizedSchema");
-      }
-      static {
-        __name2(this, "NormalizedSchema");
+        __name(this, "NormalizedSchema");
       }
       ref;
       memberName;
@@ -3283,23 +3460,22 @@ var init_NormalizedSchema = __esm({
         struct[anno.it] = it;
       }
     };
-    __name2(member, "member");
-    isMemberSchema = /* @__PURE__ */ __name2((sc) => Array.isArray(sc) && sc.length === 2, "isMemberSchema");
-    isStaticSchema = /* @__PURE__ */ __name2((sc) => Array.isArray(sc) && sc.length >= 5, "isStaticSchema");
+    __name(member, "member");
+    isMemberSchema = /* @__PURE__ */ __name((sc) => Array.isArray(sc) && sc.length === 2, "isMemberSchema");
+    isStaticSchema = /* @__PURE__ */ __name((sc) => Array.isArray(sc) && sc.length >= 5, "isStaticSchema");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/SimpleSchema.js
 var SimpleSchema;
 var init_SimpleSchema = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/SimpleSchema.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_Schema();
     SimpleSchema = class _SimpleSchema extends Schema {
       static {
-        __name(this, "_SimpleSchema");
-      }
-      static {
-        __name2(this, "SimpleSchema");
+        __name(this, "SimpleSchema");
       }
       static symbol = Symbol.for("@smithy/sim");
       name;
@@ -3309,23 +3485,24 @@ var init_SimpleSchema = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/schemas/sentinels.js
 var init_sentinels2 = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/schemas/sentinels.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/TypeRegistry.js
 var TypeRegistry;
 var init_TypeRegistry = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/TypeRegistry.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     TypeRegistry = class _TypeRegistry {
       static {
-        __name(this, "_TypeRegistry");
-      }
-      static {
-        __name2(this, "TypeRegistry");
+        __name(this, "TypeRegistry");
       }
       namespace;
       schemas;
@@ -3393,9 +3570,11 @@ var init_TypeRegistry = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/schema/index.js
 var init_schema2 = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/schema/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_deref();
     init_getSchemaSerdePlugin();
@@ -3413,32 +3592,22 @@ var init_schema2 = __esm({
     init_TypeRegistry();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/copyDocumentWithTransform.js
 var init_copyDocumentWithTransform = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/copyDocumentWithTransform.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
-var expectNumber;
-var MAX_FLOAT;
-var expectFloat32;
-var expectLong;
-var expectShort;
-var expectByte;
-var expectSizedInt;
-var castInt;
-var strictParseFloat32;
-var NUMBER_REGEX;
-var parseNumber;
-var strictParseShort;
-var strictParseByte;
-var stackTraceWarning;
-var logger;
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/parse-utils.js
+var expectNumber, MAX_FLOAT, expectFloat32, expectLong, expectShort, expectByte, expectSizedInt, castInt, strictParseFloat32, NUMBER_REGEX, parseNumber, strictParseShort, strictParseByte, stackTraceWarning, logger;
 var init_parse_utils = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/parse-utils.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    expectNumber = /* @__PURE__ */ __name2((value) => {
+    expectNumber = /* @__PURE__ */ __name((value) => {
       if (value === null || value === void 0) {
         return void 0;
       }
@@ -3457,7 +3626,7 @@ var init_parse_utils = __esm({
       throw new TypeError(`Expected number, got ${typeof value}: ${value}`);
     }, "expectNumber");
     MAX_FLOAT = Math.ceil(2 ** 127 * (2 - 2 ** -23));
-    expectFloat32 = /* @__PURE__ */ __name2((value) => {
+    expectFloat32 = /* @__PURE__ */ __name((value) => {
       const expected = expectNumber(value);
       if (expected !== void 0 && !Number.isNaN(expected) && expected !== Infinity && expected !== -Infinity) {
         if (Math.abs(expected) > MAX_FLOAT) {
@@ -3466,7 +3635,7 @@ var init_parse_utils = __esm({
       }
       return expected;
     }, "expectFloat32");
-    expectLong = /* @__PURE__ */ __name2((value) => {
+    expectLong = /* @__PURE__ */ __name((value) => {
       if (value === null || value === void 0) {
         return void 0;
       }
@@ -3475,16 +3644,16 @@ var init_parse_utils = __esm({
       }
       throw new TypeError(`Expected integer, got ${typeof value}: ${value}`);
     }, "expectLong");
-    expectShort = /* @__PURE__ */ __name2((value) => expectSizedInt(value, 16), "expectShort");
-    expectByte = /* @__PURE__ */ __name2((value) => expectSizedInt(value, 8), "expectByte");
-    expectSizedInt = /* @__PURE__ */ __name2((value, size) => {
+    expectShort = /* @__PURE__ */ __name((value) => expectSizedInt(value, 16), "expectShort");
+    expectByte = /* @__PURE__ */ __name((value) => expectSizedInt(value, 8), "expectByte");
+    expectSizedInt = /* @__PURE__ */ __name((value, size) => {
       const expected = expectLong(value);
       if (expected !== void 0 && castInt(expected, size) !== expected) {
         throw new TypeError(`Expected ${size}-bit integer, got ${value}`);
       }
       return expected;
     }, "expectSizedInt");
-    castInt = /* @__PURE__ */ __name2((value, size) => {
+    castInt = /* @__PURE__ */ __name((value, size) => {
       switch (size) {
         case 32:
           return Int32Array.of(value)[0];
@@ -3494,33 +3663,33 @@ var init_parse_utils = __esm({
           return Int8Array.of(value)[0];
       }
     }, "castInt");
-    strictParseFloat32 = /* @__PURE__ */ __name2((value) => {
+    strictParseFloat32 = /* @__PURE__ */ __name((value) => {
       if (typeof value == "string") {
         return expectFloat32(parseNumber(value));
       }
       return expectFloat32(value);
     }, "strictParseFloat32");
     NUMBER_REGEX = /(-?(?:0|[1-9]\d*)(?:\.\d+)?(?:[eE][+-]?\d+)?)|(-?Infinity)|(NaN)/g;
-    parseNumber = /* @__PURE__ */ __name2((value) => {
+    parseNumber = /* @__PURE__ */ __name((value) => {
       const matches = value.match(NUMBER_REGEX);
       if (matches === null || matches[0].length !== value.length) {
         throw new TypeError(`Expected real number, got implicit NaN`);
       }
       return parseFloat(value);
     }, "parseNumber");
-    strictParseShort = /* @__PURE__ */ __name2((value) => {
+    strictParseShort = /* @__PURE__ */ __name((value) => {
       if (typeof value === "string") {
         return expectShort(parseNumber(value));
       }
       return expectShort(value);
     }, "strictParseShort");
-    strictParseByte = /* @__PURE__ */ __name2((value) => {
+    strictParseByte = /* @__PURE__ */ __name((value) => {
       if (typeof value === "string") {
         return expectByte(parseNumber(value));
       }
       return expectByte(value);
     }, "strictParseByte");
-    stackTraceWarning = /* @__PURE__ */ __name2((message) => {
+    stackTraceWarning = /* @__PURE__ */ __name((message) => {
       return String(new TypeError(message).stack || message).split("\n").slice(0, 5).filter((s2) => !s2.includes("stackTraceWarning")).join("\n");
     }, "stackTraceWarning");
     logger = {
@@ -3528,6 +3697,8 @@ var init_parse_utils = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/date-utils.js
 function dateToUtcString(date2) {
   const year2 = date2.getUTCFullYear();
   const month = date2.getUTCMonth();
@@ -3542,40 +3713,21 @@ function dateToUtcString(date2) {
   const secondsString = secondsInt < 10 ? `0${secondsInt}` : `${secondsInt}`;
   return `${DAYS[dayOfWeek]}, ${dayOfMonthString} ${MONTHS[month]} ${year2} ${hoursString}:${minutesString}:${secondsString} GMT`;
 }
-__name(dateToUtcString, "dateToUtcString");
-var DAYS;
-var MONTHS;
-var RFC3339;
-var RFC3339_WITH_OFFSET;
-var IMF_FIXDATE;
-var RFC_850_DATE;
-var ASC_TIME;
-var parseRfc7231DateTime;
-var buildDate;
-var parseTwoDigitYear;
-var FIFTY_YEARS_IN_MILLIS;
-var adjustRfc850Year;
-var parseMonthByShortName;
-var DAYS_IN_MONTH;
-var validateDayOfMonth;
-var isLeapYear;
-var parseDateValue;
-var parseMilliseconds;
-var stripLeadingZeroes;
+var DAYS, MONTHS, RFC3339, RFC3339_WITH_OFFSET, IMF_FIXDATE, RFC_850_DATE, ASC_TIME, parseRfc7231DateTime, buildDate, parseTwoDigitYear, FIFTY_YEARS_IN_MILLIS, adjustRfc850Year, parseMonthByShortName, DAYS_IN_MONTH, validateDayOfMonth, isLeapYear, parseDateValue, parseMilliseconds, stripLeadingZeroes;
 var init_date_utils = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/date-utils.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_parse_utils();
     DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    __name2(dateToUtcString, "dateToUtcString");
+    __name(dateToUtcString, "dateToUtcString");
     RFC3339 = new RegExp(/^(\d{4})-(\d{2})-(\d{2})[tT](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?[zZ]$/);
     RFC3339_WITH_OFFSET = new RegExp(/^(\d{4})-(\d{2})-(\d{2})[tT](\d{2}):(\d{2}):(\d{2})(?:\.(\d+))?(([-+]\d{2}\:\d{2})|[zZ])$/);
     IMF_FIXDATE = new RegExp(/^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun), (\d{2}) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) (\d{4}) (\d{1,2}):(\d{2}):(\d{2})(?:\.(\d+))? GMT$/);
     RFC_850_DATE = new RegExp(/^(?:Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday), (\d{2})-(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)-(\d{2}) (\d{1,2}):(\d{2}):(\d{2})(?:\.(\d+))? GMT$/);
     ASC_TIME = new RegExp(/^(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun) (Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec) ( [1-9]|\d{2}) (\d{1,2}):(\d{2}):(\d{2})(?:\.(\d+))? (\d{4})$/);
-    parseRfc7231DateTime = /* @__PURE__ */ __name2((value) => {
+    parseRfc7231DateTime = /* @__PURE__ */ __name((value) => {
       if (value === null || value === void 0) {
         return void 0;
       }
@@ -3604,12 +3756,12 @@ var init_date_utils = __esm({
       }
       throw new TypeError("Invalid RFC-7231 date-time value");
     }, "parseRfc7231DateTime");
-    buildDate = /* @__PURE__ */ __name2((year2, month, day, time2) => {
+    buildDate = /* @__PURE__ */ __name((year2, month, day, time2) => {
       const adjustedMonth = month - 1;
       validateDayOfMonth(year2, adjustedMonth, day);
       return new Date(Date.UTC(year2, adjustedMonth, day, parseDateValue(time2.hours, "hour", 0, 23), parseDateValue(time2.minutes, "minute", 0, 59), parseDateValue(time2.seconds, "seconds", 0, 60), parseMilliseconds(time2.fractionalMilliseconds)));
     }, "buildDate");
-    parseTwoDigitYear = /* @__PURE__ */ __name2((value) => {
+    parseTwoDigitYear = /* @__PURE__ */ __name((value) => {
       const thisYear = (/* @__PURE__ */ new Date()).getUTCFullYear();
       const valueInThisCentury = Math.floor(thisYear / 100) * 100 + strictParseShort(stripLeadingZeroes(value));
       if (valueInThisCentury < thisYear) {
@@ -3618,13 +3770,13 @@ var init_date_utils = __esm({
       return valueInThisCentury;
     }, "parseTwoDigitYear");
     FIFTY_YEARS_IN_MILLIS = 50 * 365 * 24 * 60 * 60 * 1e3;
-    adjustRfc850Year = /* @__PURE__ */ __name2((input) => {
+    adjustRfc850Year = /* @__PURE__ */ __name((input) => {
       if (input.getTime() - (/* @__PURE__ */ new Date()).getTime() > FIFTY_YEARS_IN_MILLIS) {
         return new Date(Date.UTC(input.getUTCFullYear() - 100, input.getUTCMonth(), input.getUTCDate(), input.getUTCHours(), input.getUTCMinutes(), input.getUTCSeconds(), input.getUTCMilliseconds()));
       }
       return input;
     }, "adjustRfc850Year");
-    parseMonthByShortName = /* @__PURE__ */ __name2((value) => {
+    parseMonthByShortName = /* @__PURE__ */ __name((value) => {
       const monthIdx = MONTHS.indexOf(value);
       if (monthIdx < 0) {
         throw new TypeError(`Invalid month: ${value}`);
@@ -3632,7 +3784,7 @@ var init_date_utils = __esm({
       return monthIdx + 1;
     }, "parseMonthByShortName");
     DAYS_IN_MONTH = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    validateDayOfMonth = /* @__PURE__ */ __name2((year2, month, day) => {
+    validateDayOfMonth = /* @__PURE__ */ __name((year2, month, day) => {
       let maxDays = DAYS_IN_MONTH[month];
       if (month === 1 && isLeapYear(year2)) {
         maxDays = 29;
@@ -3641,23 +3793,23 @@ var init_date_utils = __esm({
         throw new TypeError(`Invalid day for ${MONTHS[month]} in ${year2}: ${day}`);
       }
     }, "validateDayOfMonth");
-    isLeapYear = /* @__PURE__ */ __name2((year2) => {
+    isLeapYear = /* @__PURE__ */ __name((year2) => {
       return year2 % 4 === 0 && (year2 % 100 !== 0 || year2 % 400 === 0);
     }, "isLeapYear");
-    parseDateValue = /* @__PURE__ */ __name2((value, type, lower, upper) => {
+    parseDateValue = /* @__PURE__ */ __name((value, type, lower, upper) => {
       const dateVal = strictParseByte(stripLeadingZeroes(value));
       if (dateVal < lower || dateVal > upper) {
         throw new TypeError(`${type} must be between ${lower} and ${upper}, inclusive`);
       }
       return dateVal;
     }, "parseDateValue");
-    parseMilliseconds = /* @__PURE__ */ __name2((value) => {
+    parseMilliseconds = /* @__PURE__ */ __name((value) => {
       if (value === null || value === void 0) {
         return 0;
       }
       return strictParseFloat32("0." + value) * 1e3;
     }, "parseMilliseconds");
-    stripLeadingZeroes = /* @__PURE__ */ __name2((value) => {
+    stripLeadingZeroes = /* @__PURE__ */ __name((value) => {
       let idx = 0;
       while (idx < value.length - 1 && value.charAt(idx) === "0") {
         idx++;
@@ -3669,23 +3821,26 @@ var init_date_utils = __esm({
     }, "stripLeadingZeroes");
   }
 });
+
+// ../node_modules/@smithy/uuid/dist-es/randomUUID.browser.js
 var randomUUID;
 var init_randomUUID_browser = __esm({
   "../node_modules/@smithy/uuid/dist-es/randomUUID.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     randomUUID = typeof crypto !== "undefined" && crypto.randomUUID && crypto.randomUUID.bind(crypto);
   }
 });
-var decimalToHex;
-var v4;
+
+// ../node_modules/@smithy/uuid/dist-es/v4.js
+var decimalToHex, v4;
 var init_v4 = __esm({
   "../node_modules/@smithy/uuid/dist-es/v4.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_randomUUID_browser();
     decimalToHex = Array.from({ length: 256 }, (_, i2) => i2.toString(16).padStart(2, "0"));
-    v4 = /* @__PURE__ */ __name2(() => {
+    v4 = /* @__PURE__ */ __name(() => {
       if (randomUUID) {
         return randomUUID();
       }
@@ -3697,26 +3852,32 @@ var init_v4 = __esm({
     }, "v4");
   }
 });
+
+// ../node_modules/@smithy/uuid/dist-es/index.js
 var init_dist_es13 = __esm({
   "../node_modules/@smithy/uuid/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_v4();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/generateIdempotencyToken.js
 var init_generateIdempotencyToken = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/generateIdempotencyToken.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es13();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/lazy-json.js
 var LazyJsonString;
 var init_lazy_json = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/lazy-json.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    LazyJsonString = /* @__PURE__ */ __name2(/* @__PURE__ */ __name(function LazyJsonString2(val) {
+    LazyJsonString = /* @__PURE__ */ __name(function LazyJsonString2(val) {
       const str = Object.assign(new String(val), {
         deserializeJSON() {
           return JSON.parse(String(val));
@@ -3729,7 +3890,7 @@ var init_lazy_json = __esm({
         }
       });
       return str;
-    }, "LazyJsonString2"), "LazyJsonString");
+    }, "LazyJsonString");
     LazyJsonString.from = (object) => {
       if (object && typeof object === "object" && (object instanceof LazyJsonString || "deserializeJSON" in object)) {
         return object;
@@ -3741,43 +3902,33 @@ var init_lazy_json = __esm({
     LazyJsonString.fromObject = LazyJsonString.from;
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/quote-header.js
 function quoteHeader(part) {
   if (part.includes(",") || part.includes('"')) {
     part = `"${part.replace(/"/g, '\\"')}"`;
   }
   return part;
 }
-__name(quoteHeader, "quoteHeader");
 var init_quote_header = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/quote-header.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(quoteHeader, "quoteHeader");
+    __name(quoteHeader, "quoteHeader");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/schema-serde-lib/schema-date-utils.js
 function range(v2, min, max) {
   const _v = Number(v2);
   if (_v < min || _v > max) {
     throw new Error(`Value ${_v} out of range [${min}, ${max}]`);
   }
 }
-__name(range, "range");
-var ddd;
-var mmm;
-var time;
-var date;
-var year;
-var RFC3339_WITH_OFFSET2;
-var IMF_FIXDATE2;
-var RFC_850_DATE2;
-var ASC_TIME2;
-var months;
-var _parseEpochTimestamp;
-var _parseRfc3339DateTimeWithOffset;
-var _parseRfc7231DateTime;
+var ddd, mmm, time, date, year, RFC3339_WITH_OFFSET2, IMF_FIXDATE2, RFC_850_DATE2, ASC_TIME2, months, _parseEpochTimestamp, _parseRfc3339DateTimeWithOffset, _parseRfc7231DateTime;
 var init_schema_date_utils = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/schema-serde-lib/schema-date-utils.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     ddd = `(?:Mon|Tue|Wed|Thu|Fri|Sat|Sun)(?:[ne|u?r]?s?day)?`;
     mmm = `(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)`;
@@ -3789,7 +3940,7 @@ var init_schema_date_utils = __esm({
     RFC_850_DATE2 = new RegExp(`^${ddd}, ${date}-${mmm}-(\\d\\d) ${time} GMT$`);
     ASC_TIME2 = new RegExp(`^${ddd} ${mmm} ( [1-9]|\\d\\d) ${time} ${year}$`);
     months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-    _parseEpochTimestamp = /* @__PURE__ */ __name2((value) => {
+    _parseEpochTimestamp = /* @__PURE__ */ __name((value) => {
       if (value == null) {
         return void 0;
       }
@@ -3809,7 +3960,7 @@ var init_schema_date_utils = __esm({
       }
       return new Date(Math.round(num * 1e3));
     }, "_parseEpochTimestamp");
-    _parseRfc3339DateTimeWithOffset = /* @__PURE__ */ __name2((value) => {
+    _parseRfc3339DateTimeWithOffset = /* @__PURE__ */ __name((value) => {
       if (value == null) {
         return void 0;
       }
@@ -3835,7 +3986,7 @@ var init_schema_date_utils = __esm({
       }
       return date2;
     }, "_parseRfc3339DateTimeWithOffset");
-    _parseRfc7231DateTime = /* @__PURE__ */ __name2((value) => {
+    _parseRfc7231DateTime = /* @__PURE__ */ __name((value) => {
       if (value == null) {
         return void 0;
       }
@@ -3870,9 +4021,11 @@ var init_schema_date_utils = __esm({
       }
       throw new TypeError(`Invalid RFC7231 date-time value ${value}.`);
     }, "_parseRfc7231DateTime");
-    __name2(range, "range");
+    __name(range, "range");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/split-every.js
 function splitEvery(value, delimiter, numDelimiters) {
   if (numDelimiters <= 0 || !Number.isInteger(numDelimiters)) {
     throw new Error("Invalid number of delimiters (" + numDelimiters + ") for splitEvery.");
@@ -3899,20 +4052,21 @@ function splitEvery(value, delimiter, numDelimiters) {
   }
   return compoundSegments;
 }
-__name(splitEvery, "splitEvery");
 var init_split_every = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/split-every.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(splitEvery, "splitEvery");
+    __name(splitEvery, "splitEvery");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/split-header.js
 var splitHeader;
 var init_split_header = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/split-header.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    splitHeader = /* @__PURE__ */ __name2((value) => {
+    splitHeader = /* @__PURE__ */ __name((value) => {
       const z2 = value.length;
       const values = [];
       let withinQuotes = false;
@@ -3951,19 +4105,17 @@ var init_split_header = __esm({
     }, "splitHeader");
   }
 });
-var format;
-var NumericValue;
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/value/NumericValue.js
+var format, NumericValue;
 var init_NumericValue = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/value/NumericValue.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     format = /^-?\d*(\.\d+)?$/;
     NumericValue = class _NumericValue {
       static {
-        __name(this, "_NumericValue");
-      }
-      static {
-        __name2(this, "NumericValue");
+        __name(this, "NumericValue");
       }
       string;
       type;
@@ -3987,9 +4139,11 @@ var init_NumericValue = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/serde/index.js
 var init_serde2 = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/serde/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_copyDocumentWithTransform();
     init_date_utils();
@@ -4003,17 +4157,16 @@ var init_serde2 = __esm({
     init_NumericValue();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/SerdeContext.js
 var SerdeContext;
 var init_SerdeContext = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/SerdeContext.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     SerdeContext = class {
       static {
         __name(this, "SerdeContext");
-      }
-      static {
-        __name2(this, "SerdeContext");
       }
       serdeContext;
       setSerdeContext(serdeContext) {
@@ -4022,18 +4175,17 @@ var init_SerdeContext = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/event-streams/EventStreamSerde.js
 var EventStreamSerde;
 var init_EventStreamSerde = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/event-streams/EventStreamSerde.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es6();
     EventStreamSerde = class {
       static {
         __name(this, "EventStreamSerde");
-      }
-      static {
-        __name2(this, "EventStreamSerde");
       }
       marshaller;
       serializer;
@@ -4268,21 +4420,25 @@ var init_EventStreamSerde = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/event-streams/index.js
 var event_streams_exports = {};
 __export(event_streams_exports, {
-  EventStreamSerde: /* @__PURE__ */ __name(() => EventStreamSerde, "EventStreamSerde")
+  EventStreamSerde: () => EventStreamSerde
 });
 var init_event_streams = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/event-streams/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_EventStreamSerde();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/HttpProtocol.js
 var HttpProtocol;
 var init_HttpProtocol = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/HttpProtocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schema2();
     init_dist_es2();
@@ -4290,9 +4446,6 @@ var init_HttpProtocol = __esm({
     HttpProtocol = class extends SerdeContext {
       static {
         __name(this, "HttpProtocol");
-      }
-      static {
-        __name2(this, "HttpProtocol");
       }
       options;
       constructor(options) {
@@ -4416,10 +4569,12 @@ var init_HttpProtocol = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/HttpBindingProtocol.js
 var HttpBindingProtocol;
 var init_HttpBindingProtocol = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/HttpBindingProtocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schema2();
     init_serde2();
@@ -4431,9 +4586,6 @@ var init_HttpBindingProtocol = __esm({
     HttpBindingProtocol = class extends HttpProtocol {
       static {
         __name(this, "HttpBindingProtocol");
-      }
-      static {
-        __name2(this, "HttpBindingProtocol");
       }
       async serializeRequest(operationSchema, _input, context) {
         const input = {
@@ -4679,24 +4831,32 @@ var init_HttpBindingProtocol = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/RpcProtocol.js
 var init_RpcProtocol = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/RpcProtocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/resolve-path.js
 var init_resolve_path = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/resolve-path.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/requestBuilder.js
 var init_requestBuilder = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/requestBuilder.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/serde/determineTimestampFormat.js
 function determineTimestampFormat(ns, settings) {
   if (settings.timestampFormat.useTrait) {
     if (ns.isTimestampSchema() && (ns.getSchema() === 5 || ns.getSchema() === 6 || ns.getSchema() === 7)) {
@@ -4707,18 +4867,19 @@ function determineTimestampFormat(ns, settings) {
   const bindingFormat = settings.httpBindings ? typeof httpPrefixHeaders === "string" || Boolean(httpHeader) ? 6 : Boolean(httpQuery) || Boolean(httpLabel) ? 5 : void 0 : void 0;
   return bindingFormat ?? settings.timestampFormat.default;
 }
-__name(determineTimestampFormat, "determineTimestampFormat");
 var init_determineTimestampFormat = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/serde/determineTimestampFormat.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(determineTimestampFormat, "determineTimestampFormat");
+    __name(determineTimestampFormat, "determineTimestampFormat");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/serde/FromStringShapeDeserializer.js
 var FromStringShapeDeserializer;
 var init_FromStringShapeDeserializer = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/serde/FromStringShapeDeserializer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schema2();
     init_serde2();
@@ -4729,9 +4890,6 @@ var init_FromStringShapeDeserializer = __esm({
     FromStringShapeDeserializer = class extends SerdeContext {
       static {
         __name(this, "FromStringShapeDeserializer");
-      }
-      static {
-        __name2(this, "FromStringShapeDeserializer");
       }
       settings;
       constructor(settings) {
@@ -4794,10 +4952,12 @@ var init_FromStringShapeDeserializer = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/serde/HttpInterceptingShapeDeserializer.js
 var HttpInterceptingShapeDeserializer;
 var init_HttpInterceptingShapeDeserializer = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/serde/HttpInterceptingShapeDeserializer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schema2();
     init_dist_es6();
@@ -4806,9 +4966,6 @@ var init_HttpInterceptingShapeDeserializer = __esm({
     HttpInterceptingShapeDeserializer = class extends SerdeContext {
       static {
         __name(this, "HttpInterceptingShapeDeserializer");
-      }
-      static {
-        __name2(this, "HttpInterceptingShapeDeserializer");
       }
       codecDeserializer;
       stringDeserializer;
@@ -4848,10 +5005,12 @@ var init_HttpInterceptingShapeDeserializer = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/serde/ToStringShapeSerializer.js
 var ToStringShapeSerializer;
 var init_ToStringShapeSerializer = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/serde/ToStringShapeSerializer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schema2();
     init_serde2();
@@ -4861,9 +5020,6 @@ var init_ToStringShapeSerializer = __esm({
     ToStringShapeSerializer = class extends SerdeContext {
       static {
         __name(this, "ToStringShapeSerializer");
-      }
-      static {
-        __name2(this, "ToStringShapeSerializer");
       }
       settings;
       stringBuffer = "";
@@ -4951,19 +5107,18 @@ var init_ToStringShapeSerializer = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/serde/HttpInterceptingShapeSerializer.js
 var HttpInterceptingShapeSerializer;
 var init_HttpInterceptingShapeSerializer = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/serde/HttpInterceptingShapeSerializer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schema2();
     init_ToStringShapeSerializer();
     HttpInterceptingShapeSerializer = class {
       static {
         __name(this, "HttpInterceptingShapeSerializer");
-      }
-      static {
-        __name2(this, "HttpInterceptingShapeSerializer");
       }
       codecSerializer;
       stringSerializer;
@@ -4997,9 +5152,11 @@ var init_HttpInterceptingShapeSerializer = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/submodules/protocols/index.js
 var init_protocols = __esm({
   "../node_modules/@smithy/core/dist-es/submodules/protocols/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_collect_stream_body();
     init_extended_encode_uri_component();
@@ -5016,12 +5173,16 @@ var init_protocols = __esm({
     init_SerdeContext();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/request-builder/requestBuilder.js
 var init_requestBuilder2 = __esm({
   "../node_modules/@smithy/core/dist-es/request-builder/requestBuilder.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/setFeature.js
 function setFeature2(context, feature, value) {
   if (!context.__smithy_context) {
     context.__smithy_context = {
@@ -5032,25 +5193,23 @@ function setFeature2(context, feature, value) {
   }
   context.__smithy_context.features[feature] = value;
 }
-__name(setFeature2, "setFeature2");
 var init_setFeature2 = __esm({
   "../node_modules/@smithy/core/dist-es/setFeature.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(setFeature2, "setFeature");
+    __name(setFeature2, "setFeature");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/util-identity-and-auth/DefaultIdentityProviderConfig.js
 var DefaultIdentityProviderConfig;
 var init_DefaultIdentityProviderConfig = __esm({
   "../node_modules/@smithy/core/dist-es/util-identity-and-auth/DefaultIdentityProviderConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     DefaultIdentityProviderConfig = class {
       static {
         __name(this, "DefaultIdentityProviderConfig");
-      }
-      static {
-        __name2(this, "DefaultIdentityProviderConfig");
       }
       authSchemes = /* @__PURE__ */ new Map();
       constructor(config) {
@@ -5066,49 +5225,55 @@ var init_DefaultIdentityProviderConfig = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/util-identity-and-auth/httpAuthSchemes/httpApiKeyAuth.js
 var init_httpApiKeyAuth = __esm({
   "../node_modules/@smithy/core/dist-es/util-identity-and-auth/httpAuthSchemes/httpApiKeyAuth.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/util-identity-and-auth/httpAuthSchemes/httpBearerAuth.js
 var init_httpBearerAuth = __esm({
   "../node_modules/@smithy/core/dist-es/util-identity-and-auth/httpAuthSchemes/httpBearerAuth.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/util-identity-and-auth/httpAuthSchemes/noAuth.js
 var init_noAuth = __esm({
   "../node_modules/@smithy/core/dist-es/util-identity-and-auth/httpAuthSchemes/noAuth.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/util-identity-and-auth/httpAuthSchemes/index.js
 var init_httpAuthSchemes = __esm({
   "../node_modules/@smithy/core/dist-es/util-identity-and-auth/httpAuthSchemes/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_httpApiKeyAuth();
     init_httpBearerAuth();
     init_noAuth();
   }
 });
-var createIsIdentityExpiredFunction;
-var EXPIRATION_MS;
-var isIdentityExpired;
-var doesIdentityRequireRefresh;
-var memoizeIdentityProvider;
+
+// ../node_modules/@smithy/core/dist-es/util-identity-and-auth/memoizeIdentityProvider.js
+var createIsIdentityExpiredFunction, EXPIRATION_MS, isIdentityExpired, doesIdentityRequireRefresh, memoizeIdentityProvider;
 var init_memoizeIdentityProvider = __esm({
   "../node_modules/@smithy/core/dist-es/util-identity-and-auth/memoizeIdentityProvider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    createIsIdentityExpiredFunction = /* @__PURE__ */ __name2((expirationMs) => /* @__PURE__ */ __name2(/* @__PURE__ */ __name(function isIdentityExpired2(identity) {
+    createIsIdentityExpiredFunction = /* @__PURE__ */ __name((expirationMs) => /* @__PURE__ */ __name(function isIdentityExpired2(identity) {
       return doesIdentityRequireRefresh(identity) && identity.expiration.getTime() - Date.now() < expirationMs;
-    }, "isIdentityExpired2"), "isIdentityExpired"), "createIsIdentityExpiredFunction");
+    }, "isIdentityExpired"), "createIsIdentityExpiredFunction");
     EXPIRATION_MS = 3e5;
     isIdentityExpired = createIsIdentityExpiredFunction(EXPIRATION_MS);
-    doesIdentityRequireRefresh = /* @__PURE__ */ __name2((identity) => identity.expiration !== void 0, "doesIdentityRequireRefresh");
-    memoizeIdentityProvider = /* @__PURE__ */ __name2((provider, isExpired, requiresRefresh) => {
+    doesIdentityRequireRefresh = /* @__PURE__ */ __name((identity) => identity.expiration !== void 0, "doesIdentityRequireRefresh");
+    memoizeIdentityProvider = /* @__PURE__ */ __name((provider, isExpired, requiresRefresh) => {
       if (provider === void 0) {
         return void 0;
       }
@@ -5117,7 +5282,7 @@ var init_memoizeIdentityProvider = __esm({
       let pending;
       let hasResult;
       let isConstant = false;
-      const coalesceProvider = /* @__PURE__ */ __name2(async (options) => {
+      const coalesceProvider = /* @__PURE__ */ __name(async (options) => {
         if (!pending) {
           pending = normalizedProvider(options);
         }
@@ -5158,18 +5323,22 @@ var init_memoizeIdentityProvider = __esm({
     }, "memoizeIdentityProvider");
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/util-identity-and-auth/index.js
 var init_util_identity_and_auth = __esm({
   "../node_modules/@smithy/core/dist-es/util-identity-and-auth/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_DefaultIdentityProviderConfig();
     init_httpAuthSchemes();
     init_memoizeIdentityProvider();
   }
 });
+
+// ../node_modules/@smithy/core/dist-es/index.js
 var init_dist_es14 = __esm({
   "../node_modules/@smithy/core/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_getSmithyContext();
     init_middleware_http_auth_scheme();
@@ -5181,47 +5350,59 @@ var init_dist_es14 = __esm({
     init_util_identity_and_auth();
   }
 });
+
+// ../node_modules/@smithy/property-provider/dist-es/ProviderError.js
 var init_ProviderError = __esm({
   "../node_modules/@smithy/property-provider/dist-es/ProviderError.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/property-provider/dist-es/CredentialsProviderError.js
 var init_CredentialsProviderError = __esm({
   "../node_modules/@smithy/property-provider/dist-es/CredentialsProviderError.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/property-provider/dist-es/TokenProviderError.js
 var init_TokenProviderError = __esm({
   "../node_modules/@smithy/property-provider/dist-es/TokenProviderError.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/property-provider/dist-es/chain.js
 var init_chain = __esm({
   "../node_modules/@smithy/property-provider/dist-es/chain.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/property-provider/dist-es/fromStatic.js
 var init_fromStatic = __esm({
   "../node_modules/@smithy/property-provider/dist-es/fromStatic.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/property-provider/dist-es/memoize.js
 var memoize;
 var init_memoize = __esm({
   "../node_modules/@smithy/property-provider/dist-es/memoize.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    memoize = /* @__PURE__ */ __name2((provider, isExpired, requiresRefresh) => {
+    memoize = /* @__PURE__ */ __name((provider, isExpired, requiresRefresh) => {
       let resolved;
       let pending;
       let hasResult;
       let isConstant = false;
-      const coalesceProvider = /* @__PURE__ */ __name2(async () => {
+      const coalesceProvider = /* @__PURE__ */ __name(async () => {
         if (!pending) {
           pending = provider();
         }
@@ -5262,9 +5443,11 @@ var init_memoize = __esm({
     }, "memoize");
   }
 });
+
+// ../node_modules/@smithy/property-provider/dist-es/index.js
 var init_dist_es15 = __esm({
   "../node_modules/@smithy/property-provider/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_CredentialsProviderError();
     init_ProviderError();
@@ -5274,44 +5457,26 @@ var init_dist_es15 = __esm({
     init_memoize();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/resolveAwsSdkSigV4AConfig.js
 var resolveAwsSdkSigV4AConfig;
 var init_resolveAwsSdkSigV4AConfig = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/resolveAwsSdkSigV4AConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es14();
-    resolveAwsSdkSigV4AConfig = /* @__PURE__ */ __name2((config) => {
+    resolveAwsSdkSigV4AConfig = /* @__PURE__ */ __name((config) => {
       config.sigv4aSigningRegionSet = normalizeProvider2(config.sigv4aSigningRegionSet);
       return config;
     }, "resolveAwsSdkSigV4AConfig");
   }
 });
-var ALGORITHM_QUERY_PARAM;
-var CREDENTIAL_QUERY_PARAM;
-var AMZ_DATE_QUERY_PARAM;
-var SIGNED_HEADERS_QUERY_PARAM;
-var EXPIRES_QUERY_PARAM;
-var SIGNATURE_QUERY_PARAM;
-var TOKEN_QUERY_PARAM;
-var AUTH_HEADER;
-var AMZ_DATE_HEADER;
-var DATE_HEADER;
-var GENERATED_HEADERS;
-var SIGNATURE_HEADER;
-var SHA256_HEADER;
-var TOKEN_HEADER;
-var ALWAYS_UNSIGNABLE_HEADERS;
-var PROXY_HEADER_PATTERN;
-var SEC_HEADER_PATTERN;
-var ALGORITHM_IDENTIFIER;
-var EVENT_ALGORITHM_IDENTIFIER;
-var UNSIGNED_PAYLOAD;
-var MAX_CACHE_SIZE;
-var KEY_TYPE_IDENTIFIER;
-var MAX_PRESIGNED_TTL;
+
+// ../node_modules/@smithy/signature-v4/dist-es/constants.js
+var ALGORITHM_QUERY_PARAM, CREDENTIAL_QUERY_PARAM, AMZ_DATE_QUERY_PARAM, SIGNED_HEADERS_QUERY_PARAM, EXPIRES_QUERY_PARAM, SIGNATURE_QUERY_PARAM, TOKEN_QUERY_PARAM, AUTH_HEADER, AMZ_DATE_HEADER, DATE_HEADER, GENERATED_HEADERS, SIGNATURE_HEADER, SHA256_HEADER, TOKEN_HEADER, ALWAYS_UNSIGNABLE_HEADERS, PROXY_HEADER_PATTERN, SEC_HEADER_PATTERN, ALGORITHM_IDENTIFIER, EVENT_ALGORITHM_IDENTIFIER, UNSIGNED_PAYLOAD, MAX_CACHE_SIZE, KEY_TYPE_IDENTIFIER, MAX_PRESIGNED_TTL;
 var init_constants3 = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     ALGORITHM_QUERY_PARAM = "X-Amz-Algorithm";
     CREDENTIAL_QUERY_PARAM = "X-Amz-Credential";
@@ -5354,22 +5519,20 @@ var init_constants3 = __esm({
     MAX_PRESIGNED_TTL = 60 * 60 * 24 * 7;
   }
 });
-var signingKeyCache;
-var cacheQueue;
-var createScope;
-var getSigningKey;
-var hmac;
+
+// ../node_modules/@smithy/signature-v4/dist-es/credentialDerivation.js
+var signingKeyCache, cacheQueue, createScope, getSigningKey, hmac;
 var init_credentialDerivation = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/credentialDerivation.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es11();
     init_dist_es6();
     init_constants3();
     signingKeyCache = {};
     cacheQueue = [];
-    createScope = /* @__PURE__ */ __name2((shortDate, region, service) => `${shortDate}/${region}/${service}/${KEY_TYPE_IDENTIFIER}`, "createScope");
-    getSigningKey = /* @__PURE__ */ __name2(async (sha256Constructor, credentials, shortDate, region, service) => {
+    createScope = /* @__PURE__ */ __name((shortDate, region, service) => `${shortDate}/${region}/${service}/${KEY_TYPE_IDENTIFIER}`, "createScope");
+    getSigningKey = /* @__PURE__ */ __name(async (sha256Constructor, credentials, shortDate, region, service) => {
       const credsHash = await hmac(sha256Constructor, credentials.secretAccessKey, credentials.accessKeyId);
       const cacheKey = `${shortDate}:${region}:${service}:${toHex(credsHash)}:${credentials.sessionToken}`;
       if (cacheKey in signingKeyCache) {
@@ -5385,20 +5548,22 @@ var init_credentialDerivation = __esm({
       }
       return signingKeyCache[cacheKey] = key;
     }, "getSigningKey");
-    hmac = /* @__PURE__ */ __name2((ctor, secret, data) => {
+    hmac = /* @__PURE__ */ __name((ctor, secret, data) => {
       const hash = new ctor(secret);
       hash.update(toUint8Array(data));
       return hash.digest();
     }, "hmac");
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/getCanonicalHeaders.js
 var getCanonicalHeaders;
 var init_getCanonicalHeaders = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/getCanonicalHeaders.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_constants3();
-    getCanonicalHeaders = /* @__PURE__ */ __name2(({ headers }, unsignableHeaders, signableHeaders) => {
+    getCanonicalHeaders = /* @__PURE__ */ __name(({ headers }, unsignableHeaders, signableHeaders) => {
       const canonical = {};
       for (const headerName of Object.keys(headers).sort()) {
         if (headers[headerName] == void 0) {
@@ -5416,24 +5581,28 @@ var init_getCanonicalHeaders = __esm({
     }, "getCanonicalHeaders");
   }
 });
+
+// ../node_modules/@smithy/is-array-buffer/dist-es/index.js
 var isArrayBuffer;
 var init_dist_es16 = __esm({
   "../node_modules/@smithy/is-array-buffer/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    isArrayBuffer = /* @__PURE__ */ __name2((arg) => typeof ArrayBuffer === "function" && arg instanceof ArrayBuffer || Object.prototype.toString.call(arg) === "[object ArrayBuffer]", "isArrayBuffer");
+    isArrayBuffer = /* @__PURE__ */ __name((arg) => typeof ArrayBuffer === "function" && arg instanceof ArrayBuffer || Object.prototype.toString.call(arg) === "[object ArrayBuffer]", "isArrayBuffer");
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/getPayloadHash.js
 var getPayloadHash;
 var init_getPayloadHash = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/getPayloadHash.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es16();
     init_dist_es11();
     init_dist_es6();
     init_constants3();
-    getPayloadHash = /* @__PURE__ */ __name2(async ({ headers, body }, hashConstructor) => {
+    getPayloadHash = /* @__PURE__ */ __name(async ({ headers, body }, hashConstructor) => {
       for (const headerName of Object.keys(headers)) {
         if (headerName.toLowerCase() === SHA256_HEADER) {
           return headers[headerName];
@@ -5450,6 +5619,8 @@ var init_getPayloadHash = __esm({
     }, "getPayloadHash");
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/HeaderFormatter.js
 function negate(bytes) {
   for (let i2 = 0; i2 < 8; i2++) {
     bytes[i2] ^= 255;
@@ -5460,23 +5631,16 @@ function negate(bytes) {
       break;
   }
 }
-__name(negate, "negate");
-var HeaderFormatter;
-var HEADER_VALUE_TYPE;
-var UUID_PATTERN;
-var Int64;
+var HeaderFormatter, HEADER_VALUE_TYPE, UUID_PATTERN, Int64;
 var init_HeaderFormatter = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/HeaderFormatter.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es11();
     init_dist_es6();
     HeaderFormatter = class {
       static {
         __name(this, "HeaderFormatter");
-      }
-      static {
-        __name2(this, "HeaderFormatter");
       }
       format(headers) {
         const chunks = [];
@@ -5559,10 +5723,7 @@ var init_HeaderFormatter = __esm({
     UUID_PATTERN = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/;
     Int64 = class _Int64 {
       static {
-        __name(this, "_Int64");
-      }
-      static {
-        __name2(this, "Int64");
+        __name(this, "Int64");
       }
       bytes;
       constructor(bytes) {
@@ -5596,15 +5757,17 @@ var init_HeaderFormatter = __esm({
         return String(this.valueOf());
       }
     };
-    __name2(negate, "negate");
+    __name(negate, "negate");
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/headerUtil.js
 var hasHeader;
 var init_headerUtil = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/headerUtil.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    hasHeader = /* @__PURE__ */ __name2((soughtHeader, headers) => {
+    hasHeader = /* @__PURE__ */ __name((soughtHeader, headers) => {
       soughtHeader = soughtHeader.toLowerCase();
       for (const headerName of Object.keys(headers)) {
         if (soughtHeader === headerName.toLowerCase()) {
@@ -5615,13 +5778,15 @@ var init_headerUtil = __esm({
     }, "hasHeader");
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/moveHeadersToQuery.js
 var moveHeadersToQuery;
 var init_moveHeadersToQuery = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/moveHeadersToQuery.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
-    moveHeadersToQuery = /* @__PURE__ */ __name2((request, options = {}) => {
+    moveHeadersToQuery = /* @__PURE__ */ __name((request, options = {}) => {
       const { headers, query = {} } = HttpRequest.clone(request);
       for (const name of Object.keys(headers)) {
         const lname = name.toLowerCase();
@@ -5638,14 +5803,16 @@ var init_moveHeadersToQuery = __esm({
     }, "moveHeadersToQuery");
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/prepareRequest.js
 var prepareRequest;
 var init_prepareRequest = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/prepareRequest.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_constants3();
-    prepareRequest = /* @__PURE__ */ __name2((request) => {
+    prepareRequest = /* @__PURE__ */ __name((request) => {
       request = HttpRequest.clone(request);
       for (const headerName of Object.keys(request.headers)) {
         if (GENERATED_HEADERS.indexOf(headerName.toLowerCase()) > -1) {
@@ -5656,14 +5823,16 @@ var init_prepareRequest = __esm({
     }, "prepareRequest");
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/getCanonicalQuery.js
 var getCanonicalQuery;
 var init_getCanonicalQuery = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/getCanonicalQuery.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es8();
     init_constants3();
-    getCanonicalQuery = /* @__PURE__ */ __name2(({ query = {} }) => {
+    getCanonicalQuery = /* @__PURE__ */ __name(({ query = {} }) => {
       const keys = [];
       const serialized = {};
       for (const key of Object.keys(query)) {
@@ -5683,14 +5852,15 @@ var init_getCanonicalQuery = __esm({
     }, "getCanonicalQuery");
   }
 });
-var iso8601;
-var toDate;
+
+// ../node_modules/@smithy/signature-v4/dist-es/utilDate.js
+var iso8601, toDate;
 var init_utilDate = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/utilDate.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    iso8601 = /* @__PURE__ */ __name2((time2) => toDate(time2).toISOString().replace(/\.\d{3}Z$/, "Z"), "iso8601");
-    toDate = /* @__PURE__ */ __name2((time2) => {
+    iso8601 = /* @__PURE__ */ __name((time2) => toDate(time2).toISOString().replace(/\.\d{3}Z$/, "Z"), "iso8601");
+    toDate = /* @__PURE__ */ __name((time2) => {
       if (typeof time2 === "number") {
         return new Date(time2 * 1e3);
       }
@@ -5704,10 +5874,12 @@ var init_utilDate = __esm({
     }, "toDate");
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/SignatureV4Base.js
 var SignatureV4Base;
 var init_SignatureV4Base = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/SignatureV4Base.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es11();
     init_dist_es4();
@@ -5718,9 +5890,6 @@ var init_SignatureV4Base = __esm({
     SignatureV4Base = class {
       static {
         __name(this, "SignatureV4Base");
-      }
-      static {
-        __name2(this, "SignatureV4Base");
       }
       service;
       regionProvider;
@@ -5793,10 +5962,12 @@ ${toHex(hashedRequest)}`;
     };
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/SignatureV4.js
 var SignatureV4;
 var init_SignatureV4 = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/SignatureV4.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es11();
     init_dist_es6();
@@ -5812,9 +5983,6 @@ var init_SignatureV4 = __esm({
     SignatureV4 = class extends SignatureV4Base {
       static {
         __name(this, "SignatureV4");
-      }
-      static {
-        __name2(this, "SignatureV4");
       }
       headerFormatter = new HeaderFormatter();
       constructor({ applyChecksum, credentials, region, service, sha256, uriEscapePath = true }) {
@@ -5934,19 +6102,23 @@ var init_SignatureV4 = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/signature-v4a-container.js
 var signatureV4aContainer;
 var init_signature_v4a_container = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/signature-v4a-container.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     signatureV4aContainer = {
       SignatureV4a: null
     };
   }
 });
+
+// ../node_modules/@smithy/signature-v4/dist-es/index.js
 var init_dist_es17 = __esm({
   "../node_modules/@smithy/signature-v4/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_SignatureV4();
     init_constants3();
@@ -5954,6 +6126,8 @@ var init_dist_es17 = __esm({
     init_signature_v4a_container();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/resolveAwsSdkSigV4Config.js
 function normalizeCredentialProvider(config, { credentials, credentialDefaultProvider }) {
   let credentialsProvider;
   if (credentials) {
@@ -5968,7 +6142,7 @@ function normalizeCredentialProvider(config, { credentials, credentialDefaultPro
         parentClientConfig: config
       })));
     } else {
-      credentialsProvider = /* @__PURE__ */ __name2(async () => {
+      credentialsProvider = /* @__PURE__ */ __name(async () => {
         throw new Error("@aws-sdk/core::resolveAwsSdkSigV4Config - `credentials` not provided and no credentialDefaultProvider was configured.");
       }, "credentialsProvider");
     }
@@ -5976,26 +6150,24 @@ function normalizeCredentialProvider(config, { credentials, credentialDefaultPro
   credentialsProvider.memoized = true;
   return credentialsProvider;
 }
-__name(normalizeCredentialProvider, "normalizeCredentialProvider");
 function bindCallerConfig(config, credentialsProvider) {
   if (credentialsProvider.configBound) {
     return credentialsProvider;
   }
-  const fn = /* @__PURE__ */ __name2(async (options) => credentialsProvider({ ...options, callerClientConfig: config }), "fn");
+  const fn = /* @__PURE__ */ __name(async (options) => credentialsProvider({ ...options, callerClientConfig: config }), "fn");
   fn.memoized = credentialsProvider.memoized;
   fn.configBound = true;
   return fn;
 }
-__name(bindCallerConfig, "bindCallerConfig");
 var resolveAwsSdkSigV4Config;
 var init_resolveAwsSdkSigV4Config = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/resolveAwsSdkSigV4Config.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_client2();
     init_dist_es14();
     init_dist_es17();
-    resolveAwsSdkSigV4Config = /* @__PURE__ */ __name2((config) => {
+    resolveAwsSdkSigV4Config = /* @__PURE__ */ __name((config) => {
       let inputCredentials = config.credentials;
       let isUserSupplied = !!config.credentials;
       let resolvedCredentials = void 0;
@@ -6012,7 +6184,7 @@ var init_resolveAwsSdkSigV4Config = __esm({
           const boundProvider = bindCallerConfig(config, memoizedProvider);
           if (isUserSupplied && !boundProvider.attributed) {
             const isCredentialObject = typeof inputCredentials === "object" && inputCredentials !== null;
-            resolvedCredentials = /* @__PURE__ */ __name2(async (options) => {
+            resolvedCredentials = /* @__PURE__ */ __name(async (options) => {
               const creds = await boundProvider(options);
               const attributedCreds = creds;
               if (isCredentialObject && (!attributedCreds.$source || Object.keys(attributedCreds.$source).length === 0)) {
@@ -6039,7 +6211,7 @@ var init_resolveAwsSdkSigV4Config = __esm({
       if (config.signer) {
         signer = normalizeProvider2(config.signer);
       } else if (config.regionInfoProvider) {
-        signer = /* @__PURE__ */ __name2(() => normalizeProvider2(config.region)().then(async (region) => [
+        signer = /* @__PURE__ */ __name(() => normalizeProvider2(config.region)().then(async (region) => [
           await config.regionInfoProvider(region, {
             useFipsEndpoint: await config.useFipsEndpoint(),
             useDualstackEndpoint: await config.useDualstackEndpoint()
@@ -6061,7 +6233,7 @@ var init_resolveAwsSdkSigV4Config = __esm({
           return new SignerCtor(params);
         }), "signer");
       } else {
-        signer = /* @__PURE__ */ __name2(async (authScheme) => {
+        signer = /* @__PURE__ */ __name(async (authScheme) => {
           authScheme = Object.assign({}, {
             name: "sigv4",
             signingName: config.signingName || config.defaultSigningName,
@@ -6091,13 +6263,15 @@ var init_resolveAwsSdkSigV4Config = __esm({
       });
       return resolvedConfig;
     }, "resolveAwsSdkSigV4Config");
-    __name2(normalizeCredentialProvider, "normalizeCredentialProvider");
-    __name2(bindCallerConfig, "bindCallerConfig");
+    __name(normalizeCredentialProvider, "normalizeCredentialProvider");
+    __name(bindCallerConfig, "bindCallerConfig");
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/index.js
 var init_aws_sdk = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/aws_sdk/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_AwsSdkSigV4Signer();
     init_AwsSdkSigV4ASigner();
@@ -6106,22 +6280,25 @@ var init_aws_sdk = __esm({
     init_resolveAwsSdkSigV4Config();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/index.js
 var init_httpAuthSchemes2 = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/httpAuthSchemes/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_aws_sdk();
     init_getBearerTokenEnvKey();
   }
 });
-var TEXT_ENCODER;
-var calculateBodyLength;
+
+// ../node_modules/@smithy/util-body-length-browser/dist-es/calculateBodyLength.js
+var TEXT_ENCODER, calculateBodyLength;
 var init_calculateBodyLength = __esm({
   "../node_modules/@smithy/util-body-length-browser/dist-es/calculateBodyLength.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     TEXT_ENCODER = typeof TextEncoder == "function" ? new TextEncoder() : null;
-    calculateBodyLength = /* @__PURE__ */ __name2((body) => {
+    calculateBodyLength = /* @__PURE__ */ __name((body) => {
       if (typeof body === "string") {
         if (TEXT_ENCODER) {
           return TEXT_ENCODER.encode(body).byteLength;
@@ -6146,23 +6323,23 @@ var init_calculateBodyLength = __esm({
     }, "calculateBodyLength");
   }
 });
+
+// ../node_modules/@smithy/util-body-length-browser/dist-es/index.js
 var init_dist_es18 = __esm({
   "../node_modules/@smithy/util-body-length-browser/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_calculateBodyLength();
   }
 });
-var getAllAliases;
-var getMiddlewareNameWithAliases;
-var constructStack;
-var stepWeights;
-var priorityWeights;
+
+// ../node_modules/@smithy/middleware-stack/dist-es/MiddlewareStack.js
+var getAllAliases, getMiddlewareNameWithAliases, constructStack, stepWeights, priorityWeights;
 var init_MiddlewareStack = __esm({
   "../node_modules/@smithy/middleware-stack/dist-es/MiddlewareStack.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    getAllAliases = /* @__PURE__ */ __name2((name, aliases) => {
+    getAllAliases = /* @__PURE__ */ __name((name, aliases) => {
       const _aliases = [];
       if (name) {
         _aliases.push(name);
@@ -6174,18 +6351,18 @@ var init_MiddlewareStack = __esm({
       }
       return _aliases;
     }, "getAllAliases");
-    getMiddlewareNameWithAliases = /* @__PURE__ */ __name2((name, aliases) => {
+    getMiddlewareNameWithAliases = /* @__PURE__ */ __name((name, aliases) => {
       return `${name || "anonymous"}${aliases && aliases.length > 0 ? ` (a.k.a. ${aliases.join(",")})` : ""}`;
     }, "getMiddlewareNameWithAliases");
-    constructStack = /* @__PURE__ */ __name2(() => {
+    constructStack = /* @__PURE__ */ __name(() => {
       let absoluteEntries = [];
       let relativeEntries = [];
       let identifyOnResolve = false;
       const entriesNameSet = /* @__PURE__ */ new Set();
-      const sort = /* @__PURE__ */ __name2((entries) => entries.sort((a2, b2) => stepWeights[b2.step] - stepWeights[a2.step] || priorityWeights[b2.priority || "normal"] - priorityWeights[a2.priority || "normal"]), "sort");
-      const removeByName = /* @__PURE__ */ __name2((toRemove) => {
+      const sort = /* @__PURE__ */ __name((entries) => entries.sort((a2, b2) => stepWeights[b2.step] - stepWeights[a2.step] || priorityWeights[b2.priority || "normal"] - priorityWeights[a2.priority || "normal"]), "sort");
+      const removeByName = /* @__PURE__ */ __name((toRemove) => {
         let isRemoved = false;
-        const filterCb = /* @__PURE__ */ __name2((entry) => {
+        const filterCb = /* @__PURE__ */ __name((entry) => {
           const aliases = getAllAliases(entry.name, entry.aliases);
           if (aliases.includes(toRemove)) {
             isRemoved = true;
@@ -6200,9 +6377,9 @@ var init_MiddlewareStack = __esm({
         relativeEntries = relativeEntries.filter(filterCb);
         return isRemoved;
       }, "removeByName");
-      const removeByReference = /* @__PURE__ */ __name2((toRemove) => {
+      const removeByReference = /* @__PURE__ */ __name((toRemove) => {
         let isRemoved = false;
-        const filterCb = /* @__PURE__ */ __name2((entry) => {
+        const filterCb = /* @__PURE__ */ __name((entry) => {
           if (entry.middleware === toRemove) {
             isRemoved = true;
             for (const alias of getAllAliases(entry.name, entry.aliases)) {
@@ -6216,7 +6393,7 @@ var init_MiddlewareStack = __esm({
         relativeEntries = relativeEntries.filter(filterCb);
         return isRemoved;
       }, "removeByReference");
-      const cloneTo = /* @__PURE__ */ __name2((toStack) => {
+      const cloneTo = /* @__PURE__ */ __name((toStack) => {
         absoluteEntries.forEach((entry) => {
           toStack.add(entry.middleware, { ...entry });
         });
@@ -6226,7 +6403,7 @@ var init_MiddlewareStack = __esm({
         toStack.identifyOnResolve?.(stack.identifyOnResolve());
         return toStack;
       }, "cloneTo");
-      const expandRelativeMiddlewareList = /* @__PURE__ */ __name2((from) => {
+      const expandRelativeMiddlewareList = /* @__PURE__ */ __name((from) => {
         const expandedMiddlewareList = [];
         from.before.forEach((entry) => {
           if (entry.before.length === 0 && entry.after.length === 0) {
@@ -6245,7 +6422,7 @@ var init_MiddlewareStack = __esm({
         });
         return expandedMiddlewareList;
       }, "expandRelativeMiddlewareList");
-      const getMiddlewareList = /* @__PURE__ */ __name2((debug = false) => {
+      const getMiddlewareList = /* @__PURE__ */ __name((debug = false) => {
         const normalizedAbsoluteEntries = [];
         const normalizedRelativeEntries = [];
         const normalizedEntriesNameMap = {};
@@ -6295,7 +6472,7 @@ var init_MiddlewareStack = __esm({
         return mainChain;
       }, "getMiddlewareList");
       const stack = {
-        add: /* @__PURE__ */ __name2((middleware, options = {}) => {
+        add: /* @__PURE__ */ __name((middleware, options = {}) => {
           const { name, override, aliases: _aliases } = options;
           const entry = {
             step: "initialize",
@@ -6326,7 +6503,7 @@ var init_MiddlewareStack = __esm({
           }
           absoluteEntries.push(entry);
         }, "add"),
-        addRelativeTo: /* @__PURE__ */ __name2((middleware, options) => {
+        addRelativeTo: /* @__PURE__ */ __name((middleware, options) => {
           const { name, override, aliases: _aliases } = options;
           const entry = {
             middleware,
@@ -6355,19 +6532,19 @@ var init_MiddlewareStack = __esm({
           }
           relativeEntries.push(entry);
         }, "addRelativeTo"),
-        clone: /* @__PURE__ */ __name2(() => cloneTo(constructStack()), "clone"),
-        use: /* @__PURE__ */ __name2((plugin) => {
+        clone: /* @__PURE__ */ __name(() => cloneTo(constructStack()), "clone"),
+        use: /* @__PURE__ */ __name((plugin) => {
           plugin.applyToStack(stack);
         }, "use"),
-        remove: /* @__PURE__ */ __name2((toRemove) => {
+        remove: /* @__PURE__ */ __name((toRemove) => {
           if (typeof toRemove === "string")
             return removeByName(toRemove);
           else
             return removeByReference(toRemove);
         }, "remove"),
-        removeByTag: /* @__PURE__ */ __name2((toRemove) => {
+        removeByTag: /* @__PURE__ */ __name((toRemove) => {
           let isRemoved = false;
-          const filterCb = /* @__PURE__ */ __name2((entry) => {
+          const filterCb = /* @__PURE__ */ __name((entry) => {
             const { tags, name, aliases: _aliases } = entry;
             if (tags && tags.includes(toRemove)) {
               const aliases = getAllAliases(name, _aliases);
@@ -6383,14 +6560,14 @@ var init_MiddlewareStack = __esm({
           relativeEntries = relativeEntries.filter(filterCb);
           return isRemoved;
         }, "removeByTag"),
-        concat: /* @__PURE__ */ __name2((from) => {
+        concat: /* @__PURE__ */ __name((from) => {
           const cloned = cloneTo(constructStack());
           cloned.use(from);
           cloned.identifyOnResolve(identifyOnResolve || cloned.identifyOnResolve() || (from.identifyOnResolve?.() ?? false));
           return cloned;
         }, "concat"),
         applyToStack: cloneTo,
-        identify: /* @__PURE__ */ __name2(() => {
+        identify: /* @__PURE__ */ __name(() => {
           return getMiddlewareList(true).map((mw) => {
             const step = mw.step ?? mw.relation + " " + mw.toMiddleware;
             return getMiddlewareNameWithAliases(mw.name, mw.aliases) + " - " + step;
@@ -6401,7 +6578,7 @@ var init_MiddlewareStack = __esm({
             identifyOnResolve = toggle;
           return identifyOnResolve;
         },
-        resolve: /* @__PURE__ */ __name2((handler, context) => {
+        resolve: /* @__PURE__ */ __name((handler, context) => {
           for (const middleware of getMiddlewareList().map((entry) => entry.middleware).reverse()) {
             handler = middleware(handler, context);
           }
@@ -6427,25 +6604,26 @@ var init_MiddlewareStack = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/middleware-stack/dist-es/index.js
 var init_dist_es19 = __esm({
   "../node_modules/@smithy/middleware-stack/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_MiddlewareStack();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/client.js
 var Client;
 var init_client3 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/client.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es19();
     Client = class {
       static {
         __name(this, "Client");
-      }
-      static {
-        __name2(this, "Client");
       }
       config;
       middlewareStack = constructStack();
@@ -6494,12 +6672,16 @@ var init_client3 = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/collect-stream-body.js
 var init_collect_stream_body2 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/collect-stream-body.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/schemaLogFilter.js
 function schemaLogFilter(schema, data) {
   if (data == null) {
     return data;
@@ -6530,22 +6712,22 @@ function schemaLogFilter(schema, data) {
   }
   return data;
 }
-__name(schemaLogFilter, "schemaLogFilter");
 var SENSITIVE_STRING;
 var init_schemaLogFilter = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/schemaLogFilter.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schema2();
     SENSITIVE_STRING = "***SensitiveInformation***";
-    __name2(schemaLogFilter, "schemaLogFilter");
+    __name(schemaLogFilter, "schemaLogFilter");
   }
 });
-var Command;
-var ClassBuilder;
+
+// ../node_modules/@smithy/smithy-client/dist-es/command.js
+var Command, ClassBuilder;
 var init_command2 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/command.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es19();
     init_dist_es();
@@ -6553,9 +6735,6 @@ var init_command2 = __esm({
     Command = class {
       static {
         __name(this, "Command");
-      }
-      static {
-        __name2(this, "Command");
       }
       middlewareStack = constructStack();
       schema;
@@ -6588,13 +6767,10 @@ var init_command2 = __esm({
       static {
         __name(this, "ClassBuilder");
       }
-      static {
-        __name2(this, "ClassBuilder");
-      }
-      _init = /* @__PURE__ */ __name2(() => {
+      _init = /* @__PURE__ */ __name(() => {
       }, "_init");
       _ep = {};
-      _middlewareFn = /* @__PURE__ */ __name2(() => [], "_middlewareFn");
+      _middlewareFn = /* @__PURE__ */ __name(() => [], "_middlewareFn");
       _commandName = "";
       _clientName = "";
       _additionalContext = {};
@@ -6657,9 +6833,6 @@ var init_command2 = __esm({
           static {
             __name(this, "CommandRef");
           }
-          static {
-            __name2(this, "CommandRef");
-          }
           input;
           static getEndpointParameterInstructions() {
             return closure._ep;
@@ -6692,21 +6865,25 @@ var init_command2 = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/constants.js
 var init_constants4 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/create-aggregated-client.js
 var createAggregatedClient;
 var init_create_aggregated_client = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/create-aggregated-client.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    createAggregatedClient = /* @__PURE__ */ __name2((commands2, Client2) => {
+    createAggregatedClient = /* @__PURE__ */ __name((commands2, Client2) => {
       for (const command of Object.keys(commands2)) {
         const CommandCtor = commands2[command];
-        const methodImpl = /* @__PURE__ */ __name2(async function(args, optionsOrCb, cb2) {
+        const methodImpl = /* @__PURE__ */ __name(async function(args, optionsOrCb, cb2) {
           const command2 = new CommandCtor(args);
           if (typeof optionsOrCb === "function") {
             this.send(command2, optionsOrCb);
@@ -6724,18 +6901,16 @@ var init_create_aggregated_client = __esm({
     }, "createAggregatedClient");
   }
 });
-var ServiceException;
-var decorateServiceException;
+
+// ../node_modules/@smithy/smithy-client/dist-es/exceptions.js
+var ServiceException, decorateServiceException;
 var init_exceptions = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/exceptions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     ServiceException = class _ServiceException extends Error {
       static {
-        __name(this, "_ServiceException");
-      }
-      static {
-        __name2(this, "ServiceException");
+        __name(this, "ServiceException");
       }
       $fault;
       $response;
@@ -6770,7 +6945,7 @@ var init_exceptions = __esm({
         return false;
       }
     };
-    decorateServiceException = /* @__PURE__ */ __name2((exception, additions = {}) => {
+    decorateServiceException = /* @__PURE__ */ __name((exception, additions = {}) => {
       Object.entries(additions).filter(([, v2]) => v2 !== void 0).forEach(([k2, v2]) => {
         if (exception[k2] == void 0 || exception[k2] === "") {
           exception[k2] = v2;
@@ -6783,18 +6958,22 @@ var init_exceptions = __esm({
     }, "decorateServiceException");
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/default-error-handler.js
 var init_default_error_handler = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/default-error-handler.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/defaults-mode.js
 var loadConfigsForDefaultMode;
 var init_defaults_mode = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/defaults-mode.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    loadConfigsForDefaultMode = /* @__PURE__ */ __name2((mode) => {
+    loadConfigsForDefaultMode = /* @__PURE__ */ __name((mode) => {
       switch (mode) {
         case "standard":
           return {
@@ -6822,26 +7001,31 @@ var init_defaults_mode = __esm({
     }, "loadConfigsForDefaultMode");
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/emitWarningIfUnsupportedVersion.js
 var init_emitWarningIfUnsupportedVersion2 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/emitWarningIfUnsupportedVersion.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/extended-encode-uri-component.js
 var init_extended_encode_uri_component2 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/extended-encode-uri-component.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
-var getChecksumConfiguration;
-var resolveChecksumRuntimeConfig;
+
+// ../node_modules/@smithy/smithy-client/dist-es/extensions/checksum.js
+var getChecksumConfiguration, resolveChecksumRuntimeConfig;
 var init_checksum3 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/extensions/checksum.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es();
-    getChecksumConfiguration = /* @__PURE__ */ __name2((runtimeConfig) => {
+    getChecksumConfiguration = /* @__PURE__ */ __name((runtimeConfig) => {
       const checksumAlgorithms = [];
       for (const id in AlgorithmId) {
         const algorithmId = AlgorithmId[id];
@@ -6849,8 +7033,8 @@ var init_checksum3 = __esm({
           continue;
         }
         checksumAlgorithms.push({
-          algorithmId: /* @__PURE__ */ __name2(() => algorithmId, "algorithmId"),
-          checksumConstructor: /* @__PURE__ */ __name2(() => runtimeConfig[algorithmId], "checksumConstructor")
+          algorithmId: /* @__PURE__ */ __name(() => algorithmId, "algorithmId"),
+          checksumConstructor: /* @__PURE__ */ __name(() => runtimeConfig[algorithmId], "checksumConstructor")
         });
       }
       return {
@@ -6862,7 +7046,7 @@ var init_checksum3 = __esm({
         }
       };
     }, "getChecksumConfiguration");
-    resolveChecksumRuntimeConfig = /* @__PURE__ */ __name2((clientConfig) => {
+    resolveChecksumRuntimeConfig = /* @__PURE__ */ __name((clientConfig) => {
       const runtimeConfig = {};
       clientConfig.checksumAlgorithms().forEach((checksumAlgorithm) => {
         runtimeConfig[checksumAlgorithm.algorithmId()] = checksumAlgorithm.checksumConstructor();
@@ -6871,13 +7055,14 @@ var init_checksum3 = __esm({
     }, "resolveChecksumRuntimeConfig");
   }
 });
-var getRetryConfiguration;
-var resolveRetryRuntimeConfig;
+
+// ../node_modules/@smithy/smithy-client/dist-es/extensions/retry.js
+var getRetryConfiguration, resolveRetryRuntimeConfig;
 var init_retry2 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/extensions/retry.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    getRetryConfiguration = /* @__PURE__ */ __name2((runtimeConfig) => {
+    getRetryConfiguration = /* @__PURE__ */ __name((runtimeConfig) => {
       return {
         setRetryStrategy(retryStrategy) {
           runtimeConfig.retryStrategy = retryStrategy;
@@ -6887,48 +7072,55 @@ var init_retry2 = __esm({
         }
       };
     }, "getRetryConfiguration");
-    resolveRetryRuntimeConfig = /* @__PURE__ */ __name2((retryStrategyConfiguration) => {
+    resolveRetryRuntimeConfig = /* @__PURE__ */ __name((retryStrategyConfiguration) => {
       const runtimeConfig = {};
       runtimeConfig.retryStrategy = retryStrategyConfiguration.retryStrategy();
       return runtimeConfig;
     }, "resolveRetryRuntimeConfig");
   }
 });
-var getDefaultExtensionConfiguration;
-var resolveDefaultRuntimeConfig;
+
+// ../node_modules/@smithy/smithy-client/dist-es/extensions/defaultExtensionConfiguration.js
+var getDefaultExtensionConfiguration, resolveDefaultRuntimeConfig;
 var init_defaultExtensionConfiguration2 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/extensions/defaultExtensionConfiguration.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_checksum3();
     init_retry2();
-    getDefaultExtensionConfiguration = /* @__PURE__ */ __name2((runtimeConfig) => {
+    getDefaultExtensionConfiguration = /* @__PURE__ */ __name((runtimeConfig) => {
       return Object.assign(getChecksumConfiguration(runtimeConfig), getRetryConfiguration(runtimeConfig));
     }, "getDefaultExtensionConfiguration");
-    resolveDefaultRuntimeConfig = /* @__PURE__ */ __name2((config) => {
+    resolveDefaultRuntimeConfig = /* @__PURE__ */ __name((config) => {
       return Object.assign(resolveChecksumRuntimeConfig(config), resolveRetryRuntimeConfig(config));
     }, "resolveDefaultRuntimeConfig");
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/extensions/index.js
 var init_extensions3 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/extensions/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_defaultExtensionConfiguration2();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/get-array-if-single-item.js
 var init_get_array_if_single_item = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/get-array-if-single-item.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/get-value-from-text-node.js
 var getValueFromTextNode;
 var init_get_value_from_text_node = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/get-value-from-text-node.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    getValueFromTextNode = /* @__PURE__ */ __name2((obj) => {
+    getValueFromTextNode = /* @__PURE__ */ __name((obj) => {
       const textNodeName = "#text";
       for (const key in obj) {
         if (obj.hasOwnProperty(key) && obj[key][textNodeName] !== void 0) {
@@ -6941,23 +7133,24 @@ var init_get_value_from_text_node = __esm({
     }, "getValueFromTextNode");
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/is-serializable-header-value.js
 var init_is_serializable_header_value = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/is-serializable-header-value.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/NoOpLogger.js
 var NoOpLogger;
 var init_NoOpLogger = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/NoOpLogger.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     NoOpLogger = class {
       static {
         __name(this, "NoOpLogger");
-      }
-      static {
-        __name2(this, "NoOpLogger");
       }
       trace() {
       }
@@ -6972,33 +7165,43 @@ var init_NoOpLogger = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/object-mapping.js
 var init_object_mapping = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/object-mapping.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/resolve-path.js
 var init_resolve_path2 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/resolve-path.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/ser-utils.js
 var init_ser_utils = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/ser-utils.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/serde-json.js
 var init_serde_json = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/serde-json.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/smithy-client/dist-es/index.js
 var init_dist_es20 = __esm({
   "../node_modules/@smithy/smithy-client/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_client3();
     init_collect_stream_body2();
@@ -7022,19 +7225,18 @@ var init_dist_es20 = __esm({
     init_serde2();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/ProtocolLib.js
 var ProtocolLib;
 var init_ProtocolLib = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/ProtocolLib.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schema2();
     init_dist_es20();
     ProtocolLib = class {
       static {
         __name(this, "ProtocolLib");
-      }
-      static {
-        __name2(this, "ProtocolLib");
       }
       queryCompat;
       constructor(queryCompat = false) {
@@ -7151,29 +7353,32 @@ var init_ProtocolLib = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/cbor/AwsSmithyRpcV2CborProtocol.js
 var init_AwsSmithyRpcV2CborProtocol = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/cbor/AwsSmithyRpcV2CborProtocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/coercing-serializers.js
 var init_coercing_serializers = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/coercing-serializers.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/ConfigurableSerdeContext.js
 var SerdeContextConfig;
 var init_ConfigurableSerdeContext = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/ConfigurableSerdeContext.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     SerdeContextConfig = class {
       static {
         __name(this, "SerdeContextConfig");
-      }
-      static {
-        __name2(this, "SerdeContextConfig");
       }
       serdeContext;
       setSerdeContext(serdeContext) {
@@ -7182,6 +7387,8 @@ var init_ConfigurableSerdeContext = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/structIterator.js
 function* serializingStructIterator(ns, sourceObject) {
   if (ns.isUnitSchema()) {
     return;
@@ -7197,26 +7404,24 @@ function* serializingStructIterator(ns, sourceObject) {
     yield [key, memberNs];
   }
 }
-__name(serializingStructIterator, "serializingStructIterator");
 var init_structIterator = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/structIterator.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schema2();
-    __name2(serializingStructIterator, "serializingStructIterator");
+    __name(serializingStructIterator, "serializingStructIterator");
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/UnionSerde.js
 var UnionSerde;
 var init_UnionSerde = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/UnionSerde.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     UnionSerde = class {
       static {
         __name(this, "UnionSerde");
-      }
-      static {
-        __name2(this, "UnionSerde");
       }
       from;
       to;
@@ -7242,94 +7447,113 @@ var init_UnionSerde = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/parseJsonBody.js
 var init_parseJsonBody = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/parseJsonBody.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/JsonShapeDeserializer.js
 var init_JsonShapeDeserializer = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/JsonShapeDeserializer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/JsonShapeSerializer.js
 var init_JsonShapeSerializer = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/JsonShapeSerializer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/JsonCodec.js
 var init_JsonCodec = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/JsonCodec.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/AwsJsonRpcProtocol.js
 var init_AwsJsonRpcProtocol = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/AwsJsonRpcProtocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/AwsJson1_0Protocol.js
 var init_AwsJson1_0Protocol = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/AwsJson1_0Protocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/AwsJson1_1Protocol.js
 var init_AwsJson1_1Protocol = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/AwsJson1_1Protocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/AwsRestJsonProtocol.js
 var init_AwsRestJsonProtocol = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/AwsRestJsonProtocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/awsExpectUnion.js
 var init_awsExpectUnion = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/json/awsExpectUnion.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/xml-builder/dist-es/escape-attribute.js
 function escapeAttribute(value) {
   return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 }
-__name(escapeAttribute, "escapeAttribute");
 var init_escape_attribute = __esm({
   "../node_modules/@aws-sdk/xml-builder/dist-es/escape-attribute.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(escapeAttribute, "escapeAttribute");
+    __name(escapeAttribute, "escapeAttribute");
   }
 });
+
+// ../node_modules/@aws-sdk/xml-builder/dist-es/escape-element.js
 function escapeElement(value) {
   return value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/'/g, "&apos;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\r/g, "&#x0D;").replace(/\n/g, "&#x0A;").replace(/\u0085/g, "&#x85;").replace(/\u2028/, "&#x2028;");
 }
-__name(escapeElement, "escapeElement");
 var init_escape_element = __esm({
   "../node_modules/@aws-sdk/xml-builder/dist-es/escape-element.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(escapeElement, "escapeElement");
+    __name(escapeElement, "escapeElement");
   }
 });
+
+// ../node_modules/@aws-sdk/xml-builder/dist-es/XmlText.js
 var XmlText;
 var init_XmlText = __esm({
   "../node_modules/@aws-sdk/xml-builder/dist-es/XmlText.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_escape_element();
     XmlText = class {
       static {
         __name(this, "XmlText");
-      }
-      static {
-        __name2(this, "XmlText");
       }
       value;
       constructor(value) {
@@ -7341,19 +7565,18 @@ var init_XmlText = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/xml-builder/dist-es/XmlNode.js
 var XmlNode;
 var init_XmlNode = __esm({
   "../node_modules/@aws-sdk/xml-builder/dist-es/XmlNode.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_escape_attribute();
     init_XmlText();
     XmlNode = class _XmlNode {
       static {
-        __name(this, "_XmlNode");
-      }
-      static {
-        __name2(this, "XmlNode");
+        __name(this, "XmlNode");
       }
       name;
       children;
@@ -7442,6 +7665,8 @@ var init_XmlNode = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/xml-builder/dist-es/xml-parser.browser.js
 function parseXML(xmlString) {
   if (!parser) {
     parser = new DOMParser();
@@ -7450,7 +7675,7 @@ function parseXML(xmlString) {
   if (xmlDocument.getElementsByTagName("parsererror").length > 0) {
     throw new Error("DOMParser XML parsing error.");
   }
-  const xmlToObj = /* @__PURE__ */ __name2((node) => {
+  const xmlToObj = /* @__PURE__ */ __name((node) => {
     if (node.nodeType === Node.TEXT_NODE) {
       if (node.textContent?.trim()) {
         return node.textContent;
@@ -7495,28 +7720,31 @@ function parseXML(xmlString) {
     [xmlDocument.documentElement.nodeName]: xmlToObj(xmlDocument.documentElement)
   };
 }
-__name(parseXML, "parseXML");
 var parser;
 var init_xml_parser_browser = __esm({
   "../node_modules/@aws-sdk/xml-builder/dist-es/xml-parser.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(parseXML, "parseXML");
+    __name(parseXML, "parseXML");
   }
 });
+
+// ../node_modules/@aws-sdk/xml-builder/dist-es/index.js
 var init_dist_es21 = __esm({
   "../node_modules/@aws-sdk/xml-builder/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_XmlNode();
     init_XmlText();
     init_xml_parser_browser();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/XmlShapeDeserializer.js
 var XmlShapeDeserializer;
 var init_XmlShapeDeserializer = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/XmlShapeDeserializer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es21();
     init_protocols();
@@ -7528,9 +7756,6 @@ var init_XmlShapeDeserializer = __esm({
     XmlShapeDeserializer = class extends SerdeContextConfig {
       static {
         __name(this, "XmlShapeDeserializer");
-      }
-      static {
-        __name2(this, "XmlShapeDeserializer");
       }
       settings;
       stringDeserializer;
@@ -7674,24 +7899,30 @@ var init_XmlShapeDeserializer = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/query/AwsQueryProtocol.js
 var init_AwsQueryProtocol = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/query/AwsQueryProtocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/query/AwsEc2QueryProtocol.js
 var init_AwsEc2QueryProtocol = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/query/AwsEc2QueryProtocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/parseXmlBody.js
 var loadRestXmlErrorCode;
 var init_parseXmlBody = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/parseXmlBody.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    loadRestXmlErrorCode = /* @__PURE__ */ __name2((output, data) => {
+    loadRestXmlErrorCode = /* @__PURE__ */ __name((output, data) => {
       if (data?.Error?.Code !== void 0) {
         return data.Error.Code;
       }
@@ -7704,10 +7935,12 @@ var init_parseXmlBody = __esm({
     }, "loadRestXmlErrorCode");
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/XmlShapeSerializer.js
 var XmlShapeSerializer;
 var init_XmlShapeSerializer = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/XmlShapeSerializer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es21();
     init_protocols();
@@ -7720,9 +7953,6 @@ var init_XmlShapeSerializer = __esm({
     XmlShapeSerializer = class extends SerdeContextConfig {
       static {
         __name(this, "XmlShapeSerializer");
-      }
-      static {
-        __name2(this, "XmlShapeSerializer");
       }
       settings;
       stringBuffer;
@@ -7823,7 +8053,7 @@ var init_XmlShapeSerializer = __esm({
         const sparse = !!listValueTraits.sparse;
         const flat = !!listTraits.xmlFlattened;
         const [xmlnsAttr, xmlns] = this.getXmlnsAttribute(listMember, parentXmlns);
-        const writeItem = /* @__PURE__ */ __name2((container2, value) => {
+        const writeItem = /* @__PURE__ */ __name((container2, value) => {
           if (listValueSchema.isListSchema()) {
             this.writeList(listValueSchema, Array.isArray(value) ? value : [value], container2, xmlns);
           } else if (listValueSchema.isMapSchema()) {
@@ -7870,7 +8100,7 @@ var init_XmlShapeSerializer = __esm({
         const sparse = !!mapValueTraits.sparse;
         const flat = !!mapTraits.xmlFlattened;
         const [xmlnsAttr, xmlns] = this.getXmlnsAttribute(mapMember, parentXmlns);
-        const addKeyValue = /* @__PURE__ */ __name2((entry, key, val) => {
+        const addKeyValue = /* @__PURE__ */ __name((entry, key, val) => {
           const keyNode = XmlNode.of(keyTag, key);
           const [keyXmlnsAttr, keyXmlns] = this.getXmlnsAttribute(mapKeySchema, xmlns);
           if (keyXmlns) {
@@ -7988,10 +8218,12 @@ var init_XmlShapeSerializer = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/XmlCodec.js
 var XmlCodec;
 var init_XmlCodec = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/XmlCodec.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_ConfigurableSerdeContext();
     init_XmlShapeDeserializer();
@@ -7999,9 +8231,6 @@ var init_XmlCodec = __esm({
     XmlCodec = class extends SerdeContextConfig {
       static {
         __name(this, "XmlCodec");
-      }
-      static {
-        __name2(this, "XmlCodec");
       }
       settings;
       constructor(settings) {
@@ -8021,10 +8250,12 @@ var init_XmlCodec = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/AwsRestXmlProtocol.js
 var AwsRestXmlProtocol;
 var init_AwsRestXmlProtocol = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/xml/AwsRestXmlProtocol.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_protocols();
     init_schema2();
@@ -8034,9 +8265,6 @@ var init_AwsRestXmlProtocol = __esm({
     AwsRestXmlProtocol = class extends HttpBindingProtocol {
       static {
         __name(this, "AwsRestXmlProtocol");
-      }
-      static {
-        __name2(this, "AwsRestXmlProtocol");
       }
       codec;
       serializer;
@@ -8113,9 +8341,11 @@ var init_AwsRestXmlProtocol = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/submodules/protocols/index.js
 var init_protocols2 = __esm({
   "../node_modules/@aws-sdk/core/dist-es/submodules/protocols/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_AwsSmithyRpcV2CborProtocol();
     init_coercing_serializers();
@@ -8137,20 +8367,23 @@ var init_protocols2 = __esm({
     init_parseXmlBody();
   }
 });
+
+// ../node_modules/@aws-sdk/core/dist-es/index.js
 var init_dist_es22 = __esm({
   "../node_modules/@aws-sdk/core/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_client2();
     init_httpAuthSchemes2();
     init_protocols2();
   }
 });
-var CLIENT_SUPPORTED_ALGORITHMS;
-var PRIORITY_ORDER_ALGORITHMS;
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/types.js
+var CLIENT_SUPPORTED_ALGORITHMS, PRIORITY_ORDER_ALGORITHMS;
 var init_types2 = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/types.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_constants2();
     CLIENT_SUPPORTED_ALGORITHMS = [
@@ -8169,14 +8402,16 @@ var init_types2 = __esm({
     ];
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getChecksumAlgorithmForRequest.js
 var getChecksumAlgorithmForRequest;
 var init_getChecksumAlgorithmForRequest = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getChecksumAlgorithmForRequest.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_constants2();
     init_types2();
-    getChecksumAlgorithmForRequest = /* @__PURE__ */ __name2((input, { requestChecksumRequired, requestAlgorithmMember, requestChecksumCalculation }) => {
+    getChecksumAlgorithmForRequest = /* @__PURE__ */ __name((input, { requestChecksumRequired, requestAlgorithmMember, requestChecksumCalculation }) => {
       if (!requestAlgorithmMember) {
         return requestChecksumCalculation === RequestChecksumCalculation.WHEN_SUPPORTED || requestChecksumRequired ? DEFAULT_CHECKSUM_ALGORITHM : void 0;
       }
@@ -8191,21 +8426,25 @@ var init_getChecksumAlgorithmForRequest = __esm({
     }, "getChecksumAlgorithmForRequest");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getChecksumLocationName.js
 var getChecksumLocationName;
 var init_getChecksumLocationName = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getChecksumLocationName.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_constants2();
-    getChecksumLocationName = /* @__PURE__ */ __name2((algorithm) => algorithm === ChecksumAlgorithm.MD5 ? "content-md5" : `x-amz-checksum-${algorithm.toLowerCase()}`, "getChecksumLocationName");
+    getChecksumLocationName = /* @__PURE__ */ __name((algorithm) => algorithm === ChecksumAlgorithm.MD5 ? "content-md5" : `x-amz-checksum-${algorithm.toLowerCase()}`, "getChecksumLocationName");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/hasHeader.js
 var hasHeader2;
 var init_hasHeader = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/hasHeader.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    hasHeader2 = /* @__PURE__ */ __name2((header, headers) => {
+    hasHeader2 = /* @__PURE__ */ __name((header, headers) => {
       const soughtHeader = header.toLowerCase();
       for (const headerName of Object.keys(headers)) {
         if (soughtHeader === headerName.toLowerCase()) {
@@ -8216,12 +8455,14 @@ var init_hasHeader = __esm({
     }, "hasHeader");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/hasHeaderWithPrefix.js
 var hasHeaderWithPrefix;
 var init_hasHeaderWithPrefix = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/hasHeaderWithPrefix.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    hasHeaderWithPrefix = /* @__PURE__ */ __name2((headerPrefix, headers) => {
+    hasHeaderWithPrefix = /* @__PURE__ */ __name((headerPrefix, headers) => {
       const soughtHeaderPrefix = headerPrefix.toLowerCase();
       for (const headerName of Object.keys(headers)) {
         if (headerName.toLowerCase().startsWith(soughtHeaderPrefix)) {
@@ -8232,15 +8473,19 @@ var init_hasHeaderWithPrefix = __esm({
     }, "hasHeaderWithPrefix");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/isStreaming.js
 var isStreaming;
 var init_isStreaming = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/isStreaming.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es16();
-    isStreaming = /* @__PURE__ */ __name2((body) => body !== void 0 && typeof body !== "string" && !ArrayBuffer.isView(body) && !isArrayBuffer(body), "isStreaming");
+    isStreaming = /* @__PURE__ */ __name((body) => body !== void 0 && typeof body !== "string" && !ArrayBuffer.isView(body) && !isArrayBuffer(body), "isStreaming");
   }
 });
+
+// ../node_modules/tslib/tslib.es6.mjs
 function __awaiter(thisArg, _arguments, P2, generator) {
   function adopt(value) {
     return value instanceof P2 ? value : new P2(function(resolve) {
@@ -8248,7 +8493,6 @@ function __awaiter(thisArg, _arguments, P2, generator) {
     });
   }
   __name(adopt, "adopt");
-  __name2(adopt, "adopt");
   return new (P2 || (P2 = Promise))(function(resolve, reject) {
     function fulfilled(value) {
       try {
@@ -8258,7 +8502,6 @@ function __awaiter(thisArg, _arguments, P2, generator) {
       }
     }
     __name(fulfilled, "fulfilled");
-    __name2(fulfilled, "fulfilled");
     function rejected(value) {
       try {
         step(generator["throw"](value));
@@ -8267,18 +8510,15 @@ function __awaiter(thisArg, _arguments, P2, generator) {
       }
     }
     __name(rejected, "rejected");
-    __name2(rejected, "rejected");
     function step(result) {
       result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
     __name(step, "step");
-    __name2(step, "step");
     step((generator = generator.apply(thisArg, _arguments || [])).next());
   });
 }
-__name(__awaiter, "__awaiter");
 function __generator(thisArg, body) {
-  var _ = { label: 0, sent: /* @__PURE__ */ __name2(function() {
+  var _ = { label: 0, sent: /* @__PURE__ */ __name(function() {
     if (t8[0] & 1) throw t8[1];
     return t8[1];
   }, "sent"), trys: [], ops: [] }, f2, y2, t8, g2 = Object.create((typeof Iterator === "function" ? Iterator : Object).prototype);
@@ -8291,7 +8531,6 @@ function __generator(thisArg, body) {
     };
   }
   __name(verb, "verb");
-  __name2(verb, "verb");
   function step(op) {
     if (f2) throw new TypeError("Generator is already executing.");
     while (g2 && (g2 = 0, op[0] && (_ = 0)), _) try {
@@ -8348,60 +8587,67 @@ function __generator(thisArg, body) {
     return { value: op[0] ? op[1] : void 0, done: true };
   }
   __name(step, "step");
-  __name2(step, "step");
 }
-__name(__generator, "__generator");
 function __values(o2) {
   var s2 = typeof Symbol === "function" && Symbol.iterator, m2 = s2 && o2[s2], i2 = 0;
   if (m2) return m2.call(o2);
   if (o2 && typeof o2.length === "number") return {
-    next: /* @__PURE__ */ __name2(function() {
+    next: /* @__PURE__ */ __name(function() {
       if (o2 && i2 >= o2.length) o2 = void 0;
       return { value: o2 && o2[i2++], done: !o2 };
     }, "next")
   };
   throw new TypeError(s2 ? "Object is not iterable." : "Symbol.iterator is not defined.");
 }
-__name(__values, "__values");
 var init_tslib_es6 = __esm({
   "../node_modules/tslib/tslib.es6.mjs"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(__awaiter, "__awaiter");
-    __name2(__generator, "__generator");
-    __name2(__values, "__values");
+    __name(__awaiter, "__awaiter");
+    __name(__generator, "__generator");
+    __name(__values, "__values");
   }
 });
+
+// ../node_modules/@aws-crypto/util/node_modules/@smithy/util-utf8/dist-es/fromUtf8.browser.js
 var fromUtf82;
 var init_fromUtf8_browser2 = __esm({
   "../node_modules/@aws-crypto/util/node_modules/@smithy/util-utf8/dist-es/fromUtf8.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    fromUtf82 = /* @__PURE__ */ __name2((input) => new TextEncoder().encode(input), "fromUtf8");
+    fromUtf82 = /* @__PURE__ */ __name((input) => new TextEncoder().encode(input), "fromUtf8");
   }
 });
+
+// ../node_modules/@aws-crypto/util/node_modules/@smithy/util-utf8/dist-es/toUint8Array.js
 var init_toUint8Array2 = __esm({
   "../node_modules/@aws-crypto/util/node_modules/@smithy/util-utf8/dist-es/toUint8Array.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_fromUtf8_browser2();
   }
 });
+
+// ../node_modules/@aws-crypto/util/node_modules/@smithy/util-utf8/dist-es/toUtf8.browser.js
 var init_toUtf8_browser2 = __esm({
   "../node_modules/@aws-crypto/util/node_modules/@smithy/util-utf8/dist-es/toUtf8.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-crypto/util/node_modules/@smithy/util-utf8/dist-es/index.js
 var init_dist_es23 = __esm({
   "../node_modules/@aws-crypto/util/node_modules/@smithy/util-utf8/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_fromUtf8_browser2();
     init_toUint8Array2();
     init_toUtf8_browser2();
   }
 });
+
+// ../node_modules/@aws-crypto/util/build/module/convertToBuffer.js
 function convertToBuffer(data) {
   if (data instanceof Uint8Array)
     return data;
@@ -8413,33 +8659,35 @@ function convertToBuffer(data) {
   }
   return new Uint8Array(data);
 }
-__name(convertToBuffer, "convertToBuffer");
 var fromUtf83;
 var init_convertToBuffer = __esm({
   "../node_modules/@aws-crypto/util/build/module/convertToBuffer.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es23();
     fromUtf83 = typeof Buffer !== "undefined" && Buffer.from ? function(input) {
       return Buffer.from(input, "utf8");
     } : fromUtf82;
-    __name2(convertToBuffer, "convertToBuffer");
+    __name(convertToBuffer, "convertToBuffer");
   }
 });
+
+// ../node_modules/@aws-crypto/util/build/module/isEmptyData.js
 function isEmptyData(data) {
   if (typeof data === "string") {
     return data.length === 0;
   }
   return data.byteLength === 0;
 }
-__name(isEmptyData, "isEmptyData");
 var init_isEmptyData = __esm({
   "../node_modules/@aws-crypto/util/build/module/isEmptyData.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(isEmptyData, "isEmptyData");
+    __name(isEmptyData, "isEmptyData");
   }
 });
+
+// ../node_modules/@aws-crypto/util/build/module/numToUint8.js
 function numToUint8(num) {
   return new Uint8Array([
     (num & 4278190080) >> 24,
@@ -8448,14 +8696,15 @@ function numToUint8(num) {
     num & 255
   ]);
 }
-__name(numToUint8, "numToUint8");
 var init_numToUint8 = __esm({
   "../node_modules/@aws-crypto/util/build/module/numToUint8.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(numToUint8, "numToUint8");
+    __name(numToUint8, "numToUint8");
   }
 });
+
+// ../node_modules/@aws-crypto/util/build/module/uint32ArrayFrom.js
 function uint32ArrayFrom(a_lookUpTable2) {
   if (!Uint32Array.from) {
     var return_array = new Uint32Array(a_lookUpTable2.length);
@@ -8468,17 +8717,18 @@ function uint32ArrayFrom(a_lookUpTable2) {
   }
   return Uint32Array.from(a_lookUpTable2);
 }
-__name(uint32ArrayFrom, "uint32ArrayFrom");
 var init_uint32ArrayFrom = __esm({
   "../node_modules/@aws-crypto/util/build/module/uint32ArrayFrom.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(uint32ArrayFrom, "uint32ArrayFrom");
+    __name(uint32ArrayFrom, "uint32ArrayFrom");
   }
 });
+
+// ../node_modules/@aws-crypto/util/build/module/index.js
 var init_module = __esm({
   "../node_modules/@aws-crypto/util/build/module/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_convertToBuffer();
     init_isEmptyData();
@@ -8486,10 +8736,12 @@ var init_module = __esm({
     init_uint32ArrayFrom();
   }
 });
+
+// ../node_modules/@aws-crypto/crc32c/build/module/aws_crc32c.js
 var AwsCrc32c;
 var init_aws_crc32c = __esm({
   "../node_modules/@aws-crypto/crc32c/build/module/aws_crc32c.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_tslib_es6();
     init_module();
@@ -8499,8 +8751,7 @@ var init_aws_crc32c = __esm({
       function AwsCrc32c2() {
         this.crc32c = new Crc32c();
       }
-      __name(AwsCrc32c2, "AwsCrc32c2");
-      __name2(AwsCrc32c2, "AwsCrc32c");
+      __name(AwsCrc32c2, "AwsCrc32c");
       AwsCrc32c2.prototype.update = function(toHash) {
         if (isEmptyData(toHash))
           return;
@@ -8520,12 +8771,12 @@ var init_aws_crc32c = __esm({
     }();
   }
 });
-var Crc32c;
-var a_lookupTable;
-var lookupTable;
+
+// ../node_modules/@aws-crypto/crc32c/build/module/index.js
+var Crc32c, a_lookupTable, lookupTable;
 var init_module2 = __esm({
   "../node_modules/@aws-crypto/crc32c/build/module/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_tslib_es6();
     init_module();
@@ -8535,8 +8786,7 @@ var init_module2 = __esm({
       function Crc32c2() {
         this.checksum = 4294967295;
       }
-      __name(Crc32c2, "Crc32c2");
-      __name2(Crc32c2, "Crc32c");
+      __name(Crc32c2, "Crc32c");
       Crc32c2.prototype.update = function(data) {
         var e_1, _a;
         try {
@@ -8821,23 +9071,14 @@ var init_module2 = __esm({
     lookupTable = uint32ArrayFrom(a_lookupTable);
   }
 });
-var generateCRC64NVMETable;
-var CRC64_NVME_REVERSED_TABLE;
-var t0;
-var t1;
-var t2;
-var t3;
-var t4;
-var t5;
-var t6;
-var t7;
-var ensureTablesInitialized;
-var Crc64Nvme;
+
+// ../node_modules/@aws-sdk/crc64-nvme/dist-es/Crc64Nvme.js
+var generateCRC64NVMETable, CRC64_NVME_REVERSED_TABLE, t0, t1, t2, t3, t4, t5, t6, t7, ensureTablesInitialized, Crc64Nvme;
 var init_Crc64Nvme = __esm({
   "../node_modules/@aws-sdk/crc64-nvme/dist-es/Crc64Nvme.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    generateCRC64NVMETable = /* @__PURE__ */ __name2(() => {
+    generateCRC64NVMETable = /* @__PURE__ */ __name(() => {
       const sliceLength = 8;
       const tables = new Array(sliceLength);
       for (let slice = 0; slice < sliceLength; slice++) {
@@ -8858,7 +9099,7 @@ var init_Crc64Nvme = __esm({
       }
       return tables;
     }, "generateCRC64NVMETable");
-    ensureTablesInitialized = /* @__PURE__ */ __name2(() => {
+    ensureTablesInitialized = /* @__PURE__ */ __name(() => {
       if (!CRC64_NVME_REVERSED_TABLE) {
         CRC64_NVME_REVERSED_TABLE = generateCRC64NVMETable();
         [t0, t1, t2, t3, t4, t5, t6, t7] = CRC64_NVME_REVERSED_TABLE;
@@ -8867,9 +9108,6 @@ var init_Crc64Nvme = __esm({
     Crc64Nvme = class {
       static {
         __name(this, "Crc64Nvme");
-      }
-      static {
-        __name2(this, "Crc64Nvme");
       }
       c1 = 0;
       c2 = 0;
@@ -8925,28 +9163,34 @@ var init_Crc64Nvme = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/crc64-nvme/dist-es/crc64-nvme-crt-container.js
 var crc64NvmeCrtContainer;
 var init_crc64_nvme_crt_container = __esm({
   "../node_modules/@aws-sdk/crc64-nvme/dist-es/crc64-nvme-crt-container.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     crc64NvmeCrtContainer = {
       CrtCrc64Nvme: null
     };
   }
 });
+
+// ../node_modules/@aws-sdk/crc64-nvme/dist-es/index.js
 var init_dist_es24 = __esm({
   "../node_modules/@aws-sdk/crc64-nvme/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_Crc64Nvme();
     init_crc64_nvme_crt_container();
   }
 });
+
+// ../node_modules/@aws-crypto/crc32/build/module/aws_crc32.js
 var AwsCrc32;
 var init_aws_crc32 = __esm({
   "../node_modules/@aws-crypto/crc32/build/module/aws_crc32.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_tslib_es6();
     init_module();
@@ -8956,8 +9200,7 @@ var init_aws_crc32 = __esm({
       function AwsCrc322() {
         this.crc32 = new Crc32();
       }
-      __name(AwsCrc322, "AwsCrc322");
-      __name2(AwsCrc322, "AwsCrc32");
+      __name(AwsCrc322, "AwsCrc32");
       AwsCrc322.prototype.update = function(toHash) {
         if (isEmptyData(toHash))
           return;
@@ -8977,12 +9220,12 @@ var init_aws_crc32 = __esm({
     }();
   }
 });
-var Crc32;
-var a_lookUpTable;
-var lookupTable2;
+
+// ../node_modules/@aws-crypto/crc32/build/module/index.js
+var Crc32, a_lookUpTable, lookupTable2;
 var init_module3 = __esm({
   "../node_modules/@aws-crypto/crc32/build/module/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_tslib_es6();
     init_module();
@@ -8992,8 +9235,7 @@ var init_module3 = __esm({
       function Crc322() {
         this.checksum = 4294967295;
       }
-      __name(Crc322, "Crc322");
-      __name2(Crc322, "Crc32");
+      __name(Crc322, "Crc32");
       Crc322.prototype.update = function(data) {
         var e_1, _a;
         try {
@@ -9278,25 +9520,29 @@ var init_module3 = __esm({
     lookupTable2 = uint32ArrayFrom(a_lookUpTable);
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getCrc32ChecksumAlgorithmFunction.browser.js
 var getCrc32ChecksumAlgorithmFunction;
 var init_getCrc32ChecksumAlgorithmFunction_browser = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getCrc32ChecksumAlgorithmFunction.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_module3();
-    getCrc32ChecksumAlgorithmFunction = /* @__PURE__ */ __name2(() => AwsCrc32, "getCrc32ChecksumAlgorithmFunction");
+    getCrc32ChecksumAlgorithmFunction = /* @__PURE__ */ __name(() => AwsCrc32, "getCrc32ChecksumAlgorithmFunction");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/selectChecksumAlgorithmFunction.js
 var selectChecksumAlgorithmFunction;
 var init_selectChecksumAlgorithmFunction = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/selectChecksumAlgorithmFunction.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_module2();
     init_dist_es24();
     init_constants2();
     init_getCrc32ChecksumAlgorithmFunction_browser();
-    selectChecksumAlgorithmFunction = /* @__PURE__ */ __name2((checksumAlgorithm, config) => {
+    selectChecksumAlgorithmFunction = /* @__PURE__ */ __name((checksumAlgorithm, config) => {
       switch (checksumAlgorithm) {
         case ChecksumAlgorithm.MD5:
           return config.md5;
@@ -9319,24 +9565,27 @@ var init_selectChecksumAlgorithmFunction = __esm({
     }, "selectChecksumAlgorithmFunction");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/stringHasher.js
 var stringHasher;
 var init_stringHasher = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/stringHasher.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es6();
-    stringHasher = /* @__PURE__ */ __name2((checksumAlgorithmFn, body) => {
+    stringHasher = /* @__PURE__ */ __name((checksumAlgorithmFn, body) => {
       const hash = new checksumAlgorithmFn();
       hash.update(toUint8Array(body || ""));
       return hash.digest();
     }, "stringHasher");
   }
 });
-var flexibleChecksumsMiddlewareOptions;
-var flexibleChecksumsMiddleware;
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/flexibleChecksumsMiddleware.js
+var flexibleChecksumsMiddlewareOptions, flexibleChecksumsMiddleware;
 var init_flexibleChecksumsMiddleware = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/flexibleChecksumsMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es22();
     init_dist_es2();
@@ -9355,7 +9604,7 @@ var init_flexibleChecksumsMiddleware = __esm({
       tags: ["BODY_CHECKSUM"],
       override: true
     };
-    flexibleChecksumsMiddleware = /* @__PURE__ */ __name2((config, middlewareConfig) => (next, context) => async (args) => {
+    flexibleChecksumsMiddleware = /* @__PURE__ */ __name((config, middlewareConfig) => (next, context) => async (args) => {
       if (!HttpRequest.isInstance(args.request)) {
         return next(args);
       }
@@ -9455,11 +9704,12 @@ var init_flexibleChecksumsMiddleware = __esm({
     }, "flexibleChecksumsMiddleware");
   }
 });
-var flexibleChecksumsInputMiddlewareOptions;
-var flexibleChecksumsInputMiddleware;
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/flexibleChecksumsInputMiddleware.js
+var flexibleChecksumsInputMiddlewareOptions, flexibleChecksumsInputMiddleware;
 var init_flexibleChecksumsInputMiddleware = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/flexibleChecksumsInputMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es22();
     init_constants2();
@@ -9470,7 +9720,7 @@ var init_flexibleChecksumsInputMiddleware = __esm({
       tags: ["BODY_CHECKSUM"],
       override: true
     };
-    flexibleChecksumsInputMiddleware = /* @__PURE__ */ __name2((config, middlewareConfig) => (next, context) => async (args) => {
+    flexibleChecksumsInputMiddleware = /* @__PURE__ */ __name((config, middlewareConfig) => (next, context) => async (args) => {
       const input = args.input;
       const { requestValidationModeMember } = middlewareConfig;
       const requestChecksumCalculation = await config.requestChecksumCalculation();
@@ -9500,13 +9750,15 @@ var init_flexibleChecksumsInputMiddleware = __esm({
     }, "flexibleChecksumsInputMiddleware");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getChecksumAlgorithmListForResponse.js
 var getChecksumAlgorithmListForResponse;
 var init_getChecksumAlgorithmListForResponse = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getChecksumAlgorithmListForResponse.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_types2();
-    getChecksumAlgorithmListForResponse = /* @__PURE__ */ __name2((responseAlgorithms = []) => {
+    getChecksumAlgorithmListForResponse = /* @__PURE__ */ __name((responseAlgorithms = []) => {
       const validChecksumAlgorithms = [];
       for (const algorithm of PRIORITY_ORDER_ALGORITHMS) {
         if (!responseAlgorithms.includes(algorithm) || !CLIENT_SUPPORTED_ALGORITHMS.includes(algorithm)) {
@@ -9518,12 +9770,14 @@ var init_getChecksumAlgorithmListForResponse = __esm({
     }, "getChecksumAlgorithmListForResponse");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/isChecksumWithPartNumber.js
 var isChecksumWithPartNumber;
 var init_isChecksumWithPartNumber = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/isChecksumWithPartNumber.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    isChecksumWithPartNumber = /* @__PURE__ */ __name2((checksum) => {
+    isChecksumWithPartNumber = /* @__PURE__ */ __name((checksum) => {
       const lastHyphenIndex = checksum.lastIndexOf("-");
       if (lastHyphenIndex !== -1) {
         const numberPart = checksum.slice(lastHyphenIndex + 1);
@@ -9538,19 +9792,23 @@ var init_isChecksumWithPartNumber = __esm({
     }, "isChecksumWithPartNumber");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getChecksum.js
 var getChecksum;
 var init_getChecksum = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getChecksum.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_stringHasher();
-    getChecksum = /* @__PURE__ */ __name2(async (body, { checksumAlgorithmFn, base64Encoder }) => base64Encoder(await stringHasher(checksumAlgorithmFn, body)), "getChecksum");
+    getChecksum = /* @__PURE__ */ __name(async (body, { checksumAlgorithmFn, base64Encoder }) => base64Encoder(await stringHasher(checksumAlgorithmFn, body)), "getChecksum");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/validateChecksumFromResponse.js
 var validateChecksumFromResponse;
 var init_validateChecksumFromResponse = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/validateChecksumFromResponse.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es12();
     init_constants2();
@@ -9559,7 +9817,7 @@ var init_validateChecksumFromResponse = __esm({
     init_getChecksumLocationName();
     init_isStreaming();
     init_selectChecksumAlgorithmFunction();
-    validateChecksumFromResponse = /* @__PURE__ */ __name2(async (response, { config, responseAlgorithms, logger: logger2 }) => {
+    validateChecksumFromResponse = /* @__PURE__ */ __name(async (response, { config, responseAlgorithms, logger: logger2 }) => {
       const checksumAlgorithms = getChecksumAlgorithmListForResponse(responseAlgorithms);
       const { body: responseBody, headers: responseHeaders } = response;
       for (const algorithm of checksumAlgorithms) {
@@ -9597,11 +9855,12 @@ var init_validateChecksumFromResponse = __esm({
     }, "validateChecksumFromResponse");
   }
 });
-var flexibleChecksumsResponseMiddlewareOptions;
-var flexibleChecksumsResponseMiddleware;
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/flexibleChecksumsResponseMiddleware.js
+var flexibleChecksumsResponseMiddlewareOptions, flexibleChecksumsResponseMiddleware;
 var init_flexibleChecksumsResponseMiddleware = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/flexibleChecksumsResponseMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_getChecksumAlgorithmListForResponse();
@@ -9615,7 +9874,7 @@ var init_flexibleChecksumsResponseMiddleware = __esm({
       tags: ["BODY_CHECKSUM"],
       override: true
     };
-    flexibleChecksumsResponseMiddleware = /* @__PURE__ */ __name2((config, middlewareConfig) => (next, context) => async (args) => {
+    flexibleChecksumsResponseMiddleware = /* @__PURE__ */ __name((config, middlewareConfig) => (next, context) => async (args) => {
       if (!HttpRequest.isInstance(args.request)) {
         return next(args);
       }
@@ -9643,16 +9902,18 @@ var init_flexibleChecksumsResponseMiddleware = __esm({
     }, "flexibleChecksumsResponseMiddleware");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getFlexibleChecksumsPlugin.js
 var getFlexibleChecksumsPlugin;
 var init_getFlexibleChecksumsPlugin = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/getFlexibleChecksumsPlugin.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_flexibleChecksumsInputMiddleware();
     init_flexibleChecksumsMiddleware();
     init_flexibleChecksumsResponseMiddleware();
-    getFlexibleChecksumsPlugin = /* @__PURE__ */ __name2((config, middlewareConfig) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getFlexibleChecksumsPlugin = /* @__PURE__ */ __name((config, middlewareConfig) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(flexibleChecksumsMiddleware(config, middlewareConfig), flexibleChecksumsMiddlewareOptions);
         clientStack.addRelativeTo(flexibleChecksumsInputMiddleware(config, middlewareConfig), flexibleChecksumsInputMiddlewareOptions);
         clientStack.addRelativeTo(flexibleChecksumsResponseMiddleware(config, middlewareConfig), flexibleChecksumsResponseMiddlewareOptions);
@@ -9660,14 +9921,16 @@ var init_getFlexibleChecksumsPlugin = __esm({
     }), "getFlexibleChecksumsPlugin");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/resolveFlexibleChecksumsConfig.js
 var resolveFlexibleChecksumsConfig;
 var init_resolveFlexibleChecksumsConfig = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/resolveFlexibleChecksumsConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es4();
     init_constants2();
-    resolveFlexibleChecksumsConfig = /* @__PURE__ */ __name2((input) => {
+    resolveFlexibleChecksumsConfig = /* @__PURE__ */ __name((input) => {
       const { requestChecksumCalculation, responseChecksumValidation, requestStreamBufferSize } = input;
       return Object.assign(input, {
         requestChecksumCalculation: normalizeProvider(requestChecksumCalculation ?? DEFAULT_REQUEST_CHECKSUM_CALCULATION),
@@ -9677,9 +9940,11 @@ var init_resolveFlexibleChecksumsConfig = __esm({
     }, "resolveFlexibleChecksumsConfig");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/index.js
 var init_dist_es25 = __esm({
   "../node_modules/@aws-sdk/middleware-flexible-checksums/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_NODE_REQUEST_CHECKSUM_CALCULATION_CONFIG_OPTIONS();
     init_NODE_RESPONSE_CHECKSUM_VALIDATION_CONFIG_OPTIONS();
@@ -9689,20 +9954,19 @@ var init_dist_es25 = __esm({
     init_resolveFlexibleChecksumsConfig();
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-host-header/dist-es/index.js
 function resolveHostHeaderConfig(input) {
   return input;
 }
-__name(resolveHostHeaderConfig, "resolveHostHeaderConfig");
-var hostHeaderMiddleware;
-var hostHeaderMiddlewareOptions;
-var getHostHeaderPlugin;
+var hostHeaderMiddleware, hostHeaderMiddlewareOptions, getHostHeaderPlugin;
 var init_dist_es26 = __esm({
   "../node_modules/@aws-sdk/middleware-host-header/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
-    __name2(resolveHostHeaderConfig, "resolveHostHeaderConfig");
-    hostHeaderMiddleware = /* @__PURE__ */ __name2((options) => (next) => async (args) => {
+    __name(resolveHostHeaderConfig, "resolveHostHeaderConfig");
+    hostHeaderMiddleware = /* @__PURE__ */ __name((options) => (next) => async (args) => {
       if (!HttpRequest.isInstance(args.request))
         return next(args);
       const { request } = args;
@@ -9725,21 +9989,21 @@ var init_dist_es26 = __esm({
       tags: ["HOST"],
       override: true
     };
-    getHostHeaderPlugin = /* @__PURE__ */ __name2((options) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getHostHeaderPlugin = /* @__PURE__ */ __name((options) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(hostHeaderMiddleware(options), hostHeaderMiddlewareOptions);
       }, "applyToStack")
     }), "getHostHeaderPlugin");
   }
 });
-var loggerMiddleware;
-var loggerMiddlewareOptions;
-var getLoggerPlugin;
+
+// ../node_modules/@aws-sdk/middleware-logger/dist-es/loggerMiddleware.js
+var loggerMiddleware, loggerMiddlewareOptions, getLoggerPlugin;
 var init_loggerMiddleware = __esm({
   "../node_modules/@aws-sdk/middleware-logger/dist-es/loggerMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    loggerMiddleware = /* @__PURE__ */ __name2(() => (next, context) => async (args) => {
+    loggerMiddleware = /* @__PURE__ */ __name(() => (next, context) => async (args) => {
       try {
         const response = await next(args);
         const { clientName, commandName, logger: logger2, dynamoDbDocumentClientOptions = {} } = context;
@@ -9775,24 +10039,28 @@ var init_loggerMiddleware = __esm({
       step: "initialize",
       override: true
     };
-    getLoggerPlugin = /* @__PURE__ */ __name2((options) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getLoggerPlugin = /* @__PURE__ */ __name((options) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(loggerMiddleware(), loggerMiddlewareOptions);
       }, "applyToStack")
     }), "getLoggerPlugin");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-logger/dist-es/index.js
 var init_dist_es27 = __esm({
   "../node_modules/@aws-sdk/middleware-logger/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_loggerMiddleware();
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-recursion-detection/dist-es/configuration.js
 var recursionDetectionMiddlewareOptions;
 var init_configuration = __esm({
   "../node_modules/@aws-sdk/middleware-recursion-detection/dist-es/configuration.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     recursionDetectionMiddlewareOptions = {
       step: "build",
@@ -9803,36 +10071,44 @@ var init_configuration = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-recursion-detection/dist-es/recursionDetectionMiddleware.browser.js
 var recursionDetectionMiddleware;
 var init_recursionDetectionMiddleware_browser = __esm({
   "../node_modules/@aws-sdk/middleware-recursion-detection/dist-es/recursionDetectionMiddleware.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    recursionDetectionMiddleware = /* @__PURE__ */ __name2(() => (next) => async (args) => next(args), "recursionDetectionMiddleware");
+    recursionDetectionMiddleware = /* @__PURE__ */ __name(() => (next) => async (args) => next(args), "recursionDetectionMiddleware");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-recursion-detection/dist-es/getRecursionDetectionPlugin.js
 var getRecursionDetectionPlugin;
 var init_getRecursionDetectionPlugin = __esm({
   "../node_modules/@aws-sdk/middleware-recursion-detection/dist-es/getRecursionDetectionPlugin.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_configuration();
     init_recursionDetectionMiddleware_browser();
-    getRecursionDetectionPlugin = /* @__PURE__ */ __name2((options) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getRecursionDetectionPlugin = /* @__PURE__ */ __name((options) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(recursionDetectionMiddleware(), recursionDetectionMiddlewareOptions);
       }, "applyToStack")
     }), "getRecursionDetectionPlugin");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-recursion-detection/dist-es/index.js
 var init_dist_es28 = __esm({
   "../node_modules/@aws-sdk/middleware-recursion-detection/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_getRecursionDetectionPlugin();
     init_recursionDetectionMiddleware_browser();
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/check-content-length-header.js
 function checkContentLengthHeader() {
   return (next, context) => async (args) => {
     const { request } = args;
@@ -9849,53 +10125,50 @@ function checkContentLengthHeader() {
     return next({ ...args });
   };
 }
-__name(checkContentLengthHeader, "checkContentLengthHeader");
-var CONTENT_LENGTH_HEADER;
-var DECODED_CONTENT_LENGTH_HEADER;
-var checkContentLengthHeaderMiddlewareOptions;
-var getCheckContentLengthHeaderPlugin;
+var CONTENT_LENGTH_HEADER, DECODED_CONTENT_LENGTH_HEADER, checkContentLengthHeaderMiddlewareOptions, getCheckContentLengthHeaderPlugin;
 var init_check_content_length_header = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/check-content-length-header.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_dist_es20();
     CONTENT_LENGTH_HEADER = "content-length";
     DECODED_CONTENT_LENGTH_HEADER = "x-amz-decoded-content-length";
-    __name2(checkContentLengthHeader, "checkContentLengthHeader");
+    __name(checkContentLengthHeader, "checkContentLengthHeader");
     checkContentLengthHeaderMiddlewareOptions = {
       step: "finalizeRequest",
       tags: ["CHECK_CONTENT_LENGTH_HEADER"],
       name: "getCheckContentLengthHeaderPlugin",
       override: true
     };
-    getCheckContentLengthHeaderPlugin = /* @__PURE__ */ __name2((unused) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getCheckContentLengthHeaderPlugin = /* @__PURE__ */ __name((unused) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(checkContentLengthHeader(), checkContentLengthHeaderMiddlewareOptions);
       }, "applyToStack")
     }), "getCheckContentLengthHeaderPlugin");
   }
 });
-var regionRedirectEndpointMiddleware;
-var regionRedirectEndpointMiddlewareOptions;
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/region-redirect-endpoint-middleware.js
+var regionRedirectEndpointMiddleware, regionRedirectEndpointMiddlewareOptions;
 var init_region_redirect_endpoint_middleware = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/region-redirect-endpoint-middleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    regionRedirectEndpointMiddleware = /* @__PURE__ */ __name2((config) => {
+    regionRedirectEndpointMiddleware = /* @__PURE__ */ __name((config) => {
       return (next, context) => async (args) => {
         const originalRegion = await config.region();
         const regionProviderRef = config.region;
-        let unlock = /* @__PURE__ */ __name2(() => {
+        let unlock = /* @__PURE__ */ __name(() => {
         }, "unlock");
         if (context.__s3RegionRedirect) {
           Object.defineProperty(config, "region", {
             writable: false,
-            value: /* @__PURE__ */ __name2(async () => {
+            value: /* @__PURE__ */ __name(async () => {
               return context.__s3RegionRedirect;
             }, "value")
           });
-          unlock = /* @__PURE__ */ __name2(() => Object.defineProperty(config, "region", {
+          unlock = /* @__PURE__ */ __name(() => Object.defineProperty(config, "region", {
             writable: true,
             value: regionProviderRef
           }), "unlock");
@@ -9925,6 +10198,8 @@ var init_region_redirect_endpoint_middleware = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/region-redirect-middleware.js
 function regionRedirectMiddleware(clientConfig) {
   return (next, context) => async (args) => {
     try {
@@ -9951,39 +10226,37 @@ function regionRedirectMiddleware(clientConfig) {
     }
   };
 }
-__name(regionRedirectMiddleware, "regionRedirectMiddleware");
-var regionRedirectMiddlewareOptions;
-var getRegionRedirectMiddlewarePlugin;
+var regionRedirectMiddlewareOptions, getRegionRedirectMiddlewarePlugin;
 var init_region_redirect_middleware = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/region-redirect-middleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_region_redirect_endpoint_middleware();
-    __name2(regionRedirectMiddleware, "regionRedirectMiddleware");
+    __name(regionRedirectMiddleware, "regionRedirectMiddleware");
     regionRedirectMiddlewareOptions = {
       step: "initialize",
       tags: ["REGION_REDIRECT", "S3"],
       name: "regionRedirectMiddleware",
       override: true
     };
-    getRegionRedirectMiddlewarePlugin = /* @__PURE__ */ __name2((clientConfig) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getRegionRedirectMiddlewarePlugin = /* @__PURE__ */ __name((clientConfig) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(regionRedirectMiddleware(clientConfig), regionRedirectMiddlewareOptions);
         clientStack.addRelativeTo(regionRedirectEndpointMiddleware(clientConfig), regionRedirectEndpointMiddlewareOptions);
       }, "applyToStack")
     }), "getRegionRedirectMiddlewarePlugin");
   }
 });
-var s3ExpiresMiddleware;
-var s3ExpiresMiddlewareOptions;
-var getS3ExpiresMiddlewarePlugin;
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-expires-middleware.js
+var s3ExpiresMiddleware, s3ExpiresMiddlewareOptions, getS3ExpiresMiddlewarePlugin;
 var init_s3_expires_middleware = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-expires-middleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_dist_es20();
-    s3ExpiresMiddleware = /* @__PURE__ */ __name2((config) => {
+    s3ExpiresMiddleware = /* @__PURE__ */ __name((config) => {
       return (next, context) => async (args) => {
         const result = await next(args);
         const { response } = result;
@@ -10008,24 +10281,23 @@ var init_s3_expires_middleware = __esm({
       relation: "after",
       toMiddleware: "deserializerMiddleware"
     };
-    getS3ExpiresMiddlewarePlugin = /* @__PURE__ */ __name2((clientConfig) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getS3ExpiresMiddlewarePlugin = /* @__PURE__ */ __name((clientConfig) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.addRelativeTo(s3ExpiresMiddleware(clientConfig), s3ExpiresMiddlewareOptions);
       }, "applyToStack")
     }), "getS3ExpiresMiddlewarePlugin");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/classes/S3ExpressIdentityCache.js
 var S3ExpressIdentityCache;
 var init_S3ExpressIdentityCache = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/classes/S3ExpressIdentityCache.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     S3ExpressIdentityCache = class _S3ExpressIdentityCache {
       static {
-        __name(this, "_S3ExpressIdentityCache");
-      }
-      static {
-        __name2(this, "S3ExpressIdentityCache");
+        __name(this, "S3ExpressIdentityCache");
       }
       data;
       lastPurgeTime = Date.now();
@@ -10067,17 +10339,16 @@ var init_S3ExpressIdentityCache = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/classes/S3ExpressIdentityCacheEntry.js
 var S3ExpressIdentityCacheEntry;
 var init_S3ExpressIdentityCacheEntry = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/classes/S3ExpressIdentityCacheEntry.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     S3ExpressIdentityCacheEntry = class {
       static {
         __name(this, "S3ExpressIdentityCacheEntry");
-      }
-      static {
-        __name2(this, "S3ExpressIdentityCacheEntry");
       }
       _identity;
       isRefreshing;
@@ -10094,19 +10365,18 @@ var init_S3ExpressIdentityCacheEntry = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/classes/S3ExpressIdentityProviderImpl.js
 var S3ExpressIdentityProviderImpl;
 var init_S3ExpressIdentityProviderImpl = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/classes/S3ExpressIdentityProviderImpl.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_S3ExpressIdentityCache();
     init_S3ExpressIdentityCacheEntry();
     S3ExpressIdentityProviderImpl = class _S3ExpressIdentityProviderImpl {
       static {
-        __name(this, "_S3ExpressIdentityProviderImpl");
-      }
-      static {
-        __name2(this, "S3ExpressIdentityProviderImpl");
+        __name(this, "S3ExpressIdentityProviderImpl");
       }
       createSessionFn;
       cache;
@@ -10156,14 +10426,12 @@ var init_S3ExpressIdentityProviderImpl = __esm({
     };
   }
 });
-var S3_EXPRESS_BUCKET_TYPE;
-var S3_EXPRESS_BACKEND;
-var S3_EXPRESS_AUTH_SCHEME;
-var SESSION_TOKEN_QUERY_PARAM;
-var SESSION_TOKEN_HEADER;
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/constants.js
+var S3_EXPRESS_BUCKET_TYPE, S3_EXPRESS_BACKEND, S3_EXPRESS_AUTH_SCHEME, SESSION_TOKEN_QUERY_PARAM, SESSION_TOKEN_HEADER;
 var init_constants5 = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     S3_EXPRESS_BUCKET_TYPE = "Directory";
     S3_EXPRESS_BACKEND = "S3Express";
@@ -10172,17 +10440,17 @@ var init_constants5 = __esm({
     SESSION_TOKEN_HEADER = SESSION_TOKEN_QUERY_PARAM.toLowerCase();
   }
 });
-var s3ExpressMiddleware;
-var s3ExpressMiddlewareOptions;
-var getS3ExpressPlugin;
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/functions/s3ExpressMiddleware.js
+var s3ExpressMiddleware, s3ExpressMiddlewareOptions, getS3ExpressPlugin;
 var init_s3ExpressMiddleware = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/functions/s3ExpressMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es22();
     init_dist_es2();
     init_constants5();
-    s3ExpressMiddleware = /* @__PURE__ */ __name2((options) => {
+    s3ExpressMiddleware = /* @__PURE__ */ __name((options) => {
       return (next, context) => async (args) => {
         if (context.endpointV2) {
           const endpoint = context.endpointV2;
@@ -10214,19 +10482,21 @@ var init_s3ExpressMiddleware = __esm({
       tags: ["S3", "S3_EXPRESS"],
       override: true
     };
-    getS3ExpressPlugin = /* @__PURE__ */ __name2((options) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getS3ExpressPlugin = /* @__PURE__ */ __name((options) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(s3ExpressMiddleware(options), s3ExpressMiddlewareOptions);
       }, "applyToStack")
     }), "getS3ExpressPlugin");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/functions/signS3Express.js
 var signS3Express;
 var init_signS3Express = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/functions/signS3Express.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    signS3Express = /* @__PURE__ */ __name2(async (s3ExpressIdentity, signingOptions, request, sigV4MultiRegionSigner) => {
+    signS3Express = /* @__PURE__ */ __name(async (s3ExpressIdentity, signingOptions, request, sigV4MultiRegionSigner) => {
       const signedRequest = await sigV4MultiRegionSigner.signWithCredentials(request, s3ExpressIdentity, {});
       if (signedRequest.headers["X-Amz-Security-Token"] || signedRequest.headers["x-amz-security-token"]) {
         throw new Error("X-Amz-Security-Token must not be set for s3-express requests.");
@@ -10235,24 +10505,23 @@ var init_signS3Express = __esm({
     }, "signS3Express");
   }
 });
-var defaultErrorHandler2;
-var defaultSuccessHandler2;
-var s3ExpressHttpSigningMiddleware;
-var getS3ExpressHttpSigningPlugin;
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/functions/s3ExpressHttpSigningMiddleware.js
+var defaultErrorHandler2, defaultSuccessHandler2, s3ExpressHttpSigningMiddleware, getS3ExpressHttpSigningPlugin;
 var init_s3ExpressHttpSigningMiddleware = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/functions/s3ExpressHttpSigningMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es14();
     init_dist_es2();
     init_dist_es4();
     init_signS3Express();
-    defaultErrorHandler2 = /* @__PURE__ */ __name2((signingProperties) => (error) => {
+    defaultErrorHandler2 = /* @__PURE__ */ __name((signingProperties) => (error) => {
       throw error;
     }, "defaultErrorHandler");
-    defaultSuccessHandler2 = /* @__PURE__ */ __name2((httpResponse, signingProperties) => {
+    defaultSuccessHandler2 = /* @__PURE__ */ __name((httpResponse, signingProperties) => {
     }, "defaultSuccessHandler");
-    s3ExpressHttpSigningMiddleware = /* @__PURE__ */ __name2((config) => (next, context) => async (args) => {
+    s3ExpressHttpSigningMiddleware = /* @__PURE__ */ __name((config) => (next, context) => async (args) => {
       if (!HttpRequest.isInstance(args.request)) {
         return next(args);
       }
@@ -10275,29 +10544,33 @@ var init_s3ExpressHttpSigningMiddleware = __esm({
       (signer.successHandler || defaultSuccessHandler2)(output.response, signingProperties);
       return output;
     }, "s3ExpressHttpSigningMiddleware");
-    getS3ExpressHttpSigningPlugin = /* @__PURE__ */ __name2((config) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getS3ExpressHttpSigningPlugin = /* @__PURE__ */ __name((config) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.addRelativeTo(s3ExpressHttpSigningMiddleware(config), httpSigningMiddlewareOptions);
       }, "applyToStack")
     }), "getS3ExpressHttpSigningPlugin");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/index.js
 var init_s3_express = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_S3ExpressIdentityProviderImpl();
     init_s3ExpressMiddleware();
     init_s3ExpressHttpSigningMiddleware();
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3Configuration.js
 var resolveS3Config;
 var init_s3Configuration = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3Configuration.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_s3_express();
-    resolveS3Config = /* @__PURE__ */ __name2((input, { session }) => {
+    resolveS3Config = /* @__PURE__ */ __name((input, { session }) => {
       const [s3ClientProvider, CreateSessionCommandCtor] = session;
       const { forcePathStyle, useAccelerateEndpoint, disableMultiregionAccessPoints, followRegionRedirects, s3ExpressIdentityProvider, bucketEndpoint, expectContinueHeader } = input;
       return Object.assign(input, {
@@ -10314,15 +10587,12 @@ var init_s3Configuration = __esm({
     }, "resolveS3Config");
   }
 });
-var THROW_IF_EMPTY_BODY;
-var MAX_BYTES_TO_INSPECT;
-var throw200ExceptionsMiddleware;
-var collectBody2;
-var throw200ExceptionsMiddlewareOptions;
-var getThrow200ExceptionsPlugin;
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/throw-200-exceptions.js
+var THROW_IF_EMPTY_BODY, MAX_BYTES_TO_INSPECT, throw200ExceptionsMiddleware, collectBody2, throw200ExceptionsMiddlewareOptions, getThrow200ExceptionsPlugin;
 var init_throw_200_exceptions = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/throw-200-exceptions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_dist_es12();
@@ -10332,7 +10602,7 @@ var init_throw_200_exceptions = __esm({
       CompleteMultipartUploadCommand: true
     };
     MAX_BYTES_TO_INSPECT = 3e3;
-    throw200ExceptionsMiddleware = /* @__PURE__ */ __name2((config) => (next, context) => async (args) => {
+    throw200ExceptionsMiddleware = /* @__PURE__ */ __name((config) => (next, context) => async (args) => {
       const result = await next(args);
       const { response } = result;
       if (!HttpResponse.isInstance(response)) {
@@ -10353,7 +10623,7 @@ var init_throw_200_exceptions = __esm({
       }
       response.body = body;
       const bodyBytes = await collectBody2(bodyCopy, {
-        streamCollector: /* @__PURE__ */ __name2(async (stream) => {
+        streamCollector: /* @__PURE__ */ __name(async (stream) => {
           return headStream(stream, MAX_BYTES_TO_INSPECT);
         }, "streamCollector")
       });
@@ -10371,7 +10641,7 @@ var init_throw_200_exceptions = __esm({
       }
       return result;
     }, "throw200ExceptionsMiddleware");
-    collectBody2 = /* @__PURE__ */ __name2((streamBody = new Uint8Array(), context) => {
+    collectBody2 = /* @__PURE__ */ __name((streamBody = new Uint8Array(), context) => {
       if (streamBody instanceof Uint8Array) {
         return Promise.resolve(streamBody);
       }
@@ -10384,21 +10654,25 @@ var init_throw_200_exceptions = __esm({
       name: "throw200ExceptionsMiddleware",
       override: true
     };
-    getThrow200ExceptionsPlugin = /* @__PURE__ */ __name2((config) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getThrow200ExceptionsPlugin = /* @__PURE__ */ __name((config) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.addRelativeTo(throw200ExceptionsMiddleware(config), throw200ExceptionsMiddlewareOptions);
       }, "applyToStack")
     }), "getThrow200ExceptionsPlugin");
   }
 });
+
+// ../node_modules/@aws-sdk/util-arn-parser/dist-es/index.js
 var validate;
 var init_dist_es29 = __esm({
   "../node_modules/@aws-sdk/util-arn-parser/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    validate = /* @__PURE__ */ __name2((str) => typeof str === "string" && str.indexOf("arn:") === 0 && str.split(":").length >= 6, "validate");
+    validate = /* @__PURE__ */ __name((str) => typeof str === "string" && str.indexOf("arn:") === 0 && str.split(":").length >= 6, "validate");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/bucket-endpoint-middleware.js
 function bucketEndpointMiddleware(options) {
   return (next, context) => async (args) => {
     if (options.bucketEndpoint) {
@@ -10427,13 +10701,12 @@ function bucketEndpointMiddleware(options) {
     return next(args);
   };
 }
-__name(bucketEndpointMiddleware, "bucketEndpointMiddleware");
 var bucketEndpointMiddlewareOptions;
 var init_bucket_endpoint_middleware = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/bucket-endpoint-middleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(bucketEndpointMiddleware, "bucketEndpointMiddleware");
+    __name(bucketEndpointMiddleware, "bucketEndpointMiddleware");
     bucketEndpointMiddlewareOptions = {
       name: "bucketEndpointMiddleware",
       override: true,
@@ -10442,6 +10715,8 @@ var init_bucket_endpoint_middleware = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/validate-bucket-name.js
 function validateBucketNameMiddleware({ bucketEndpoint }) {
   return (next) => async (args) => {
     const { input: { Bucket } } = args;
@@ -10453,33 +10728,33 @@ function validateBucketNameMiddleware({ bucketEndpoint }) {
     return next({ ...args });
   };
 }
-__name(validateBucketNameMiddleware, "validateBucketNameMiddleware");
-var validateBucketNameMiddlewareOptions;
-var getValidateBucketNamePlugin;
+var validateBucketNameMiddlewareOptions, getValidateBucketNamePlugin;
 var init_validate_bucket_name = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/validate-bucket-name.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es29();
     init_bucket_endpoint_middleware();
-    __name2(validateBucketNameMiddleware, "validateBucketNameMiddleware");
+    __name(validateBucketNameMiddleware, "validateBucketNameMiddleware");
     validateBucketNameMiddlewareOptions = {
       step: "initialize",
       tags: ["VALIDATE_BUCKET_NAME"],
       name: "validateBucketNameMiddleware",
       override: true
     };
-    getValidateBucketNamePlugin = /* @__PURE__ */ __name2((options) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getValidateBucketNamePlugin = /* @__PURE__ */ __name((options) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(validateBucketNameMiddleware(options), validateBucketNameMiddlewareOptions);
         clientStack.addRelativeTo(bucketEndpointMiddleware(options), bucketEndpointMiddlewareOptions);
       }, "applyToStack")
     }), "getValidateBucketNamePlugin");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/index.js
 var init_dist_es30 = __esm({
   "../node_modules/@aws-sdk/middleware-sdk-s3/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_check_content_length_header();
     init_region_redirect_endpoint_middleware();
@@ -10491,19 +10766,20 @@ var init_dist_es30 = __esm({
     init_validate_bucket_name();
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-user-agent/dist-es/configurations.js
 function isValidUserAgentAppId(appId) {
   if (appId === void 0) {
     return true;
   }
   return typeof appId === "string" && appId.length <= 50;
 }
-__name(isValidUserAgentAppId, "isValidUserAgentAppId");
 function resolveUserAgentConfig(input) {
   const normalizedAppIdProvider = normalizeProvider2(input.userAgentAppId ?? DEFAULT_UA_APP_ID);
   const { customUserAgent } = input;
   return Object.assign(input, {
     customUserAgent: typeof customUserAgent === "string" ? [[customUserAgent]] : customUserAgent,
-    userAgentAppId: /* @__PURE__ */ __name2(async () => {
+    userAgentAppId: /* @__PURE__ */ __name(async () => {
       const appId = await normalizedAppIdProvider();
       if (!isValidUserAgentAppId(appId)) {
         const logger2 = input.logger?.constructor?.name === "NoOpLogger" || !input.logger ? console : input.logger;
@@ -10517,29 +10793,27 @@ function resolveUserAgentConfig(input) {
     }, "userAgentAppId")
   });
 }
-__name(resolveUserAgentConfig, "resolveUserAgentConfig");
 var DEFAULT_UA_APP_ID;
 var init_configurations = __esm({
   "../node_modules/@aws-sdk/middleware-user-agent/dist-es/configurations.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es14();
     DEFAULT_UA_APP_ID = void 0;
-    __name2(isValidUserAgentAppId, "isValidUserAgentAppId");
-    __name2(resolveUserAgentConfig, "resolveUserAgentConfig");
+    __name(isValidUserAgentAppId, "isValidUserAgentAppId");
+    __name(resolveUserAgentConfig, "resolveUserAgentConfig");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/cache/EndpointCache.js
 var EndpointCache;
 var init_EndpointCache = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/cache/EndpointCache.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     EndpointCache = class {
       static {
         __name(this, "EndpointCache");
-      }
-      static {
-        __name2(this, "EndpointCache");
       }
       capacity;
       data = /* @__PURE__ */ new Map();
@@ -10592,24 +10866,26 @@ var init_EndpointCache = __esm({
     };
   }
 });
-var IP_V4_REGEX;
-var isIpAddress;
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/isIpAddress.js
+var IP_V4_REGEX, isIpAddress;
 var init_isIpAddress = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/isIpAddress.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     IP_V4_REGEX = new RegExp(`^(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)(?:\\.(?:25[0-5]|2[0-4]\\d|1\\d\\d|[1-9]\\d|\\d)){3}$`);
-    isIpAddress = /* @__PURE__ */ __name2((value) => IP_V4_REGEX.test(value) || value.startsWith("[") && value.endsWith("]"), "isIpAddress");
+    isIpAddress = /* @__PURE__ */ __name((value) => IP_V4_REGEX.test(value) || value.startsWith("[") && value.endsWith("]"), "isIpAddress");
   }
 });
-var VALID_HOST_LABEL_REGEX;
-var isValidHostLabel;
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/isValidHostLabel.js
+var VALID_HOST_LABEL_REGEX, isValidHostLabel;
 var init_isValidHostLabel = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/isValidHostLabel.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     VALID_HOST_LABEL_REGEX = new RegExp(`^(?!.*-$)(?!-)[a-zA-Z0-9-]{1,63}$`);
-    isValidHostLabel = /* @__PURE__ */ __name2((value, allowSubDomains = false) => {
+    isValidHostLabel = /* @__PURE__ */ __name((value, allowSubDomains = false) => {
       if (!allowSubDomains) {
         return VALID_HOST_LABEL_REGEX.test(value);
       }
@@ -10623,22 +10899,28 @@ var init_isValidHostLabel = __esm({
     }, "isValidHostLabel");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/customEndpointFunctions.js
 var customEndpointFunctions;
 var init_customEndpointFunctions = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/customEndpointFunctions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     customEndpointFunctions = {};
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/debug/debugId.js
 var debugId;
 var init_debugId = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/debug/debugId.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     debugId = "endpoints";
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/debug/toDebugString.js
 function toDebugString(input) {
   if (typeof input !== "object" || input == null) {
     return input;
@@ -10651,33 +10933,33 @@ function toDebugString(input) {
   }
   return JSON.stringify(input, null, 2);
 }
-__name(toDebugString, "toDebugString");
 var init_toDebugString = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/debug/toDebugString.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(toDebugString, "toDebugString");
+    __name(toDebugString, "toDebugString");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/debug/index.js
 var init_debug = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/debug/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_debugId();
     init_toDebugString();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/types/EndpointError.js
 var EndpointError;
 var init_EndpointError = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/types/EndpointError.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     EndpointError = class extends Error {
       static {
         __name(this, "EndpointError");
-      }
-      static {
-        __name2(this, "EndpointError");
       }
       constructor(message) {
         super(message);
@@ -10686,45 +10968,59 @@ var init_EndpointError = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/types/EndpointFunctions.js
 var init_EndpointFunctions = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/types/EndpointFunctions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/types/EndpointRuleObject.js
 var init_EndpointRuleObject2 = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/types/EndpointRuleObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/types/ErrorRuleObject.js
 var init_ErrorRuleObject2 = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/types/ErrorRuleObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/types/RuleSetObject.js
 var init_RuleSetObject2 = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/types/RuleSetObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/types/TreeRuleObject.js
 var init_TreeRuleObject2 = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/types/TreeRuleObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/types/shared.js
 var init_shared2 = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/types/shared.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/types/index.js
 var init_types3 = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/types/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_EndpointError();
     init_EndpointFunctions();
@@ -10735,21 +11031,25 @@ var init_types3 = __esm({
     init_shared2();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/booleanEquals.js
 var booleanEquals;
 var init_booleanEquals = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/booleanEquals.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    booleanEquals = /* @__PURE__ */ __name2((value1, value2) => value1 === value2, "booleanEquals");
+    booleanEquals = /* @__PURE__ */ __name((value1, value2) => value1 === value2, "booleanEquals");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/getAttrPathList.js
 var getAttrPathList;
 var init_getAttrPathList = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/getAttrPathList.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_types3();
-    getAttrPathList = /* @__PURE__ */ __name2((path) => {
+    getAttrPathList = /* @__PURE__ */ __name((path) => {
       const parts = path.split(".");
       const pathList = [];
       for (const part of parts) {
@@ -10774,14 +11074,16 @@ var init_getAttrPathList = __esm({
     }, "getAttrPathList");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/getAttr.js
 var getAttr;
 var init_getAttr = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/getAttr.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_types3();
     init_getAttrPathList();
-    getAttr = /* @__PURE__ */ __name2((value, path) => getAttrPathList(path).reduce((acc, index) => {
+    getAttr = /* @__PURE__ */ __name((value, path) => getAttrPathList(path).reduce((acc, index) => {
       if (typeof acc !== "object") {
         throw new EndpointError(`Index '${index}' in '${path}' not found in '${JSON.stringify(value)}'`);
       } else if (Array.isArray(acc)) {
@@ -10791,27 +11093,32 @@ var init_getAttr = __esm({
     }, value), "getAttr");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/isSet.js
 var isSet;
 var init_isSet = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/isSet.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    isSet = /* @__PURE__ */ __name2((value) => value != null, "isSet");
+    isSet = /* @__PURE__ */ __name((value) => value != null, "isSet");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/not.js
 var not;
 var init_not = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/not.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    not = /* @__PURE__ */ __name2((value) => !value, "not");
+    not = /* @__PURE__ */ __name((value) => !value, "not");
   }
 });
-var DEFAULT_PORTS;
-var parseURL;
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/parseURL.js
+var DEFAULT_PORTS, parseURL;
 var init_parseURL = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/parseURL.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es();
     init_isIpAddress();
@@ -10819,7 +11126,7 @@ var init_parseURL = __esm({
       [EndpointURLScheme.HTTP]: 80,
       [EndpointURLScheme.HTTPS]: 443
     };
-    parseURL = /* @__PURE__ */ __name2((value) => {
+    parseURL = /* @__PURE__ */ __name((value) => {
       const whatwgURL = (() => {
         try {
           if (value instanceof URL) {
@@ -10862,20 +11169,24 @@ var init_parseURL = __esm({
     }, "parseURL");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/stringEquals.js
 var stringEquals;
 var init_stringEquals = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/stringEquals.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    stringEquals = /* @__PURE__ */ __name2((value1, value2) => value1 === value2, "stringEquals");
+    stringEquals = /* @__PURE__ */ __name((value1, value2) => value1 === value2, "stringEquals");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/substring.js
 var substring;
 var init_substring = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/substring.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    substring = /* @__PURE__ */ __name2((input, start, stop, reverse) => {
+    substring = /* @__PURE__ */ __name((input, start, stop, reverse) => {
       if (start >= stop || input.length < stop) {
         return null;
       }
@@ -10886,17 +11197,21 @@ var init_substring = __esm({
     }, "substring");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/uriEncode.js
 var uriEncode;
 var init_uriEncode = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/uriEncode.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    uriEncode = /* @__PURE__ */ __name2((value) => encodeURIComponent(value).replace(/[!*'()]/g, (c2) => `%${c2.charCodeAt(0).toString(16).toUpperCase()}`), "uriEncode");
+    uriEncode = /* @__PURE__ */ __name((value) => encodeURIComponent(value).replace(/[!*'()]/g, (c2) => `%${c2.charCodeAt(0).toString(16).toUpperCase()}`), "uriEncode");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/lib/index.js
 var init_lib = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/lib/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_booleanEquals();
     init_getAttr();
@@ -10909,10 +11224,12 @@ var init_lib = __esm({
     init_uriEncode();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/endpointFunctions.js
 var endpointFunctions;
 var init_endpointFunctions = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/endpointFunctions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_lib();
     endpointFunctions = {
@@ -10928,13 +11245,15 @@ var init_endpointFunctions = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateTemplate.js
 var evaluateTemplate;
 var init_evaluateTemplate = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateTemplate.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_lib();
-    evaluateTemplate = /* @__PURE__ */ __name2((template, options) => {
+    evaluateTemplate = /* @__PURE__ */ __name((template, options) => {
       const evaluatedTemplateArr = [];
       const templateContext = {
         ...options.endpointParams,
@@ -10970,12 +11289,14 @@ var init_evaluateTemplate = __esm({
     }, "evaluateTemplate");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/getReferenceValue.js
 var getReferenceValue;
 var init_getReferenceValue = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/getReferenceValue.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    getReferenceValue = /* @__PURE__ */ __name2(({ ref }, options) => {
+    getReferenceValue = /* @__PURE__ */ __name(({ ref }, options) => {
       const referenceRecord = {
         ...options.endpointParams,
         ...options.referenceRecord
@@ -10984,19 +11305,19 @@ var init_getReferenceValue = __esm({
     }, "getReferenceValue");
   }
 });
-var evaluateExpression;
-var callFunction;
-var group;
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateExpression.js
+var evaluateExpression, callFunction, group;
 var init_evaluateExpression = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateExpression.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_types3();
     init_customEndpointFunctions();
     init_endpointFunctions();
     init_evaluateTemplate();
     init_getReferenceValue();
-    evaluateExpression = /* @__PURE__ */ __name2((obj, keyName, options) => {
+    evaluateExpression = /* @__PURE__ */ __name((obj, keyName, options) => {
       if (typeof obj === "string") {
         return evaluateTemplate(obj, options);
       } else if (obj["fn"]) {
@@ -11006,7 +11327,7 @@ var init_evaluateExpression = __esm({
       }
       throw new EndpointError(`'${keyName}': ${String(obj)} is not a string, function or reference.`);
     }, "evaluateExpression");
-    callFunction = /* @__PURE__ */ __name2(({ fn, argv }, options) => {
+    callFunction = /* @__PURE__ */ __name(({ fn, argv }, options) => {
       const evaluatedArgs = argv.map((arg) => ["boolean", "number"].includes(typeof arg) ? arg : group.evaluateExpression(arg, "arg", options));
       const fnSegments = fn.split(".");
       if (fnSegments[0] in customEndpointFunctions && fnSegments[1] != null) {
@@ -11020,22 +11341,26 @@ var init_evaluateExpression = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/callFunction.js
 var init_callFunction = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/callFunction.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_evaluateExpression();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateCondition.js
 var evaluateCondition;
 var init_evaluateCondition = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateCondition.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_debug();
     init_types3();
     init_callFunction();
-    evaluateCondition = /* @__PURE__ */ __name2(({ assign, ...fnArgs }, options) => {
+    evaluateCondition = /* @__PURE__ */ __name(({ assign, ...fnArgs }, options) => {
       if (assign && assign in options.referenceRecord) {
         throw new EndpointError(`'${assign}' is already defined in Reference Record.`);
       }
@@ -11048,14 +11373,16 @@ var init_evaluateCondition = __esm({
     }, "evaluateCondition");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateConditions.js
 var evaluateConditions;
 var init_evaluateConditions = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateConditions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_debug();
     init_evaluateCondition();
-    evaluateConditions = /* @__PURE__ */ __name2((conditions = [], options) => {
+    evaluateConditions = /* @__PURE__ */ __name((conditions = [], options) => {
       const conditionsReferenceRecord = {};
       for (const condition of conditions) {
         const { result, toAssign } = evaluateCondition(condition, {
@@ -11077,14 +11404,16 @@ var init_evaluateConditions = __esm({
     }, "evaluateConditions");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/getEndpointHeaders.js
 var getEndpointHeaders;
 var init_getEndpointHeaders = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/getEndpointHeaders.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_types3();
     init_evaluateExpression();
-    getEndpointHeaders = /* @__PURE__ */ __name2((headers, options) => Object.entries(headers).reduce((acc, [headerKey, headerVal]) => ({
+    getEndpointHeaders = /* @__PURE__ */ __name((headers, options) => Object.entries(headers).reduce((acc, [headerKey, headerVal]) => ({
       ...acc,
       [headerKey]: headerVal.map((headerValEntry) => {
         const processedExpr = evaluateExpression(headerValEntry, "Header value entry", options);
@@ -11096,20 +11425,20 @@ var init_getEndpointHeaders = __esm({
     }), {}), "getEndpointHeaders");
   }
 });
-var getEndpointProperties;
-var getEndpointProperty;
-var group2;
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/getEndpointProperties.js
+var getEndpointProperties, getEndpointProperty, group2;
 var init_getEndpointProperties = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/getEndpointProperties.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_types3();
     init_evaluateTemplate();
-    getEndpointProperties = /* @__PURE__ */ __name2((properties, options) => Object.entries(properties).reduce((acc, [propertyKey, propertyVal]) => ({
+    getEndpointProperties = /* @__PURE__ */ __name((properties, options) => Object.entries(properties).reduce((acc, [propertyKey, propertyVal]) => ({
       ...acc,
       [propertyKey]: group2.getEndpointProperty(propertyVal, options)
     }), {}), "getEndpointProperties");
-    getEndpointProperty = /* @__PURE__ */ __name2((property, options) => {
+    getEndpointProperty = /* @__PURE__ */ __name((property, options) => {
       if (Array.isArray(property)) {
         return property.map((propertyEntry) => getEndpointProperty(propertyEntry, options));
       }
@@ -11133,14 +11462,16 @@ var init_getEndpointProperties = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/getEndpointUrl.js
 var getEndpointUrl;
 var init_getEndpointUrl = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/getEndpointUrl.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_types3();
     init_evaluateExpression();
-    getEndpointUrl = /* @__PURE__ */ __name2((endpointUrl, options) => {
+    getEndpointUrl = /* @__PURE__ */ __name((endpointUrl, options) => {
       const expression = evaluateExpression(endpointUrl, "Endpoint URL", options);
       if (typeof expression === "string") {
         try {
@@ -11154,17 +11485,19 @@ var init_getEndpointUrl = __esm({
     }, "getEndpointUrl");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateEndpointRule.js
 var evaluateEndpointRule;
 var init_evaluateEndpointRule = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateEndpointRule.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_debug();
     init_evaluateConditions();
     init_getEndpointHeaders();
     init_getEndpointProperties();
     init_getEndpointUrl();
-    evaluateEndpointRule = /* @__PURE__ */ __name2((endpointRule, options) => {
+    evaluateEndpointRule = /* @__PURE__ */ __name((endpointRule, options) => {
       const { conditions, endpoint } = endpointRule;
       const { result, referenceRecord } = evaluateConditions(conditions, options);
       if (!result) {
@@ -11188,15 +11521,17 @@ var init_evaluateEndpointRule = __esm({
     }, "evaluateEndpointRule");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateErrorRule.js
 var evaluateErrorRule;
 var init_evaluateErrorRule = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateErrorRule.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_types3();
     init_evaluateConditions();
     init_evaluateExpression();
-    evaluateErrorRule = /* @__PURE__ */ __name2((errorRule, options) => {
+    evaluateErrorRule = /* @__PURE__ */ __name((errorRule, options) => {
       const { conditions, error } = errorRule;
       const { result, referenceRecord } = evaluateConditions(conditions, options);
       if (!result) {
@@ -11209,18 +11544,18 @@ var init_evaluateErrorRule = __esm({
     }, "evaluateErrorRule");
   }
 });
-var evaluateRules;
-var evaluateTreeRule;
-var group3;
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateRules.js
+var evaluateRules, evaluateTreeRule, group3;
 var init_evaluateRules = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/evaluateRules.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_types3();
     init_evaluateConditions();
     init_evaluateEndpointRule();
     init_evaluateErrorRule();
-    evaluateRules = /* @__PURE__ */ __name2((rules, options) => {
+    evaluateRules = /* @__PURE__ */ __name((rules, options) => {
       for (const rule of rules) {
         if (rule.type === "endpoint") {
           const endpointOrUndefined = evaluateEndpointRule(rule, options);
@@ -11240,7 +11575,7 @@ var init_evaluateRules = __esm({
       }
       throw new EndpointError(`Rules evaluation failed`);
     }, "evaluateRules");
-    evaluateTreeRule = /* @__PURE__ */ __name2((treeRule, options) => {
+    evaluateTreeRule = /* @__PURE__ */ __name((treeRule, options) => {
       const { conditions, rules } = treeRule;
       const { result, referenceRecord } = evaluateConditions(conditions, options);
       if (!result) {
@@ -11257,23 +11592,27 @@ var init_evaluateRules = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/utils/index.js
 var init_utils2 = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/utils/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_customEndpointFunctions();
     init_evaluateRules();
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/resolveEndpoint.js
 var resolveEndpoint;
 var init_resolveEndpoint = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/resolveEndpoint.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_debug();
     init_types3();
     init_utils2();
-    resolveEndpoint = /* @__PURE__ */ __name2((ruleSetObject, options) => {
+    resolveEndpoint = /* @__PURE__ */ __name((ruleSetObject, options) => {
       const { endpointParams, logger: logger2 } = options;
       const { parameters, rules } = ruleSetObject;
       options.logger?.debug?.(`${debugId} Initial EndpointParams: ${toDebugString(endpointParams)}`);
@@ -11295,9 +11634,11 @@ var init_resolveEndpoint = __esm({
     }, "resolveEndpoint");
   }
 });
+
+// ../node_modules/@smithy/util-endpoints/dist-es/index.js
 var init_dist_es31 = __esm({
   "../node_modules/@smithy/util-endpoints/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_EndpointCache();
     init_isIpAddress();
@@ -11307,21 +11648,25 @@ var init_dist_es31 = __esm({
     init_types3();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/lib/isIpAddress.js
 var init_isIpAddress2 = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/lib/isIpAddress.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es31();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/lib/aws/isVirtualHostableS3Bucket.js
 var isVirtualHostableS3Bucket;
 var init_isVirtualHostableS3Bucket = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/lib/aws/isVirtualHostableS3Bucket.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es31();
     init_isIpAddress2();
-    isVirtualHostableS3Bucket = /* @__PURE__ */ __name2((value, allowSubDomains = false) => {
+    isVirtualHostableS3Bucket = /* @__PURE__ */ __name((value, allowSubDomains = false) => {
       if (allowSubDomains) {
         for (const label of value.split(".")) {
           if (!isVirtualHostableS3Bucket(label)) {
@@ -11346,16 +11691,16 @@ var init_isVirtualHostableS3Bucket = __esm({
     }, "isVirtualHostableS3Bucket");
   }
 });
-var ARN_DELIMITER;
-var RESOURCE_DELIMITER;
-var parseArn;
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/lib/aws/parseArn.js
+var ARN_DELIMITER, RESOURCE_DELIMITER, parseArn;
 var init_parseArn = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/lib/aws/parseArn.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     ARN_DELIMITER = ":";
     RESOURCE_DELIMITER = "/";
-    parseArn = /* @__PURE__ */ __name2((value) => {
+    parseArn = /* @__PURE__ */ __name((value) => {
       const segments = value.split(ARN_DELIMITER);
       if (segments.length < 6)
         return null;
@@ -11373,6 +11718,8 @@ var init_parseArn = __esm({
     }, "parseArn");
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/lib/aws/partitions.json
 var partitions_default;
 var init_partitions = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/lib/aws/partitions.json"() {
@@ -11645,18 +11992,17 @@ var init_partitions = __esm({
     };
   }
 });
-var selectedPartitionsInfo;
-var selectedUserAgentPrefix;
-var partition;
-var getUserAgentPrefix;
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/lib/aws/partition.js
+var selectedPartitionsInfo, selectedUserAgentPrefix, partition, getUserAgentPrefix;
 var init_partition = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/lib/aws/partition.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_partitions();
     selectedPartitionsInfo = partitions_default;
     selectedUserAgentPrefix = "";
-    partition = /* @__PURE__ */ __name2((value) => {
+    partition = /* @__PURE__ */ __name((value) => {
       const { partitions } = selectedPartitionsInfo;
       for (const partition2 of partitions) {
         const { regions, outputs } = partition2;
@@ -11685,13 +12031,15 @@ var init_partition = __esm({
         ...DEFAULT_PARTITION.outputs
       };
     }, "partition");
-    getUserAgentPrefix = /* @__PURE__ */ __name2(() => selectedUserAgentPrefix, "getUserAgentPrefix");
+    getUserAgentPrefix = /* @__PURE__ */ __name(() => selectedUserAgentPrefix, "getUserAgentPrefix");
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/aws.js
 var awsEndpointFunctions;
 var init_aws = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/aws.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es31();
     init_isVirtualHostableS3Bucket();
@@ -11705,6 +12053,8 @@ var init_aws = __esm({
     customEndpointFunctions.aws = awsEndpointFunctions;
   }
 });
+
+// ../node_modules/@smithy/querystring-parser/dist-es/index.js
 function parseQueryString(querystring) {
   const query = {};
   querystring = querystring.replace(/^\?/, "");
@@ -11726,21 +12076,22 @@ function parseQueryString(querystring) {
   }
   return query;
 }
-__name(parseQueryString, "parseQueryString");
 var init_dist_es32 = __esm({
   "../node_modules/@smithy/querystring-parser/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(parseQueryString, "parseQueryString");
+    __name(parseQueryString, "parseQueryString");
   }
 });
+
+// ../node_modules/@smithy/url-parser/dist-es/index.js
 var parseUrl;
 var init_dist_es33 = __esm({
   "../node_modules/@smithy/url-parser/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es32();
-    parseUrl = /* @__PURE__ */ __name2((url) => {
+    parseUrl = /* @__PURE__ */ __name((url) => {
       if (typeof url === "string") {
         return parseUrl(new URL(url));
       }
@@ -11759,57 +12110,75 @@ var init_dist_es33 = __esm({
     }, "parseUrl");
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/resolveDefaultAwsRegionalEndpointsConfig.js
 var init_resolveDefaultAwsRegionalEndpointsConfig = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/resolveDefaultAwsRegionalEndpointsConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/resolveEndpoint.js
 var init_resolveEndpoint2 = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/resolveEndpoint.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/types/EndpointError.js
 var init_EndpointError2 = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/types/EndpointError.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/types/EndpointRuleObject.js
 var init_EndpointRuleObject3 = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/types/EndpointRuleObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/types/ErrorRuleObject.js
 var init_ErrorRuleObject3 = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/types/ErrorRuleObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/types/RuleSetObject.js
 var init_RuleSetObject3 = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/types/RuleSetObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/types/TreeRuleObject.js
 var init_TreeRuleObject3 = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/types/TreeRuleObject.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/types/shared.js
 var init_shared3 = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/types/shared.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/types/index.js
 var init_types4 = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/types/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_EndpointError2();
     init_EndpointRuleObject3();
@@ -11819,9 +12188,11 @@ var init_types4 = __esm({
     init_shared3();
   }
 });
+
+// ../node_modules/@aws-sdk/util-endpoints/dist-es/index.js
 var init_dist_es34 = __esm({
   "../node_modules/@aws-sdk/util-endpoints/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_aws();
     init_partition();
@@ -11831,6 +12202,8 @@ var init_dist_es34 = __esm({
     init_types4();
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-user-agent/dist-es/check-features.js
 async function checkFeatures(context, config, args) {
   const request = args.request;
   if (request?.headers?.["smithy-protocol"] === "rpc-v2-cbor") {
@@ -11876,27 +12249,22 @@ async function checkFeatures(context, config, args) {
     }
   }
 }
-__name(checkFeatures, "checkFeatures");
 var ACCOUNT_ID_ENDPOINT_REGEX;
 var init_check_features = __esm({
   "../node_modules/@aws-sdk/middleware-user-agent/dist-es/check-features.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es22();
     ACCOUNT_ID_ENDPOINT_REGEX = /\d{12}\.ddb/;
-    __name2(checkFeatures, "checkFeatures");
+    __name(checkFeatures, "checkFeatures");
   }
 });
-var USER_AGENT;
-var X_AMZ_USER_AGENT;
-var SPACE;
-var UA_NAME_SEPARATOR;
-var UA_NAME_ESCAPE_REGEX;
-var UA_VALUE_ESCAPE_REGEX;
-var UA_ESCAPE_CHAR;
+
+// ../node_modules/@aws-sdk/middleware-user-agent/dist-es/constants.js
+var USER_AGENT, X_AMZ_USER_AGENT, SPACE, UA_NAME_SEPARATOR, UA_NAME_ESCAPE_REGEX, UA_VALUE_ESCAPE_REGEX, UA_ESCAPE_CHAR;
 var init_constants6 = __esm({
   "../node_modules/@aws-sdk/middleware-user-agent/dist-es/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     USER_AGENT = "user-agent";
     X_AMZ_USER_AGENT = "x-amz-user-agent";
@@ -11907,6 +12275,8 @@ var init_constants6 = __esm({
     UA_ESCAPE_CHAR = "-";
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-user-agent/dist-es/encode-features.js
 function encodeFeatures(features) {
   let buffer = "";
   for (const key in features) {
@@ -11923,30 +12293,28 @@ function encodeFeatures(features) {
   }
   return buffer;
 }
-__name(encodeFeatures, "encodeFeatures");
 var BYTE_LIMIT;
 var init_encode_features = __esm({
   "../node_modules/@aws-sdk/middleware-user-agent/dist-es/encode-features.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     BYTE_LIMIT = 1024;
-    __name2(encodeFeatures, "encodeFeatures");
+    __name(encodeFeatures, "encodeFeatures");
   }
 });
-var userAgentMiddleware;
-var escapeUserAgent;
-var getUserAgentMiddlewareOptions;
-var getUserAgentPlugin;
+
+// ../node_modules/@aws-sdk/middleware-user-agent/dist-es/user-agent-middleware.js
+var userAgentMiddleware, escapeUserAgent, getUserAgentMiddlewareOptions, getUserAgentPlugin;
 var init_user_agent_middleware = __esm({
   "../node_modules/@aws-sdk/middleware-user-agent/dist-es/user-agent-middleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es34();
     init_dist_es2();
     init_check_features();
     init_constants6();
     init_encode_features();
-    userAgentMiddleware = /* @__PURE__ */ __name2((options) => (next, context) => async (args) => {
+    userAgentMiddleware = /* @__PURE__ */ __name((options) => (next, context) => async (args) => {
       const { request } = args;
       if (!HttpRequest.isInstance(request)) {
         return next(args);
@@ -11981,7 +12349,7 @@ var init_user_agent_middleware = __esm({
         request
       });
     }, "userAgentMiddleware");
-    escapeUserAgent = /* @__PURE__ */ __name2((userAgentPair) => {
+    escapeUserAgent = /* @__PURE__ */ __name((userAgentPair) => {
       const name = userAgentPair[0].split(UA_NAME_SEPARATOR).map((part) => part.replace(UA_NAME_ESCAPE_REGEX, UA_ESCAPE_CHAR)).join(UA_NAME_SEPARATOR);
       const version = userAgentPair[1]?.replace(UA_VALUE_ESCAPE_REGEX, UA_ESCAPE_CHAR);
       const prefixSeparatorIndex = name.indexOf(UA_NAME_SEPARATOR);
@@ -12008,52 +12376,64 @@ var init_user_agent_middleware = __esm({
       tags: ["SET_USER_AGENT", "USER_AGENT"],
       override: true
     };
-    getUserAgentPlugin = /* @__PURE__ */ __name2((config) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getUserAgentPlugin = /* @__PURE__ */ __name((config) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(userAgentMiddleware(config), getUserAgentMiddlewareOptions);
       }, "applyToStack")
     }), "getUserAgentPlugin");
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-user-agent/dist-es/index.js
 var init_dist_es35 = __esm({
   "../node_modules/@aws-sdk/middleware-user-agent/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_configurations();
     init_user_agent_middleware();
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/endpointsConfig/NodeUseDualstackEndpointConfigOptions.js
 var DEFAULT_USE_DUALSTACK_ENDPOINT;
 var init_NodeUseDualstackEndpointConfigOptions = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/endpointsConfig/NodeUseDualstackEndpointConfigOptions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     DEFAULT_USE_DUALSTACK_ENDPOINT = false;
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/endpointsConfig/NodeUseFipsEndpointConfigOptions.js
 var DEFAULT_USE_FIPS_ENDPOINT;
 var init_NodeUseFipsEndpointConfigOptions = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/endpointsConfig/NodeUseFipsEndpointConfigOptions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     DEFAULT_USE_FIPS_ENDPOINT = false;
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/endpointsConfig/resolveCustomEndpointsConfig.js
 var init_resolveCustomEndpointsConfig = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/endpointsConfig/resolveCustomEndpointsConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/endpointsConfig/resolveEndpointsConfig.js
 var init_resolveEndpointsConfig = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/endpointsConfig/resolveEndpointsConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/endpointsConfig/index.js
 var init_endpointsConfig = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/endpointsConfig/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_NodeUseDualstackEndpointConfigOptions();
     init_NodeUseFipsEndpointConfigOptions();
@@ -12061,21 +12441,24 @@ var init_endpointsConfig = __esm({
     init_resolveEndpointsConfig();
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/regionConfig/config.js
 var init_config2 = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/regionConfig/config.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
-var validRegions;
-var checkRegion;
+
+// ../node_modules/@smithy/config-resolver/dist-es/regionConfig/checkRegion.js
+var validRegions, checkRegion;
 var init_checkRegion = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/regionConfig/checkRegion.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es31();
     validRegions = /* @__PURE__ */ new Set();
-    checkRegion = /* @__PURE__ */ __name2((region, check = isValidHostLabel) => {
+    checkRegion = /* @__PURE__ */ __name((region, check = isValidHostLabel) => {
       if (!validRegions.has(region) && !check(region)) {
         if (region === "*") {
           console.warn(`@smithy/config-resolver WARN - Please use the caller region instead of "*". See "sigv4a" in https://github.com/aws/aws-sdk-js-v3/blob/main/supplemental-docs/CLIENTS.md.`);
@@ -12088,44 +12471,50 @@ var init_checkRegion = __esm({
     }, "checkRegion");
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/regionConfig/isFipsRegion.js
 var isFipsRegion;
 var init_isFipsRegion = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/regionConfig/isFipsRegion.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    isFipsRegion = /* @__PURE__ */ __name2((region) => typeof region === "string" && (region.startsWith("fips-") || region.endsWith("-fips")), "isFipsRegion");
+    isFipsRegion = /* @__PURE__ */ __name((region) => typeof region === "string" && (region.startsWith("fips-") || region.endsWith("-fips")), "isFipsRegion");
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/regionConfig/getRealRegion.js
 var getRealRegion;
 var init_getRealRegion = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/regionConfig/getRealRegion.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_isFipsRegion();
-    getRealRegion = /* @__PURE__ */ __name2((region) => isFipsRegion(region) ? ["fips-aws-global", "aws-fips"].includes(region) ? "us-east-1" : region.replace(/fips-(dkr-|prod-)?|-fips/, "") : region, "getRealRegion");
+    getRealRegion = /* @__PURE__ */ __name((region) => isFipsRegion(region) ? ["fips-aws-global", "aws-fips"].includes(region) ? "us-east-1" : region.replace(/fips-(dkr-|prod-)?|-fips/, "") : region, "getRealRegion");
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/regionConfig/resolveRegionConfig.js
 var resolveRegionConfig;
 var init_resolveRegionConfig = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/regionConfig/resolveRegionConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_checkRegion();
     init_getRealRegion();
     init_isFipsRegion();
-    resolveRegionConfig = /* @__PURE__ */ __name2((input) => {
+    resolveRegionConfig = /* @__PURE__ */ __name((input) => {
       const { region, useFipsEndpoint } = input;
       if (!region) {
         throw new Error("Region is missing");
       }
       return Object.assign(input, {
-        region: /* @__PURE__ */ __name2(async () => {
+        region: /* @__PURE__ */ __name(async () => {
           const providedRegion = typeof region === "function" ? await region() : region;
           const realRegion = getRealRegion(providedRegion);
           checkRegion(realRegion);
           return realRegion;
         }, "region"),
-        useFipsEndpoint: /* @__PURE__ */ __name2(async () => {
+        useFipsEndpoint: /* @__PURE__ */ __name(async () => {
           const providedRegion = typeof region === "string" ? region : await region();
           if (isFipsRegion(providedRegion)) {
             return true;
@@ -12136,67 +12525,85 @@ var init_resolveRegionConfig = __esm({
     }, "resolveRegionConfig");
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/regionConfig/index.js
 var init_regionConfig = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/regionConfig/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_config2();
     init_resolveRegionConfig();
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/regionInfo/PartitionHash.js
 var init_PartitionHash = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/regionInfo/PartitionHash.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/regionInfo/RegionHash.js
 var init_RegionHash = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/regionInfo/RegionHash.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/regionInfo/getRegionInfo.js
 var init_getRegionInfo = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/regionInfo/getRegionInfo.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/regionInfo/index.js
 var init_regionInfo = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/regionInfo/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_PartitionHash();
     init_RegionHash();
     init_getRegionInfo();
   }
 });
+
+// ../node_modules/@smithy/config-resolver/dist-es/index.js
 var init_dist_es36 = __esm({
   "../node_modules/@smithy/config-resolver/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_endpointsConfig();
     init_regionConfig();
     init_regionInfo();
   }
 });
+
+// ../node_modules/@smithy/eventstream-serde-config-resolver/dist-es/EventStreamSerdeConfig.js
 var resolveEventStreamSerdeConfig;
 var init_EventStreamSerdeConfig = __esm({
   "../node_modules/@smithy/eventstream-serde-config-resolver/dist-es/EventStreamSerdeConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    resolveEventStreamSerdeConfig = /* @__PURE__ */ __name2((input) => Object.assign(input, {
+    resolveEventStreamSerdeConfig = /* @__PURE__ */ __name((input) => Object.assign(input, {
       eventStreamMarshaller: input.eventStreamSerdeProvider(input)
     }), "resolveEventStreamSerdeConfig");
   }
 });
+
+// ../node_modules/@smithy/eventstream-serde-config-resolver/dist-es/index.js
 var init_dist_es37 = __esm({
   "../node_modules/@smithy/eventstream-serde-config-resolver/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_EventStreamSerdeConfig();
   }
 });
+
+// ../node_modules/@smithy/middleware-content-length/dist-es/index.js
 function contentLengthMiddleware(bodyLengthChecker) {
   return (next) => async (args) => {
     const request = args.request;
@@ -12219,41 +12626,35 @@ function contentLengthMiddleware(bodyLengthChecker) {
     });
   };
 }
-__name(contentLengthMiddleware, "contentLengthMiddleware");
-var CONTENT_LENGTH_HEADER2;
-var contentLengthMiddlewareOptions;
-var getContentLengthPlugin;
+var CONTENT_LENGTH_HEADER2, contentLengthMiddlewareOptions, getContentLengthPlugin;
 var init_dist_es38 = __esm({
   "../node_modules/@smithy/middleware-content-length/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     CONTENT_LENGTH_HEADER2 = "content-length";
-    __name2(contentLengthMiddleware, "contentLengthMiddleware");
+    __name(contentLengthMiddleware, "contentLengthMiddleware");
     contentLengthMiddlewareOptions = {
       step: "build",
       tags: ["SET_CONTENT_LENGTH", "CONTENT_LENGTH"],
       name: "contentLengthMiddleware",
       override: true
     };
-    getContentLengthPlugin = /* @__PURE__ */ __name2((options) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getContentLengthPlugin = /* @__PURE__ */ __name((options) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(contentLengthMiddleware(options.bodyLengthChecker), contentLengthMiddlewareOptions);
       }, "applyToStack")
     }), "getContentLengthPlugin");
   }
 });
-var resolveParamsForS3;
-var DOMAIN_PATTERN;
-var IP_ADDRESS_PATTERN;
-var DOTS_PATTERN;
-var isDnsCompatibleBucketName;
-var isArnBucketName;
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/service-customizations/s3.js
+var resolveParamsForS3, DOMAIN_PATTERN, IP_ADDRESS_PATTERN, DOTS_PATTERN, isDnsCompatibleBucketName, isArnBucketName;
 var init_s3 = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/service-customizations/s3.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    resolveParamsForS3 = /* @__PURE__ */ __name2(async (endpointParams) => {
+    resolveParamsForS3 = /* @__PURE__ */ __name(async (endpointParams) => {
       const bucket = endpointParams?.Bucket || "";
       if (typeof endpointParams.Bucket === "string") {
         endpointParams.Bucket = bucket.replace(/#/g, encodeURIComponent("#")).replace(/\?/g, encodeURIComponent("?"));
@@ -12274,8 +12675,8 @@ var init_s3 = __esm({
     DOMAIN_PATTERN = /^[a-z0-9][a-z0-9\.\-]{1,61}[a-z0-9]$/;
     IP_ADDRESS_PATTERN = /(\d+\.){3}\d+/;
     DOTS_PATTERN = /\.\./;
-    isDnsCompatibleBucketName = /* @__PURE__ */ __name2((bucketName) => DOMAIN_PATTERN.test(bucketName) && !IP_ADDRESS_PATTERN.test(bucketName) && !DOTS_PATTERN.test(bucketName), "isDnsCompatibleBucketName");
-    isArnBucketName = /* @__PURE__ */ __name2((bucketName) => {
+    isDnsCompatibleBucketName = /* @__PURE__ */ __name((bucketName) => DOMAIN_PATTERN.test(bucketName) && !IP_ADDRESS_PATTERN.test(bucketName) && !DOTS_PATTERN.test(bucketName), "isDnsCompatibleBucketName");
+    isArnBucketName = /* @__PURE__ */ __name((bucketName) => {
       const [arn, partition2, service, , , bucket] = bucketName.split(":");
       const isArn = arn === "arn" && bucketName.split(":").length >= 6;
       const isValidArn = Boolean(isArn && partition2 && service && bucket);
@@ -12286,20 +12687,24 @@ var init_s3 = __esm({
     }, "isArnBucketName");
   }
 });
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/service-customizations/index.js
 var init_service_customizations = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/service-customizations/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_s3();
   }
 });
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/adaptors/createConfigValueProvider.js
 var createConfigValueProvider;
 var init_createConfigValueProvider = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/adaptors/createConfigValueProvider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    createConfigValueProvider = /* @__PURE__ */ __name2((configKey, canonicalEndpointParamKey, config, isClientContextParam = false) => {
-      const configProvider = /* @__PURE__ */ __name2(async () => {
+    createConfigValueProvider = /* @__PURE__ */ __name((configKey, canonicalEndpointParamKey, config, isClientContextParam = false) => {
+      const configProvider = /* @__PURE__ */ __name(async () => {
         let configValue;
         if (isClientContextParam) {
           const clientContextParams = config.clientContextParams;
@@ -12349,21 +12754,25 @@ var init_createConfigValueProvider = __esm({
     }, "createConfigValueProvider");
   }
 });
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/adaptors/getEndpointFromConfig.browser.js
 var getEndpointFromConfig;
 var init_getEndpointFromConfig_browser = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/adaptors/getEndpointFromConfig.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    getEndpointFromConfig = /* @__PURE__ */ __name2(async (serviceId) => void 0, "getEndpointFromConfig");
+    getEndpointFromConfig = /* @__PURE__ */ __name(async (serviceId) => void 0, "getEndpointFromConfig");
   }
 });
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/adaptors/toEndpointV1.js
 var toEndpointV1;
 var init_toEndpointV1 = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/adaptors/toEndpointV1.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es33();
-    toEndpointV1 = /* @__PURE__ */ __name2((endpoint) => {
+    toEndpointV1 = /* @__PURE__ */ __name((endpoint) => {
       if (typeof endpoint === "object") {
         if ("url" in endpoint) {
           return parseUrl(endpoint.url);
@@ -12374,17 +12783,18 @@ var init_toEndpointV1 = __esm({
     }, "toEndpointV1");
   }
 });
-var getEndpointFromInstructions;
-var resolveParams;
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/adaptors/getEndpointFromInstructions.js
+var getEndpointFromInstructions, resolveParams;
 var init_getEndpointFromInstructions = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/adaptors/getEndpointFromInstructions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_service_customizations();
     init_createConfigValueProvider();
     init_getEndpointFromConfig_browser();
     init_toEndpointV1();
-    getEndpointFromInstructions = /* @__PURE__ */ __name2(async (commandInput, instructionsSupplier, clientConfig, context) => {
+    getEndpointFromInstructions = /* @__PURE__ */ __name(async (commandInput, instructionsSupplier, clientConfig, context) => {
       if (!clientConfig.isCustomEndpoint) {
         let endpointFromConfig;
         if (clientConfig.serviceConfiguredEndpoint) {
@@ -12404,7 +12814,7 @@ var init_getEndpointFromInstructions = __esm({
       const endpoint = clientConfig.endpointProvider(endpointParams, context);
       return endpoint;
     }, "getEndpointFromInstructions");
-    resolveParams = /* @__PURE__ */ __name2(async (commandInput, instructionsSupplier, clientConfig) => {
+    resolveParams = /* @__PURE__ */ __name(async (commandInput, instructionsSupplier, clientConfig) => {
       const endpointParams = {};
       const instructions = instructionsSupplier?.getEndpointParameterInstructions?.() || {};
       for (const [name, instruction] of Object.entries(instructions)) {
@@ -12436,23 +12846,27 @@ var init_getEndpointFromInstructions = __esm({
     }, "resolveParams");
   }
 });
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/adaptors/index.js
 var init_adaptors = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/adaptors/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_getEndpointFromInstructions();
     init_toEndpointV1();
   }
 });
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/endpointMiddleware.js
 var endpointMiddleware;
 var init_endpointMiddleware = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/endpointMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es14();
     init_dist_es4();
     init_getEndpointFromInstructions();
-    endpointMiddleware = /* @__PURE__ */ __name2(({ config, instructions }) => {
+    endpointMiddleware = /* @__PURE__ */ __name(({ config, instructions }) => {
       return (next, context) => async (args) => {
         if (config.isCustomEndpoint) {
           setFeature2(context, "ENDPOINT_OVERRIDE", "N");
@@ -12487,11 +12901,12 @@ var init_endpointMiddleware = __esm({
     }, "endpointMiddleware");
   }
 });
-var endpointMiddlewareOptions;
-var getEndpointPlugin;
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/getEndpointPlugin.js
+var endpointMiddlewareOptions, getEndpointPlugin;
 var init_getEndpointPlugin = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/getEndpointPlugin.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es5();
     init_endpointMiddleware();
@@ -12503,8 +12918,8 @@ var init_getEndpointPlugin = __esm({
       relation: "before",
       toMiddleware: serializerMiddlewareOption.name
     };
-    getEndpointPlugin = /* @__PURE__ */ __name2((config, instructions) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getEndpointPlugin = /* @__PURE__ */ __name((config, instructions) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.addRelativeTo(endpointMiddleware({
           config,
           instructions
@@ -12513,15 +12928,17 @@ var init_getEndpointPlugin = __esm({
     }), "getEndpointPlugin");
   }
 });
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/resolveEndpointConfig.js
 var resolveEndpointConfig;
 var init_resolveEndpointConfig = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/resolveEndpointConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es4();
     init_getEndpointFromConfig_browser();
     init_toEndpointV1();
-    resolveEndpointConfig = /* @__PURE__ */ __name2((input) => {
+    resolveEndpointConfig = /* @__PURE__ */ __name((input) => {
       const tls = input.tls ?? true;
       const { endpoint, useDualstackEndpoint, useFipsEndpoint } = input;
       const customEndpointProvider = endpoint != null ? async () => toEndpointV1(await normalizeProvider(endpoint)()) : void 0;
@@ -12544,21 +12961,27 @@ var init_resolveEndpointConfig = __esm({
     }, "resolveEndpointConfig");
   }
 });
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/resolveEndpointRequiredConfig.js
 var init_resolveEndpointRequiredConfig = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/resolveEndpointRequiredConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/types.js
 var init_types5 = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/types.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/middleware-endpoint/dist-es/index.js
 var init_dist_es39 = __esm({
   "../node_modules/@smithy/middleware-endpoint/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_adaptors();
     init_endpointMiddleware();
@@ -12568,12 +12991,12 @@ var init_dist_es39 = __esm({
     init_types5();
   }
 });
-var RETRY_MODES;
-var DEFAULT_MAX_ATTEMPTS;
-var DEFAULT_RETRY_MODE;
+
+// ../node_modules/@smithy/util-retry/dist-es/config.js
+var RETRY_MODES, DEFAULT_MAX_ATTEMPTS, DEFAULT_RETRY_MODE;
 var init_config3 = __esm({
   "../node_modules/@smithy/util-retry/dist-es/config.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     (function(RETRY_MODES2) {
       RETRY_MODES2["STANDARD"] = "standard";
@@ -12583,14 +13006,12 @@ var init_config3 = __esm({
     DEFAULT_RETRY_MODE = RETRY_MODES.STANDARD;
   }
 });
-var THROTTLING_ERROR_CODES;
-var TRANSIENT_ERROR_CODES;
-var TRANSIENT_ERROR_STATUS_CODES;
-var NODEJS_TIMEOUT_ERROR_CODES;
-var NODEJS_NETWORK_ERROR_CODES;
+
+// ../node_modules/@smithy/service-error-classification/dist-es/constants.js
+var THROTTLING_ERROR_CODES, TRANSIENT_ERROR_CODES, TRANSIENT_ERROR_STATUS_CODES, NODEJS_TIMEOUT_ERROR_CODES, NODEJS_NETWORK_ERROR_CODES;
 var init_constants7 = __esm({
   "../node_modules/@smithy/service-error-classification/dist-es/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     THROTTLING_ERROR_CODES = [
       "BandwidthLimitExceeded",
@@ -12614,20 +13035,17 @@ var init_constants7 = __esm({
     NODEJS_NETWORK_ERROR_CODES = ["EHOSTUNREACH", "ENETUNREACH", "ENOTFOUND"];
   }
 });
-var isRetryableByTrait;
-var isClockSkewCorrectedError;
-var isBrowserNetworkError;
-var isThrottlingError;
-var isTransientError;
-var isServerError;
+
+// ../node_modules/@smithy/service-error-classification/dist-es/index.js
+var isRetryableByTrait, isClockSkewCorrectedError, isBrowserNetworkError, isThrottlingError, isTransientError, isServerError;
 var init_dist_es40 = __esm({
   "../node_modules/@smithy/service-error-classification/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_constants7();
-    isRetryableByTrait = /* @__PURE__ */ __name2((error) => error?.$retryable !== void 0, "isRetryableByTrait");
-    isClockSkewCorrectedError = /* @__PURE__ */ __name2((error) => error.$metadata?.clockSkewCorrected, "isClockSkewCorrectedError");
-    isBrowserNetworkError = /* @__PURE__ */ __name2((error) => {
+    isRetryableByTrait = /* @__PURE__ */ __name((error) => error?.$retryable !== void 0, "isRetryableByTrait");
+    isClockSkewCorrectedError = /* @__PURE__ */ __name((error) => error.$metadata?.clockSkewCorrected, "isClockSkewCorrectedError");
+    isBrowserNetworkError = /* @__PURE__ */ __name((error) => {
       const errorMessages = /* @__PURE__ */ new Set([
         "Failed to fetch",
         "NetworkError when attempting to fetch resource",
@@ -12641,9 +13059,9 @@ var init_dist_es40 = __esm({
       }
       return errorMessages.has(error.message);
     }, "isBrowserNetworkError");
-    isThrottlingError = /* @__PURE__ */ __name2((error) => error.$metadata?.httpStatusCode === 429 || THROTTLING_ERROR_CODES.includes(error.name) || error.$retryable?.throttling == true, "isThrottlingError");
-    isTransientError = /* @__PURE__ */ __name2((error, depth = 0) => isRetryableByTrait(error) || isClockSkewCorrectedError(error) || TRANSIENT_ERROR_CODES.includes(error.name) || NODEJS_TIMEOUT_ERROR_CODES.includes(error?.code || "") || NODEJS_NETWORK_ERROR_CODES.includes(error?.code || "") || TRANSIENT_ERROR_STATUS_CODES.includes(error.$metadata?.httpStatusCode || 0) || isBrowserNetworkError(error) || error.cause !== void 0 && depth <= 10 && isTransientError(error.cause, depth + 1), "isTransientError");
-    isServerError = /* @__PURE__ */ __name2((error) => {
+    isThrottlingError = /* @__PURE__ */ __name((error) => error.$metadata?.httpStatusCode === 429 || THROTTLING_ERROR_CODES.includes(error.name) || error.$retryable?.throttling == true, "isThrottlingError");
+    isTransientError = /* @__PURE__ */ __name((error, depth = 0) => isRetryableByTrait(error) || isClockSkewCorrectedError(error) || TRANSIENT_ERROR_CODES.includes(error.name) || NODEJS_TIMEOUT_ERROR_CODES.includes(error?.code || "") || NODEJS_NETWORK_ERROR_CODES.includes(error?.code || "") || TRANSIENT_ERROR_STATUS_CODES.includes(error.$metadata?.httpStatusCode || 0) || isBrowserNetworkError(error) || error.cause !== void 0 && depth <= 10 && isTransientError(error.cause, depth + 1), "isTransientError");
+    isServerError = /* @__PURE__ */ __name((error) => {
       if (error.$metadata?.httpStatusCode !== void 0) {
         const statusCode = error.$metadata.httpStatusCode;
         if (500 <= statusCode && statusCode <= 599 && !isTransientError(error)) {
@@ -12655,18 +13073,17 @@ var init_dist_es40 = __esm({
     }, "isServerError");
   }
 });
+
+// ../node_modules/@smithy/util-retry/dist-es/DefaultRateLimiter.js
 var DefaultRateLimiter;
 var init_DefaultRateLimiter = __esm({
   "../node_modules/@smithy/util-retry/dist-es/DefaultRateLimiter.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es40();
     DefaultRateLimiter = class _DefaultRateLimiter {
       static {
-        __name(this, "_DefaultRateLimiter");
-      }
-      static {
-        __name2(this, "DefaultRateLimiter");
+        __name(this, "DefaultRateLimiter");
       }
       static setTimeoutFn = setTimeout;
       beta;
@@ -12776,18 +13193,12 @@ var init_DefaultRateLimiter = __esm({
     };
   }
 });
-var DEFAULT_RETRY_DELAY_BASE;
-var MAXIMUM_RETRY_DELAY;
-var THROTTLING_RETRY_DELAY_BASE;
-var INITIAL_RETRY_TOKENS;
-var RETRY_COST;
-var TIMEOUT_RETRY_COST;
-var NO_RETRY_INCREMENT;
-var INVOCATION_ID_HEADER;
-var REQUEST_HEADER;
+
+// ../node_modules/@smithy/util-retry/dist-es/constants.js
+var DEFAULT_RETRY_DELAY_BASE, MAXIMUM_RETRY_DELAY, THROTTLING_RETRY_DELAY_BASE, INITIAL_RETRY_TOKENS, RETRY_COST, TIMEOUT_RETRY_COST, NO_RETRY_INCREMENT, INVOCATION_ID_HEADER, REQUEST_HEADER;
 var init_constants8 = __esm({
   "../node_modules/@smithy/util-retry/dist-es/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     DEFAULT_RETRY_DELAY_BASE = 100;
     MAXIMUM_RETRY_DELAY = 20 * 1e3;
@@ -12800,18 +13211,20 @@ var init_constants8 = __esm({
     REQUEST_HEADER = "amz-sdk-request";
   }
 });
+
+// ../node_modules/@smithy/util-retry/dist-es/defaultRetryBackoffStrategy.js
 var getDefaultRetryBackoffStrategy;
 var init_defaultRetryBackoffStrategy = __esm({
   "../node_modules/@smithy/util-retry/dist-es/defaultRetryBackoffStrategy.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_constants8();
-    getDefaultRetryBackoffStrategy = /* @__PURE__ */ __name2(() => {
+    getDefaultRetryBackoffStrategy = /* @__PURE__ */ __name(() => {
       let delayBase = DEFAULT_RETRY_DELAY_BASE;
-      const computeNextBackoffDelay = /* @__PURE__ */ __name2((attempts) => {
+      const computeNextBackoffDelay = /* @__PURE__ */ __name((attempts) => {
         return Math.floor(Math.min(MAXIMUM_RETRY_DELAY, Math.random() * 2 ** attempts * delayBase));
       }, "computeNextBackoffDelay");
-      const setDelayBase = /* @__PURE__ */ __name2((delay) => {
+      const setDelayBase = /* @__PURE__ */ __name((delay) => {
         delayBase = delay;
       }, "setDelayBase");
       return {
@@ -12821,16 +13234,18 @@ var init_defaultRetryBackoffStrategy = __esm({
     }, "getDefaultRetryBackoffStrategy");
   }
 });
+
+// ../node_modules/@smithy/util-retry/dist-es/defaultRetryToken.js
 var createDefaultRetryToken;
 var init_defaultRetryToken = __esm({
   "../node_modules/@smithy/util-retry/dist-es/defaultRetryToken.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_constants8();
-    createDefaultRetryToken = /* @__PURE__ */ __name2(({ retryDelay, retryCount, retryCost }) => {
-      const getRetryCount = /* @__PURE__ */ __name2(() => retryCount, "getRetryCount");
-      const getRetryDelay = /* @__PURE__ */ __name2(() => Math.min(MAXIMUM_RETRY_DELAY, retryDelay), "getRetryDelay");
-      const getRetryCost = /* @__PURE__ */ __name2(() => retryCost, "getRetryCost");
+    createDefaultRetryToken = /* @__PURE__ */ __name(({ retryDelay, retryCount, retryCost }) => {
+      const getRetryCount = /* @__PURE__ */ __name(() => retryCount, "getRetryCount");
+      const getRetryDelay = /* @__PURE__ */ __name(() => Math.min(MAXIMUM_RETRY_DELAY, retryDelay), "getRetryDelay");
+      const getRetryCost = /* @__PURE__ */ __name(() => retryCost, "getRetryCost");
       return {
         getRetryCount,
         getRetryDelay,
@@ -12839,10 +13254,12 @@ var init_defaultRetryToken = __esm({
     }, "createDefaultRetryToken");
   }
 });
+
+// ../node_modules/@smithy/util-retry/dist-es/StandardRetryStrategy.js
 var StandardRetryStrategy;
 var init_StandardRetryStrategy = __esm({
   "../node_modules/@smithy/util-retry/dist-es/StandardRetryStrategy.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_config3();
     init_constants8();
@@ -12851,9 +13268,6 @@ var init_StandardRetryStrategy = __esm({
     StandardRetryStrategy = class {
       static {
         __name(this, "StandardRetryStrategy");
-      }
-      static {
-        __name2(this, "StandardRetryStrategy");
       }
       maxAttempts;
       mode = RETRY_MODES.STANDARD;
@@ -12914,10 +13328,12 @@ var init_StandardRetryStrategy = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/util-retry/dist-es/AdaptiveRetryStrategy.js
 var AdaptiveRetryStrategy;
 var init_AdaptiveRetryStrategy = __esm({
   "../node_modules/@smithy/util-retry/dist-es/AdaptiveRetryStrategy.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_config3();
     init_DefaultRateLimiter();
@@ -12925,9 +13341,6 @@ var init_AdaptiveRetryStrategy = __esm({
     AdaptiveRetryStrategy = class {
       static {
         __name(this, "AdaptiveRetryStrategy");
-      }
-      static {
-        __name2(this, "AdaptiveRetryStrategy");
       }
       maxAttemptsProvider;
       rateLimiter;
@@ -12954,21 +13367,27 @@ var init_AdaptiveRetryStrategy = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/util-retry/dist-es/ConfiguredRetryStrategy.js
 var init_ConfiguredRetryStrategy = __esm({
   "../node_modules/@smithy/util-retry/dist-es/ConfiguredRetryStrategy.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/util-retry/dist-es/types.js
 var init_types6 = __esm({
   "../node_modules/@smithy/util-retry/dist-es/types.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/util-retry/dist-es/index.js
 var init_dist_es41 = __esm({
   "../node_modules/@smithy/util-retry/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_AdaptiveRetryStrategy();
     init_ConfiguredRetryStrategy();
@@ -12979,24 +13398,30 @@ var init_dist_es41 = __esm({
     init_types6();
   }
 });
+
+// ../node_modules/@smithy/middleware-retry/dist-es/delayDecider.js
 var init_delayDecider = __esm({
   "../node_modules/@smithy/middleware-retry/dist-es/delayDecider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/middleware-retry/dist-es/retryDecider.js
 var init_retryDecider = __esm({
   "../node_modules/@smithy/middleware-retry/dist-es/retryDecider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/middleware-retry/dist-es/util.js
 var asSdkError;
 var init_util2 = __esm({
   "../node_modules/@smithy/middleware-retry/dist-es/util.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    asSdkError = /* @__PURE__ */ __name2((error) => {
+    asSdkError = /* @__PURE__ */ __name((error) => {
       if (error instanceof Error)
         return error;
       if (error instanceof Object)
@@ -13007,31 +13432,37 @@ var init_util2 = __esm({
     }, "asSdkError");
   }
 });
+
+// ../node_modules/@smithy/middleware-retry/dist-es/StandardRetryStrategy.js
 var init_StandardRetryStrategy2 = __esm({
   "../node_modules/@smithy/middleware-retry/dist-es/StandardRetryStrategy.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/middleware-retry/dist-es/AdaptiveRetryStrategy.js
 var init_AdaptiveRetryStrategy2 = __esm({
   "../node_modules/@smithy/middleware-retry/dist-es/AdaptiveRetryStrategy.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/middleware-retry/dist-es/configurations.js
 var resolveRetryConfig;
 var init_configurations2 = __esm({
   "../node_modules/@smithy/middleware-retry/dist-es/configurations.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es4();
     init_dist_es41();
-    resolveRetryConfig = /* @__PURE__ */ __name2((input) => {
+    resolveRetryConfig = /* @__PURE__ */ __name((input) => {
       const { retryStrategy, retryMode: _retryMode, maxAttempts: _maxAttempts } = input;
       const maxAttempts = normalizeProvider(_maxAttempts ?? DEFAULT_MAX_ATTEMPTS);
       return Object.assign(input, {
         maxAttempts,
-        retryStrategy: /* @__PURE__ */ __name2(async () => {
+        retryStrategy: /* @__PURE__ */ __name(async () => {
           if (retryStrategy) {
             return retryStrategy;
           }
@@ -13045,30 +13476,30 @@ var init_configurations2 = __esm({
     }, "resolveRetryConfig");
   }
 });
+
+// ../node_modules/@smithy/middleware-retry/dist-es/omitRetryHeadersMiddleware.js
 var init_omitRetryHeadersMiddleware = __esm({
   "../node_modules/@smithy/middleware-retry/dist-es/omitRetryHeadersMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/middleware-retry/dist-es/isStreamingPayload/isStreamingPayload.browser.js
 var isStreamingPayload;
 var init_isStreamingPayload_browser = __esm({
   "../node_modules/@smithy/middleware-retry/dist-es/isStreamingPayload/isStreamingPayload.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    isStreamingPayload = /* @__PURE__ */ __name2((request) => request?.body instanceof ReadableStream, "isStreamingPayload");
+    isStreamingPayload = /* @__PURE__ */ __name((request) => request?.body instanceof ReadableStream, "isStreamingPayload");
   }
 });
-var retryMiddleware;
-var isRetryStrategyV2;
-var getRetryErrorInfo;
-var getRetryErrorType;
-var retryMiddlewareOptions;
-var getRetryPlugin;
-var getRetryAfterHint;
+
+// ../node_modules/@smithy/middleware-retry/dist-es/retryMiddleware.js
+var retryMiddleware, isRetryStrategyV2, getRetryErrorInfo, getRetryErrorType, retryMiddlewareOptions, getRetryPlugin, getRetryAfterHint;
 var init_retryMiddleware = __esm({
   "../node_modules/@smithy/middleware-retry/dist-es/retryMiddleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es2();
     init_dist_es40();
@@ -13077,7 +13508,7 @@ var init_retryMiddleware = __esm({
     init_dist_es13();
     init_isStreamingPayload_browser();
     init_util2();
-    retryMiddleware = /* @__PURE__ */ __name2((options) => (next, context) => async (args) => {
+    retryMiddleware = /* @__PURE__ */ __name((options) => (next, context) => async (args) => {
       let retryStrategy = await options.retryStrategy();
       const maxAttempts = await options.maxAttempts();
       if (isRetryStrategyV2(retryStrategy)) {
@@ -13131,8 +13562,8 @@ var init_retryMiddleware = __esm({
         return retryStrategy.retry(next, args);
       }
     }, "retryMiddleware");
-    isRetryStrategyV2 = /* @__PURE__ */ __name2((retryStrategy) => typeof retryStrategy.acquireInitialRetryToken !== "undefined" && typeof retryStrategy.refreshRetryTokenForRetry !== "undefined" && typeof retryStrategy.recordSuccess !== "undefined", "isRetryStrategyV2");
-    getRetryErrorInfo = /* @__PURE__ */ __name2((error) => {
+    isRetryStrategyV2 = /* @__PURE__ */ __name((retryStrategy) => typeof retryStrategy.acquireInitialRetryToken !== "undefined" && typeof retryStrategy.refreshRetryTokenForRetry !== "undefined" && typeof retryStrategy.recordSuccess !== "undefined", "isRetryStrategyV2");
+    getRetryErrorInfo = /* @__PURE__ */ __name((error) => {
       const errorInfo = {
         error,
         errorType: getRetryErrorType(error)
@@ -13143,7 +13574,7 @@ var init_retryMiddleware = __esm({
       }
       return errorInfo;
     }, "getRetryErrorInfo");
-    getRetryErrorType = /* @__PURE__ */ __name2((error) => {
+    getRetryErrorType = /* @__PURE__ */ __name((error) => {
       if (isThrottlingError(error))
         return "THROTTLING";
       if (isTransientError(error))
@@ -13159,12 +13590,12 @@ var init_retryMiddleware = __esm({
       priority: "high",
       override: true
     };
-    getRetryPlugin = /* @__PURE__ */ __name2((options) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getRetryPlugin = /* @__PURE__ */ __name((options) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(retryMiddleware(options), retryMiddlewareOptions);
       }, "applyToStack")
     }), "getRetryPlugin");
-    getRetryAfterHint = /* @__PURE__ */ __name2((response) => {
+    getRetryAfterHint = /* @__PURE__ */ __name((response) => {
       if (!HttpResponse.isInstance(response))
         return;
       const retryAfterHeaderName = Object.keys(response.headers).find((key) => key.toLowerCase() === "retry-after");
@@ -13179,9 +13610,11 @@ var init_retryMiddleware = __esm({
     }, "getRetryAfterHint");
   }
 });
+
+// ../node_modules/@smithy/middleware-retry/dist-es/index.js
 var init_dist_es42 = __esm({
   "../node_modules/@smithy/middleware-retry/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_AdaptiveRetryStrategy2();
     init_StandardRetryStrategy2();
@@ -13192,40 +13625,51 @@ var init_dist_es42 = __esm({
     init_retryMiddleware();
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/check-content-length-header.js
 var init_check_content_length_header2 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/check-content-length-header.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/region-redirect-endpoint-middleware.js
 var init_region_redirect_endpoint_middleware2 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/region-redirect-endpoint-middleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/region-redirect-middleware.js
 var init_region_redirect_middleware2 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/region-redirect-middleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-expires-middleware.js
 var init_s3_expires_middleware2 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-expires-middleware.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
-var SESSION_TOKEN_QUERY_PARAM2;
-var SESSION_TOKEN_HEADER2;
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/constants.js
+var SESSION_TOKEN_QUERY_PARAM2, SESSION_TOKEN_HEADER2;
 var init_constants9 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     SESSION_TOKEN_QUERY_PARAM2 = "X-Amz-S3session-Token";
     SESSION_TOKEN_HEADER2 = SESSION_TOKEN_QUERY_PARAM2.toLowerCase();
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/classes/SignatureV4S3Express.js
 function getCredentialsWithoutSessionToken(credentials) {
   const credentialsWithoutSessionToken = {
     accessKeyId: credentials.accessKeyId,
@@ -13234,33 +13678,28 @@ function getCredentialsWithoutSessionToken(credentials) {
   };
   return credentialsWithoutSessionToken;
 }
-__name(getCredentialsWithoutSessionToken, "getCredentialsWithoutSessionToken");
 function setSingleOverride(privateAccess, credentialsWithoutSessionToken) {
   const id = setTimeout(() => {
     throw new Error("SignatureV4S3Express credential override was created but not called.");
   }, 10);
   const currentCredentialProvider = privateAccess.credentialProvider;
-  const overrideCredentialsProviderOnce = /* @__PURE__ */ __name2(() => {
+  const overrideCredentialsProviderOnce = /* @__PURE__ */ __name(() => {
     clearTimeout(id);
     privateAccess.credentialProvider = currentCredentialProvider;
     return Promise.resolve(credentialsWithoutSessionToken);
   }, "overrideCredentialsProviderOnce");
   privateAccess.credentialProvider = overrideCredentialsProviderOnce;
 }
-__name(setSingleOverride, "setSingleOverride");
 var SignatureV4S3Express;
 var init_SignatureV4S3Express = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/classes/SignatureV4S3Express.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es17();
     init_constants9();
     SignatureV4S3Express = class extends SignatureV4 {
       static {
         __name(this, "SignatureV4S3Express");
-      }
-      static {
-        __name2(this, "SignatureV4S3Express");
       }
       async signWithCredentials(requestToSign, credentials, options) {
         const credentialsWithoutSessionToken = getCredentialsWithoutSessionToken(credentials);
@@ -13280,38 +13719,48 @@ var init_SignatureV4S3Express = __esm({
         return this.presign(requestToSign, options);
       }
     };
-    __name2(getCredentialsWithoutSessionToken, "getCredentialsWithoutSessionToken");
-    __name2(setSingleOverride, "setSingleOverride");
+    __name(getCredentialsWithoutSessionToken, "getCredentialsWithoutSessionToken");
+    __name(setSingleOverride, "setSingleOverride");
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/index.js
 var init_s3_express2 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3-express/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_SignatureV4S3Express();
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3Configuration.js
 var init_s3Configuration2 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/s3Configuration.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/throw-200-exceptions.js
 var init_throw_200_exceptions2 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/throw-200-exceptions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/validate-bucket-name.js
 var init_validate_bucket_name2 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/validate-bucket-name.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/index.js
 var init_dist_es43 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/node_modules/@aws-sdk/middleware-sdk-s3/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_check_content_length_header2();
     init_region_redirect_endpoint_middleware2();
@@ -13323,20 +13772,24 @@ var init_dist_es43 = __esm({
     init_validate_bucket_name2();
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/dist-es/signature-v4-crt-container.js
 var signatureV4CrtContainer;
 var init_signature_v4_crt_container = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/dist-es/signature-v4-crt-container.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     signatureV4CrtContainer = {
       CrtSignerV4: null
     };
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/dist-es/SignatureV4MultiRegion.js
 var SignatureV4MultiRegion;
 var init_SignatureV4MultiRegion = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/dist-es/SignatureV4MultiRegion.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es43();
     init_dist_es17();
@@ -13344,9 +13797,6 @@ var init_SignatureV4MultiRegion = __esm({
     SignatureV4MultiRegion = class {
       static {
         __name(this, "SignatureV4MultiRegion");
-      }
-      static {
-        __name2(this, "SignatureV4MultiRegion");
       }
       sigv4aSigner;
       sigv4Signer;
@@ -13433,210 +13883,22 @@ var init_SignatureV4MultiRegion = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/signature-v4-multi-region/dist-es/index.js
 var init_dist_es44 = __esm({
   "../node_modules/@aws-sdk/signature-v4-multi-region/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_SignatureV4MultiRegion();
     init_signature_v4_crt_container();
   }
 });
-var cs;
-var ct;
-var cu;
-var cv;
-var cw;
-var cx;
-var cy;
-var cz;
-var cA;
-var cB;
-var cC;
-var cD;
-var cE;
-var cF;
-var cG;
-var cH;
-var cI;
-var a;
-var b;
-var c;
-var d;
-var e;
-var f;
-var g;
-var h;
-var i;
-var j;
-var k;
-var l;
-var m;
-var n;
-var o;
-var p;
-var q;
-var r;
-var s;
-var t;
-var u;
-var v;
-var w;
-var x;
-var y;
-var z;
-var A;
-var B;
-var C;
-var D;
-var E;
-var F;
-var G;
-var H;
-var I;
-var J;
-var K;
-var L;
-var M;
-var N;
-var O;
-var P;
-var Q;
-var R;
-var S;
-var T;
-var U;
-var V;
-var W;
-var X;
-var Y;
-var Z;
-var aa;
-var ab;
-var ac;
-var ad;
-var ae;
-var af;
-var ag;
-var ah;
-var ai;
-var aj;
-var ak;
-var al;
-var am;
-var an;
-var ao;
-var ap;
-var aq;
-var ar;
-var as;
-var at;
-var au;
-var av;
-var aw;
-var ax;
-var ay;
-var az;
-var aA;
-var aB;
-var aC;
-var aD;
-var aE;
-var aF;
-var aG;
-var aH;
-var aI;
-var aJ;
-var aK;
-var aL;
-var aM;
-var aN;
-var aO;
-var aP;
-var aQ;
-var aR;
-var aS;
-var aT;
-var aU;
-var aV;
-var aW;
-var aX;
-var aY;
-var aZ;
-var ba;
-var bb;
-var bc;
-var bd;
-var be;
-var bf;
-var bg;
-var bh;
-var bi;
-var bj;
-var bk;
-var bl;
-var bm;
-var bn;
-var bo;
-var bp;
-var bq;
-var br;
-var bs;
-var bt;
-var bu;
-var bv;
-var bw;
-var bx;
-var by;
-var bz;
-var bA;
-var bB;
-var bC;
-var bD;
-var bE;
-var bF;
-var bG;
-var bH;
-var bI;
-var bJ;
-var bK;
-var bL;
-var bM;
-var bN;
-var bO;
-var bP;
-var bQ;
-var bR;
-var bS;
-var bT;
-var bU;
-var bV;
-var bW;
-var bX;
-var bY;
-var bZ;
-var ca;
-var cb;
-var cc;
-var cd;
-var ce;
-var cf;
-var cg;
-var ch;
-var ci;
-var cj;
-var ck;
-var cl;
-var cm;
-var cn;
-var co;
-var cp;
-var cq;
-var cr;
-var _data;
-var ruleSet;
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/endpoint/ruleset.js
+var cs, ct, cu, cv, cw, cx, cy, cz, cA, cB, cC, cD, cE, cF, cG, cH, cI, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P, Q, R, S, T, U, V, W, X, Y, Z, aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, ap, aq, ar, as, at, au, av, aw, ax, ay, az, aA, aB, aC, aD, aE, aF, aG, aH, aI, aJ, aK, aL, aM, aN, aO, aP, aQ, aR, aS, aT, aU, aV, aW, aX, aY, aZ, ba, bb, bc, bd, be, bf, bg, bh, bi, bj, bk, bl, bm, bn, bo, bp, bq, br, bs, bt, bu, bv, bw, bx, by, bz, bA, bB, bC, bD, bE, bF, bG, bH, bI, bJ, bK, bL, bM, bN, bO, bP, bQ, bR, bS, bT, bU, bV, bW, bX, bY, bZ, ca, cb, cc, cd, ce, cf, cg, ch, ci, cj, ck, cl, cm, cn, co, cp, cq, cr, _data, ruleSet;
 var init_ruleset = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/endpoint/ruleset.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     cs = "required";
     ct = "type";
@@ -13833,11 +14095,12 @@ var init_ruleset = __esm({
     ruleSet = _data;
   }
 });
-var cache;
-var defaultEndpointResolver;
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/endpoint/endpointResolver.js
+var cache, defaultEndpointResolver;
 var init_endpointResolver = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/endpoint/endpointResolver.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es34();
     init_dist_es31();
@@ -13861,7 +14124,7 @@ var init_endpointResolver = __esm({
         "UseS3ExpressControlEndpoint"
       ]
     });
-    defaultEndpointResolver = /* @__PURE__ */ __name2((endpointParams, context = {}) => {
+    defaultEndpointResolver = /* @__PURE__ */ __name((endpointParams, context = {}) => {
       return cache.get(endpointParams, () => resolveEndpoint(ruleSet, {
         endpointParams,
         logger: context.logger
@@ -13870,6 +14133,8 @@ var init_endpointResolver = __esm({
     customEndpointFunctions.aws = awsEndpointFunctions;
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/auth/httpAuthSchemeProvider.js
 function createAwsAuthSigv4HttpAuthOption(authParameters) {
   return {
     schemeId: "aws.auth#sigv4",
@@ -13877,7 +14142,7 @@ function createAwsAuthSigv4HttpAuthOption(authParameters) {
       name: "s3",
       region: authParameters.region
     },
-    propertiesExtractor: /* @__PURE__ */ __name2((config, context) => ({
+    propertiesExtractor: /* @__PURE__ */ __name((config, context) => ({
       signingProperties: {
         config,
         context
@@ -13885,7 +14150,6 @@ function createAwsAuthSigv4HttpAuthOption(authParameters) {
     }), "propertiesExtractor")
   };
 }
-__name(createAwsAuthSigv4HttpAuthOption, "createAwsAuthSigv4HttpAuthOption");
 function createAwsAuthSigv4aHttpAuthOption(authParameters) {
   return {
     schemeId: "aws.auth#sigv4a",
@@ -13893,7 +14157,7 @@ function createAwsAuthSigv4aHttpAuthOption(authParameters) {
       name: "s3",
       region: authParameters.region
     },
-    propertiesExtractor: /* @__PURE__ */ __name2((config, context) => ({
+    propertiesExtractor: /* @__PURE__ */ __name((config, context) => ({
       signingProperties: {
         config,
         context
@@ -13901,24 +14165,17 @@ function createAwsAuthSigv4aHttpAuthOption(authParameters) {
     }), "propertiesExtractor")
   };
 }
-__name(createAwsAuthSigv4aHttpAuthOption, "createAwsAuthSigv4aHttpAuthOption");
-var createEndpointRuleSetHttpAuthSchemeParametersProvider;
-var _defaultS3HttpAuthSchemeParametersProvider;
-var defaultS3HttpAuthSchemeParametersProvider;
-var createEndpointRuleSetHttpAuthSchemeProvider;
-var _defaultS3HttpAuthSchemeProvider;
-var defaultS3HttpAuthSchemeProvider;
-var resolveHttpAuthSchemeConfig;
+var createEndpointRuleSetHttpAuthSchemeParametersProvider, _defaultS3HttpAuthSchemeParametersProvider, defaultS3HttpAuthSchemeParametersProvider, createEndpointRuleSetHttpAuthSchemeProvider, _defaultS3HttpAuthSchemeProvider, defaultS3HttpAuthSchemeProvider, resolveHttpAuthSchemeConfig;
 var init_httpAuthSchemeProvider = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/auth/httpAuthSchemeProvider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es22();
     init_dist_es44();
     init_dist_es39();
     init_dist_es4();
     init_endpointResolver();
-    createEndpointRuleSetHttpAuthSchemeParametersProvider = /* @__PURE__ */ __name2((defaultHttpAuthSchemeParametersProvider) => async (config, context, input) => {
+    createEndpointRuleSetHttpAuthSchemeParametersProvider = /* @__PURE__ */ __name((defaultHttpAuthSchemeParametersProvider) => async (config, context, input) => {
       if (!input) {
         throw new Error("Could not find `input` for `defaultEndpointRuleSetHttpAuthSchemeParametersProvider`");
       }
@@ -13930,7 +14187,7 @@ var init_httpAuthSchemeProvider = __esm({
       const endpointParameters = await resolveParams(input, { getEndpointParameterInstructions: instructionsFn }, config);
       return Object.assign(defaultParameters, endpointParameters);
     }, "createEndpointRuleSetHttpAuthSchemeParametersProvider");
-    _defaultS3HttpAuthSchemeParametersProvider = /* @__PURE__ */ __name2(async (config, context, input) => {
+    _defaultS3HttpAuthSchemeParametersProvider = /* @__PURE__ */ __name(async (config, context, input) => {
       return {
         operation: getSmithyContext(context).operation,
         region: await normalizeProvider(config.region)() || (() => {
@@ -13939,10 +14196,10 @@ var init_httpAuthSchemeProvider = __esm({
       };
     }, "_defaultS3HttpAuthSchemeParametersProvider");
     defaultS3HttpAuthSchemeParametersProvider = createEndpointRuleSetHttpAuthSchemeParametersProvider(_defaultS3HttpAuthSchemeParametersProvider);
-    __name2(createAwsAuthSigv4HttpAuthOption, "createAwsAuthSigv4HttpAuthOption");
-    __name2(createAwsAuthSigv4aHttpAuthOption, "createAwsAuthSigv4aHttpAuthOption");
-    createEndpointRuleSetHttpAuthSchemeProvider = /* @__PURE__ */ __name2((defaultEndpointResolver2, defaultHttpAuthSchemeResolver, createHttpAuthOptionFunctions) => {
-      const endpointRuleSetHttpAuthSchemeProvider = /* @__PURE__ */ __name2((authParameters) => {
+    __name(createAwsAuthSigv4HttpAuthOption, "createAwsAuthSigv4HttpAuthOption");
+    __name(createAwsAuthSigv4aHttpAuthOption, "createAwsAuthSigv4aHttpAuthOption");
+    createEndpointRuleSetHttpAuthSchemeProvider = /* @__PURE__ */ __name((defaultEndpointResolver2, defaultHttpAuthSchemeResolver, createHttpAuthOptionFunctions) => {
+      const endpointRuleSetHttpAuthSchemeProvider = /* @__PURE__ */ __name((authParameters) => {
         const endpoint = defaultEndpointResolver2(authParameters);
         const authSchemes = endpoint.properties?.authSchemes;
         if (!authSchemes) {
@@ -13983,7 +14240,7 @@ var init_httpAuthSchemeProvider = __esm({
       }, "endpointRuleSetHttpAuthSchemeProvider");
       return endpointRuleSetHttpAuthSchemeProvider;
     }, "createEndpointRuleSetHttpAuthSchemeProvider");
-    _defaultS3HttpAuthSchemeProvider = /* @__PURE__ */ __name2((authParameters) => {
+    _defaultS3HttpAuthSchemeProvider = /* @__PURE__ */ __name((authParameters) => {
       const options = [];
       switch (authParameters.operation) {
         default: {
@@ -13997,7 +14254,7 @@ var init_httpAuthSchemeProvider = __esm({
       "aws.auth#sigv4": createAwsAuthSigv4HttpAuthOption,
       "aws.auth#sigv4a": createAwsAuthSigv4aHttpAuthOption
     });
-    resolveHttpAuthSchemeConfig = /* @__PURE__ */ __name2((config) => {
+    resolveHttpAuthSchemeConfig = /* @__PURE__ */ __name((config) => {
       const config_0 = resolveAwsSdkSigV4Config(config);
       const config_1 = resolveAwsSdkSigV4AConfig(config_0);
       return Object.assign(config_1, {
@@ -14006,13 +14263,14 @@ var init_httpAuthSchemeProvider = __esm({
     }, "resolveHttpAuthSchemeConfig");
   }
 });
-var resolveClientEndpointParameters;
-var commonParams;
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/endpoint/EndpointParameters.js
+var resolveClientEndpointParameters, commonParams;
 var init_EndpointParameters = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/endpoint/EndpointParameters.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    resolveClientEndpointParameters = /* @__PURE__ */ __name2((options) => {
+    resolveClientEndpointParameters = /* @__PURE__ */ __name((options) => {
       return Object.assign(options, {
         useFipsEndpoint: options.useFipsEndpoint ?? false,
         useDualstackEndpoint: options.useDualstackEndpoint ?? false,
@@ -14038,18 +14296,17 @@ var init_EndpointParameters = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/models/S3ServiceException.js
 var S3ServiceException;
 var init_S3ServiceException = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/models/S3ServiceException.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es20();
     S3ServiceException = class _S3ServiceException extends ServiceException {
       static {
-        __name(this, "_S3ServiceException");
-      }
-      static {
-        __name2(this, "S3ServiceException");
+        __name(this, "S3ServiceException");
       }
       constructor(options) {
         super(options);
@@ -14058,31 +14315,17 @@ var init_S3ServiceException = __esm({
     };
   }
 });
-var NoSuchUpload;
-var ObjectNotInActiveTierError;
-var BucketAlreadyExists;
-var BucketAlreadyOwnedByYou;
-var NoSuchBucket;
-var InvalidObjectState;
-var NoSuchKey;
-var NotFound;
-var EncryptionTypeMismatch;
-var InvalidRequest;
-var InvalidWriteOffset;
-var TooManyParts;
-var IdempotencyParameterMismatch;
-var ObjectAlreadyInActiveTierError;
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/models/errors.js
+var NoSuchUpload, ObjectNotInActiveTierError, BucketAlreadyExists, BucketAlreadyOwnedByYou, NoSuchBucket, InvalidObjectState, NoSuchKey, NotFound, EncryptionTypeMismatch, InvalidRequest, InvalidWriteOffset, TooManyParts, IdempotencyParameterMismatch, ObjectAlreadyInActiveTierError;
 var init_errors = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/models/errors.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_S3ServiceException();
     NoSuchUpload = class _NoSuchUpload extends S3ServiceException {
       static {
-        __name(this, "_NoSuchUpload");
-      }
-      static {
-        __name2(this, "NoSuchUpload");
+        __name(this, "NoSuchUpload");
       }
       name = "NoSuchUpload";
       $fault = "client";
@@ -14097,10 +14340,7 @@ var init_errors = __esm({
     };
     ObjectNotInActiveTierError = class _ObjectNotInActiveTierError extends S3ServiceException {
       static {
-        __name(this, "_ObjectNotInActiveTierError");
-      }
-      static {
-        __name2(this, "ObjectNotInActiveTierError");
+        __name(this, "ObjectNotInActiveTierError");
       }
       name = "ObjectNotInActiveTierError";
       $fault = "client";
@@ -14115,10 +14355,7 @@ var init_errors = __esm({
     };
     BucketAlreadyExists = class _BucketAlreadyExists extends S3ServiceException {
       static {
-        __name(this, "_BucketAlreadyExists");
-      }
-      static {
-        __name2(this, "BucketAlreadyExists");
+        __name(this, "BucketAlreadyExists");
       }
       name = "BucketAlreadyExists";
       $fault = "client";
@@ -14133,10 +14370,7 @@ var init_errors = __esm({
     };
     BucketAlreadyOwnedByYou = class _BucketAlreadyOwnedByYou extends S3ServiceException {
       static {
-        __name(this, "_BucketAlreadyOwnedByYou");
-      }
-      static {
-        __name2(this, "BucketAlreadyOwnedByYou");
+        __name(this, "BucketAlreadyOwnedByYou");
       }
       name = "BucketAlreadyOwnedByYou";
       $fault = "client";
@@ -14151,10 +14385,7 @@ var init_errors = __esm({
     };
     NoSuchBucket = class _NoSuchBucket extends S3ServiceException {
       static {
-        __name(this, "_NoSuchBucket");
-      }
-      static {
-        __name2(this, "NoSuchBucket");
+        __name(this, "NoSuchBucket");
       }
       name = "NoSuchBucket";
       $fault = "client";
@@ -14169,10 +14400,7 @@ var init_errors = __esm({
     };
     InvalidObjectState = class _InvalidObjectState extends S3ServiceException {
       static {
-        __name(this, "_InvalidObjectState");
-      }
-      static {
-        __name2(this, "InvalidObjectState");
+        __name(this, "InvalidObjectState");
       }
       name = "InvalidObjectState";
       $fault = "client";
@@ -14191,10 +14419,7 @@ var init_errors = __esm({
     };
     NoSuchKey = class _NoSuchKey extends S3ServiceException {
       static {
-        __name(this, "_NoSuchKey");
-      }
-      static {
-        __name2(this, "NoSuchKey");
+        __name(this, "NoSuchKey");
       }
       name = "NoSuchKey";
       $fault = "client";
@@ -14209,10 +14434,7 @@ var init_errors = __esm({
     };
     NotFound = class _NotFound extends S3ServiceException {
       static {
-        __name(this, "_NotFound");
-      }
-      static {
-        __name2(this, "NotFound");
+        __name(this, "NotFound");
       }
       name = "NotFound";
       $fault = "client";
@@ -14227,10 +14449,7 @@ var init_errors = __esm({
     };
     EncryptionTypeMismatch = class _EncryptionTypeMismatch extends S3ServiceException {
       static {
-        __name(this, "_EncryptionTypeMismatch");
-      }
-      static {
-        __name2(this, "EncryptionTypeMismatch");
+        __name(this, "EncryptionTypeMismatch");
       }
       name = "EncryptionTypeMismatch";
       $fault = "client";
@@ -14245,10 +14464,7 @@ var init_errors = __esm({
     };
     InvalidRequest = class _InvalidRequest extends S3ServiceException {
       static {
-        __name(this, "_InvalidRequest");
-      }
-      static {
-        __name2(this, "InvalidRequest");
+        __name(this, "InvalidRequest");
       }
       name = "InvalidRequest";
       $fault = "client";
@@ -14263,10 +14479,7 @@ var init_errors = __esm({
     };
     InvalidWriteOffset = class _InvalidWriteOffset extends S3ServiceException {
       static {
-        __name(this, "_InvalidWriteOffset");
-      }
-      static {
-        __name2(this, "InvalidWriteOffset");
+        __name(this, "InvalidWriteOffset");
       }
       name = "InvalidWriteOffset";
       $fault = "client";
@@ -14281,10 +14494,7 @@ var init_errors = __esm({
     };
     TooManyParts = class _TooManyParts extends S3ServiceException {
       static {
-        __name(this, "_TooManyParts");
-      }
-      static {
-        __name2(this, "TooManyParts");
+        __name(this, "TooManyParts");
       }
       name = "TooManyParts";
       $fault = "client";
@@ -14299,10 +14509,7 @@ var init_errors = __esm({
     };
     IdempotencyParameterMismatch = class _IdempotencyParameterMismatch extends S3ServiceException {
       static {
-        __name(this, "_IdempotencyParameterMismatch");
-      }
-      static {
-        __name2(this, "IdempotencyParameterMismatch");
+        __name(this, "IdempotencyParameterMismatch");
       }
       name = "IdempotencyParameterMismatch";
       $fault = "client";
@@ -14317,10 +14524,7 @@ var init_errors = __esm({
     };
     ObjectAlreadyInActiveTierError = class _ObjectAlreadyInActiveTierError extends S3ServiceException {
       static {
-        __name(this, "_ObjectAlreadyInActiveTierError");
-      }
-      static {
-        __name2(this, "ObjectAlreadyInActiveTierError");
+        __name(this, "ObjectAlreadyInActiveTierError");
       }
       name = "ObjectAlreadyInActiveTierError";
       $fault = "client";
@@ -14335,1516 +14539,12 @@ var init_errors = __esm({
     };
   }
 });
-var _A;
-var _AAO;
-var _AC;
-var _ACL;
-var _ACL_;
-var _ACLn;
-var _ACP;
-var _ACT;
-var _ACn;
-var _AD;
-var _AED;
-var _AF;
-var _AH;
-var _AHl;
-var _AI;
-var _AIMU;
-var _AKI;
-var _AM;
-var _AMU;
-var _AMUO;
-var _AMUR;
-var _AMl;
-var _AO;
-var _AOl;
-var _APA;
-var _APAc;
-var _AQRD;
-var _AR;
-var _ARI;
-var _AS;
-var _ASBD;
-var _ASSEBD;
-var _ASr;
-var _AT;
-var _An;
-var _B;
-var _BA;
-var _BAE;
-var _BAI;
-var _BAOBY;
-var _BET;
-var _BGR;
-var _BI;
-var _BKE;
-var _BLC;
-var _BLN;
-var _BLS;
-var _BLT;
-var _BN;
-var _BP;
-var _BPA;
-var _BPP;
-var _BR;
-var _BRy;
-var _BS;
-var _Bo;
-var _Bu;
-var _C;
-var _CA;
-var _CACL;
-var _CB;
-var _CBC;
-var _CBMC;
-var _CBMCR;
-var _CBMTC;
-var _CBMTCR;
-var _CBO;
-var _CBR;
-var _CC;
-var _CCRC;
-var _CCRCC;
-var _CCRCNVME;
-var _CC_;
-var _CD;
-var _CD_;
-var _CDo;
-var _CE;
-var _CE_;
-var _CEo;
-var _CF;
-var _CFC;
-var _CL;
-var _CL_;
-var _CL__;
-var _CLo;
-var _CM;
-var _CMD;
-var _CMU;
-var _CMUO;
-var _CMUOr;
-var _CMUR;
-var _CMURo;
-var _CMURr;
-var _CMUo;
-var _CMUr;
-var _CMh;
-var _CO;
-var _COO;
-var _COR;
-var _CORSC;
-var _CORSR;
-var _CORSRu;
-var _CORo;
-var _CP;
-var _CPL;
-var _CPLo;
-var _CPR;
-var _CPo;
-var _CPom;
-var _CR;
-var _CRSBA;
-var _CR_;
-var _CS;
-var _CSHA;
-var _CSHAh;
-var _CSIM;
-var _CSIMS;
-var _CSINM;
-var _CSIUS;
-var _CSO;
-var _CSR;
-var _CSRo;
-var _CSRr;
-var _CSSSECA;
-var _CSSSECK;
-var _CSSSECKMD;
-var _CSV;
-var _CSVI;
-var _CSVIn;
-var _CSVO;
-var _CSo;
-var _CSr;
-var _CT;
-var _CT_;
-var _CTl;
-var _CTo;
-var _CTom;
-var _CTon;
-var _Co;
-var _Cod;
-var _Com;
-var _Con;
-var _Cont;
-var _Cr;
-var _D;
-var _DAI;
-var _DB;
-var _DBAC;
-var _DBACR;
-var _DBC;
-var _DBCR;
-var _DBE;
-var _DBER;
-var _DBIC;
-var _DBICR;
-var _DBITC;
-var _DBITCR;
-var _DBL;
-var _DBLR;
-var _DBMC;
-var _DBMCR;
-var _DBMCRe;
-var _DBMCe;
-var _DBMTC;
-var _DBMTCR;
-var _DBOC;
-var _DBOCR;
-var _DBP;
-var _DBPR;
-var _DBR;
-var _DBRR;
-var _DBRe;
-var _DBT;
-var _DBTR;
-var _DBW;
-var _DBWR;
-var _DE;
-var _DIM;
-var _DIMS;
-var _DINM;
-var _DIUS;
-var _DM;
-var _DME;
-var _DMR;
-var _DMVI;
-var _DMe;
-var _DN;
-var _DO;
-var _DOO;
-var _DOOe;
-var _DOR;
-var _DORe;
-var _DOT;
-var _DOTO;
-var _DOTR;
-var _DOe;
-var _DOel;
-var _DOele;
-var _DPAB;
-var _DPABR;
-var _DR;
-var _DRe;
-var _DRel;
-var _DRes;
-var _Da;
-var _De;
-var _Del;
-var _Deli;
-var _Des;
-var _Desc;
-var _Det;
-var _E;
-var _EA;
-var _EBC;
-var _EBO;
-var _EC;
-var _ECr;
-var _ED;
-var _EDr;
-var _EE;
-var _EH;
-var _EHx;
-var _EM;
-var _EODM;
-var _EOR;
-var _ES;
-var _ESBO;
-var _ET;
-var _ETL;
-var _ETM;
-var _ETa;
-var _ETn;
-var _ETv;
-var _ETx;
-var _En;
-var _Ena;
-var _End;
-var _Er;
-var _Err;
-var _Ev;
-var _Eve;
-var _Ex;
-var _Exp;
-var _F;
-var _FD;
-var _FHI;
-var _FO;
-var _FR;
-var _FRL;
-var _FRi;
-var _Fi;
-var _Fo;
-var _Fr;
-var _G;
-var _GBA;
-var _GBAC;
-var _GBACO;
-var _GBACOe;
-var _GBACR;
-var _GBACRe;
-var _GBACe;
-var _GBAO;
-var _GBAOe;
-var _GBAR;
-var _GBARe;
-var _GBAe;
-var _GBC;
-var _GBCO;
-var _GBCR;
-var _GBE;
-var _GBEO;
-var _GBER;
-var _GBIC;
-var _GBICO;
-var _GBICR;
-var _GBITC;
-var _GBITCO;
-var _GBITCR;
-var _GBL;
-var _GBLC;
-var _GBLCO;
-var _GBLCR;
-var _GBLO;
-var _GBLOe;
-var _GBLR;
-var _GBLRe;
-var _GBLe;
-var _GBMC;
-var _GBMCO;
-var _GBMCOe;
-var _GBMCR;
-var _GBMCRe;
-var _GBMCRet;
-var _GBMCe;
-var _GBMTC;
-var _GBMTCO;
-var _GBMTCR;
-var _GBMTCRe;
-var _GBNC;
-var _GBNCR;
-var _GBOC;
-var _GBOCO;
-var _GBOCR;
-var _GBP;
-var _GBPO;
-var _GBPR;
-var _GBPS;
-var _GBPSO;
-var _GBPSR;
-var _GBR;
-var _GBRO;
-var _GBRP;
-var _GBRPO;
-var _GBRPR;
-var _GBRR;
-var _GBT;
-var _GBTO;
-var _GBTR;
-var _GBV;
-var _GBVO;
-var _GBVR;
-var _GBW;
-var _GBWO;
-var _GBWR;
-var _GFC;
-var _GJP;
-var _GO;
-var _GOA;
-var _GOAO;
-var _GOAOe;
-var _GOAP;
-var _GOAR;
-var _GOARe;
-var _GOARet;
-var _GOAe;
-var _GOLC;
-var _GOLCO;
-var _GOLCR;
-var _GOLH;
-var _GOLHO;
-var _GOLHR;
-var _GOO;
-var _GOR;
-var _GORO;
-var _GORR;
-var _GORe;
-var _GOT;
-var _GOTO;
-var _GOTOe;
-var _GOTR;
-var _GOTRe;
-var _GOTe;
-var _GPAB;
-var _GPABO;
-var _GPABR;
-var _GR;
-var _GRACP;
-var _GW;
-var _GWACP;
-var _Gr;
-var _Gra;
-var _HB;
-var _HBO;
-var _HBR;
-var _HECRE;
-var _HN;
-var _HO;
-var _HOO;
-var _HOR;
-var _HRC;
-var _I;
-var _IC;
-var _ICL;
-var _ID;
-var _IDn;
-var _IDnv;
-var _IE;
-var _IEn;
-var _IF;
-var _IL;
-var _IM;
-var _IMIT;
-var _IMLMT;
-var _IMS;
-var _IMS_;
-var _IMSf;
-var _IMUR;
-var _IM_;
-var _INM;
-var _INM_;
-var _IOF;
-var _IOS;
-var _IOV;
-var _IP;
-var _IPA;
-var _IPM;
-var _IR;
-var _IRIP;
-var _IS;
-var _ISBD;
-var _ISn;
-var _IT;
-var _ITAO;
-var _ITC;
-var _ITCL;
-var _ITCR;
-var _ITCU;
-var _ITCn;
-var _ITF;
-var _IUS;
-var _IUS_;
-var _IWO;
-var _In;
-var _Ini;
-var _JSON;
-var _JSONI;
-var _JSONO;
-var _JTC;
-var _JTCR;
-var _JTCU;
-var _K;
-var _KC;
-var _KI;
-var _KKA;
-var _KM;
-var _KMSC;
-var _KMSKI;
-var _KMSMKID;
-var _KPE;
-var _L;
-var _LAMBR;
-var _LAMDBR;
-var _LB;
-var _LBAC;
-var _LBACO;
-var _LBACR;
-var _LBACRi;
-var _LBIC;
-var _LBICO;
-var _LBICR;
-var _LBITC;
-var _LBITCO;
-var _LBITCR;
-var _LBMC;
-var _LBMCO;
-var _LBMCR;
-var _LBO;
-var _LBR;
-var _LBRi;
-var _LC;
-var _LCi;
-var _LDB;
-var _LDBO;
-var _LDBR;
-var _LE;
-var _LEi;
-var _LFA;
-var _LFC;
-var _LFCL;
-var _LFCa;
-var _LH;
-var _LI;
-var _LICR;
-var _LM;
-var _LMCR;
-var _LMT;
-var _LMU;
-var _LMUO;
-var _LMUR;
-var _LMURi;
-var _LM_;
-var _LO;
-var _LOO;
-var _LOR;
-var _LOV;
-var _LOVO;
-var _LOVOi;
-var _LOVR;
-var _LOVRi;
-var _LOVi;
-var _LP;
-var _LPO;
-var _LPR;
-var _LPRi;
-var _LR;
-var _LRAO;
-var _LRF;
-var _LRi;
-var _LVR;
-var _M;
-var _MAO;
-var _MAS;
-var _MB;
-var _MC;
-var _MCL;
-var _MCR;
-var _MCe;
-var _MD;
-var _MDB;
-var _MDf;
-var _ME;
-var _MF;
-var _MFA;
-var _MFAD;
-var _MK;
-var _MM;
-var _MOS;
-var _MP;
-var _MTC;
-var _MTCR;
-var _MTEC;
-var _MU;
-var _MUL;
-var _MUa;
-var _Ma;
-var _Me;
-var _Mes;
-var _Mi;
-var _Mo;
-var _N;
-var _NC;
-var _NCF;
-var _NCT;
-var _ND;
-var _NF;
-var _NKM;
-var _NM;
-var _NNV;
-var _NPNM;
-var _NSB;
-var _NSK;
-var _NSU;
-var _NUIM;
-var _NVE;
-var _NVIM;
-var _NVT;
-var _NVTL;
-var _NVTo;
-var _O;
-var _OA;
-var _OAIATE;
-var _OC;
-var _OCR;
-var _OCRw;
-var _OF;
-var _OI;
-var _OIL;
-var _OL;
-var _OLC;
-var _OLE;
-var _OLEFB;
-var _OLLH;
-var _OLLHS;
-var _OLM;
-var _OLR;
-var _OLRUD;
-var _OLRb;
-var _OLb;
-var _ONIATE;
-var _OO;
-var _OOA;
-var _OP;
-var _OPb;
-var _OS;
-var _OSGT;
-var _OSLT;
-var _OSV;
-var _OSu;
-var _OV;
-var _OVL;
-var _Ob;
-var _Obj;
-var _P;
-var _PABC;
-var _PBA;
-var _PBAC;
-var _PBACR;
-var _PBACRu;
-var _PBACu;
-var _PBAR;
-var _PBARu;
-var _PBAu;
-var _PBC;
-var _PBCR;
-var _PBE;
-var _PBER;
-var _PBIC;
-var _PBICR;
-var _PBITC;
-var _PBITCR;
-var _PBL;
-var _PBLC;
-var _PBLCO;
-var _PBLCR;
-var _PBLR;
-var _PBMC;
-var _PBMCR;
-var _PBNC;
-var _PBNCR;
-var _PBOC;
-var _PBOCR;
-var _PBP;
-var _PBPR;
-var _PBR;
-var _PBRP;
-var _PBRPR;
-var _PBRR;
-var _PBT;
-var _PBTR;
-var _PBV;
-var _PBVR;
-var _PBW;
-var _PBWR;
-var _PC;
-var _PDS;
-var _PE;
-var _PI;
-var _PL;
-var _PN;
-var _PNM;
-var _PO;
-var _POA;
-var _POAO;
-var _POAR;
-var _POLC;
-var _POLCO;
-var _POLCR;
-var _POLH;
-var _POLHO;
-var _POLHR;
-var _POO;
-var _POR;
-var _PORO;
-var _PORR;
-var _PORu;
-var _POT;
-var _POTO;
-var _POTR;
-var _PP;
-var _PPAB;
-var _PPABR;
-var _PS;
-var _Pa;
-var _Par;
-var _Parq;
-var _Pay;
-var _Payl;
-var _Pe;
-var _Po;
-var _Pr;
-var _Pri;
-var _Pro;
-var _Q;
-var _QA;
-var _QC;
-var _QCL;
-var _QCu;
-var _QCue;
-var _QEC;
-var _QF;
-var _Qu;
-var _R;
-var _RART;
-var _RC;
-var _RCC;
-var _RCD;
-var _RCE;
-var _RCL;
-var _RCT;
-var _RCe;
-var _RD;
-var _RE;
-var _RED;
-var _REe;
-var _REec;
-var _RKKID;
-var _RKPW;
-var _RKW;
-var _RM;
-var _RO;
-var _ROO;
-var _ROOe;
-var _ROP;
-var _ROR;
-var _RORe;
-var _ROe;
-var _RP;
-var _RPB;
-var _RPC;
-var _RPe;
-var _RR;
-var _RRAO;
-var _RRF;
-var _RRe;
-var _RRep;
-var _RReq;
-var _RRes;
-var _RRo;
-var _RS;
-var _RSe;
-var _RSen;
-var _RT;
-var _RTV;
-var _RTe;
-var _RUD;
-var _Ra;
-var _Re;
-var _Rec;
-var _Red;
-var _Ret;
-var _Ro;
-var _Ru;
-var _S;
-var _SA;
-var _SAK;
-var _SAs;
-var _SB;
-var _SBD;
-var _SC;
-var _SCA;
-var _SCADE;
-var _SCV;
-var _SCe;
-var _SCt;
-var _SDV;
-var _SE;
-var _SIM;
-var _SIMS;
-var _SINM;
-var _SIUS;
-var _SK;
-var _SKEO;
-var _SKF;
-var _SKe;
-var _SL;
-var _SM;
-var _SOC;
-var _SOCES;
-var _SOCO;
-var _SOCR;
-var _SP;
-var _SPi;
-var _SR;
-var _SS;
-var _SSC;
-var _SSE;
-var _SSEA;
-var _SSEBD;
-var _SSEC;
-var _SSECA;
-var _SSECK;
-var _SSECKMD;
-var _SSEKMS;
-var _SSEKMSEC;
-var _SSEKMSKI;
-var _SSER;
-var _SSERe;
-var _SSES;
-var _ST;
-var _STD;
-var _STDR;
-var _S_;
-var _Sc;
-var _Si;
-var _St;
-var _Sta;
-var _Su;
-var _T;
-var _TA;
-var _TAo;
-var _TB;
-var _TBA;
-var _TBT;
-var _TC;
-var _TCL;
-var _TCo;
-var _TCop;
-var _TD;
-var _TDMOS;
-var _TG;
-var _TGa;
-var _TL;
-var _TLr;
-var _TMP;
-var _TN;
-var _TNa;
-var _TOKF;
-var _TP;
-var _TPC;
-var _TS;
-var _TSa;
-var _Ta;
-var _Tag;
-var _Ti;
-var _Tie;
-var _Tier;
-var _Tim;
-var _To;
-var _Top;
-var _Tr;
-var _Tra;
-var _Ty;
-var _U;
-var _UBMITC;
-var _UBMITCR;
-var _UBMJTC;
-var _UBMJTCR;
-var _UI;
-var _UIM;
-var _UM;
-var _UP;
-var _UPC;
-var _UPCO;
-var _UPCR;
-var _UPO;
-var _UPR;
-var _URI;
-var _Up;
-var _V;
-var _VC;
-var _VI;
-var _VIM;
-var _Ve;
-var _Ver;
-var _WC;
-var _WGOR;
-var _WGORR;
-var _WOB;
-var _WRL;
-var _Y;
-var _ar;
-var _br;
-var _c;
-var _ct;
-var _d;
-var _e;
-var _eP;
-var _en;
-var _et;
-var _fo;
-var _h;
-var _hC;
-var _hE;
-var _hH;
-var _hL;
-var _hP;
-var _hPH;
-var _hQ;
-var _hi;
-var _i;
-var _iT;
-var _km;
-var _m;
-var _mb;
-var _mdb;
-var _mk;
-var _mp;
-var _mu;
-var _p;
-var _pN;
-var _pnm;
-var _rcc;
-var _rcd;
-var _rce;
-var _rcl;
-var _rct;
-var _re;
-var _s;
-var _sa;
-var _sm;
-var _uI;
-var _uim;
-var _vI;
-var _vim;
-var _x;
-var _xA;
-var _xF;
-var _xN;
-var _xNm;
-var _xaa;
-var _xaad;
-var _xaapa;
-var _xaari;
-var _xaas;
-var _xaba;
-var _xabgr;
-var _xabln;
-var _xablt;
-var _xabole;
-var _xabolt;
-var _xabr;
-var _xaca;
-var _xacc;
-var _xacc_;
-var _xacc__;
-var _xacm;
-var _xacrsba;
-var _xacs;
-var _xacs_;
-var _xacs__;
-var _xacsim;
-var _xacsims;
-var _xacsinm;
-var _xacsius;
-var _xacsm;
-var _xacsr;
-var _xacssseca;
-var _xacssseck;
-var _xacssseckM;
-var _xacsvi;
-var _xact;
-var _xact_;
-var _xadm;
-var _xae;
-var _xaebo;
-var _xafec;
-var _xafem;
-var _xafhCC;
-var _xafhCD;
-var _xafhCE;
-var _xafhCL;
-var _xafhCR;
-var _xafhCT;
-var _xafhE;
-var _xafhE_;
-var _xafhLM;
-var _xafhar;
-var _xafhxacc;
-var _xafhxacc_;
-var _xafhxacc__;
-var _xafhxacs;
-var _xafhxacs_;
-var _xafhxadm;
-var _xafhxae;
-var _xafhxamm;
-var _xafhxampc;
-var _xafhxaollh;
-var _xafhxaolm;
-var _xafhxaolrud;
-var _xafhxar;
-var _xafhxarc;
-var _xafhxars;
-var _xafhxasc;
-var _xafhxasse;
-var _xafhxasseakki;
-var _xafhxassebke;
-var _xafhxasseca;
-var _xafhxasseckM;
-var _xafhxatc;
-var _xafhxavi;
-var _xafs;
-var _xagfc;
-var _xagr;
-var _xagra;
-var _xagw;
-var _xagwa;
-var _xaimit;
-var _xaimlmt;
-var _xaims;
-var _xam;
-var _xam_;
-var _xamd;
-var _xamm;
-var _xamos;
-var _xamp;
-var _xampc;
-var _xaoa;
-var _xaollh;
-var _xaolm;
-var _xaolrud;
-var _xaoo;
-var _xaooa;
-var _xaos;
-var _xapnm;
-var _xar;
-var _xarc;
-var _xarop;
-var _xarp;
-var _xarr;
-var _xars;
-var _xars_;
-var _xarsim;
-var _xarsims;
-var _xarsinm;
-var _xarsius;
-var _xart;
-var _xasc;
-var _xasca;
-var _xasdv;
-var _xasebo;
-var _xasse;
-var _xasseakki;
-var _xassebke;
-var _xassec;
-var _xasseca;
-var _xasseck;
-var _xasseckM;
-var _xat;
-var _xatc;
-var _xatd;
-var _xatdmos;
-var _xavi;
-var _xawob;
-var _xawrl;
-var _xs;
-var n0;
-var CopySourceSSECustomerKey;
-var SessionCredentialValue;
-var SSECustomerKey;
-var SSEKMSEncryptionContext;
-var SSEKMSKeyId;
-var StreamingBlob;
-var AbacStatus$;
-var AbortIncompleteMultipartUpload$;
-var AbortMultipartUploadOutput$;
-var AbortMultipartUploadRequest$;
-var AccelerateConfiguration$;
-var AccessControlPolicy$;
-var AccessControlTranslation$;
-var AnalyticsAndOperator$;
-var AnalyticsConfiguration$;
-var AnalyticsExportDestination$;
-var AnalyticsS3BucketDestination$;
-var BlockedEncryptionTypes$;
-var Bucket$;
-var BucketAlreadyExists$;
-var BucketAlreadyOwnedByYou$;
-var BucketInfo$;
-var BucketLifecycleConfiguration$;
-var BucketLoggingStatus$;
-var Checksum$;
-var CommonPrefix$;
-var CompletedMultipartUpload$;
-var CompletedPart$;
-var CompleteMultipartUploadOutput$;
-var CompleteMultipartUploadRequest$;
-var Condition$;
-var ContinuationEvent$;
-var CopyObjectOutput$;
-var CopyObjectRequest$;
-var CopyObjectResult$;
-var CopyPartResult$;
-var CORSConfiguration$;
-var CORSRule$;
-var CreateBucketConfiguration$;
-var CreateBucketMetadataConfigurationRequest$;
-var CreateBucketMetadataTableConfigurationRequest$;
-var CreateBucketOutput$;
-var CreateBucketRequest$;
-var CreateMultipartUploadOutput$;
-var CreateMultipartUploadRequest$;
-var CreateSessionOutput$;
-var CreateSessionRequest$;
-var CSVInput$;
-var CSVOutput$;
-var DefaultRetention$;
-var Delete$;
-var DeleteBucketAnalyticsConfigurationRequest$;
-var DeleteBucketCorsRequest$;
-var DeleteBucketEncryptionRequest$;
-var DeleteBucketIntelligentTieringConfigurationRequest$;
-var DeleteBucketInventoryConfigurationRequest$;
-var DeleteBucketLifecycleRequest$;
-var DeleteBucketMetadataConfigurationRequest$;
-var DeleteBucketMetadataTableConfigurationRequest$;
-var DeleteBucketMetricsConfigurationRequest$;
-var DeleteBucketOwnershipControlsRequest$;
-var DeleteBucketPolicyRequest$;
-var DeleteBucketReplicationRequest$;
-var DeleteBucketRequest$;
-var DeleteBucketTaggingRequest$;
-var DeleteBucketWebsiteRequest$;
-var DeletedObject$;
-var DeleteMarkerEntry$;
-var DeleteMarkerReplication$;
-var DeleteObjectOutput$;
-var DeleteObjectRequest$;
-var DeleteObjectsOutput$;
-var DeleteObjectsRequest$;
-var DeleteObjectTaggingOutput$;
-var DeleteObjectTaggingRequest$;
-var DeletePublicAccessBlockRequest$;
-var Destination$;
-var DestinationResult$;
-var Encryption$;
-var EncryptionConfiguration$;
-var EncryptionTypeMismatch$;
-var EndEvent$;
-var _Error$;
-var ErrorDetails$;
-var ErrorDocument$;
-var EventBridgeConfiguration$;
-var ExistingObjectReplication$;
-var FilterRule$;
-var GetBucketAbacOutput$;
-var GetBucketAbacRequest$;
-var GetBucketAccelerateConfigurationOutput$;
-var GetBucketAccelerateConfigurationRequest$;
-var GetBucketAclOutput$;
-var GetBucketAclRequest$;
-var GetBucketAnalyticsConfigurationOutput$;
-var GetBucketAnalyticsConfigurationRequest$;
-var GetBucketCorsOutput$;
-var GetBucketCorsRequest$;
-var GetBucketEncryptionOutput$;
-var GetBucketEncryptionRequest$;
-var GetBucketIntelligentTieringConfigurationOutput$;
-var GetBucketIntelligentTieringConfigurationRequest$;
-var GetBucketInventoryConfigurationOutput$;
-var GetBucketInventoryConfigurationRequest$;
-var GetBucketLifecycleConfigurationOutput$;
-var GetBucketLifecycleConfigurationRequest$;
-var GetBucketLocationOutput$;
-var GetBucketLocationRequest$;
-var GetBucketLoggingOutput$;
-var GetBucketLoggingRequest$;
-var GetBucketMetadataConfigurationOutput$;
-var GetBucketMetadataConfigurationRequest$;
-var GetBucketMetadataConfigurationResult$;
-var GetBucketMetadataTableConfigurationOutput$;
-var GetBucketMetadataTableConfigurationRequest$;
-var GetBucketMetadataTableConfigurationResult$;
-var GetBucketMetricsConfigurationOutput$;
-var GetBucketMetricsConfigurationRequest$;
-var GetBucketNotificationConfigurationRequest$;
-var GetBucketOwnershipControlsOutput$;
-var GetBucketOwnershipControlsRequest$;
-var GetBucketPolicyOutput$;
-var GetBucketPolicyRequest$;
-var GetBucketPolicyStatusOutput$;
-var GetBucketPolicyStatusRequest$;
-var GetBucketReplicationOutput$;
-var GetBucketReplicationRequest$;
-var GetBucketRequestPaymentOutput$;
-var GetBucketRequestPaymentRequest$;
-var GetBucketTaggingOutput$;
-var GetBucketTaggingRequest$;
-var GetBucketVersioningOutput$;
-var GetBucketVersioningRequest$;
-var GetBucketWebsiteOutput$;
-var GetBucketWebsiteRequest$;
-var GetObjectAclOutput$;
-var GetObjectAclRequest$;
-var GetObjectAttributesOutput$;
-var GetObjectAttributesParts$;
-var GetObjectAttributesRequest$;
-var GetObjectLegalHoldOutput$;
-var GetObjectLegalHoldRequest$;
-var GetObjectLockConfigurationOutput$;
-var GetObjectLockConfigurationRequest$;
-var GetObjectOutput$;
-var GetObjectRequest$;
-var GetObjectRetentionOutput$;
-var GetObjectRetentionRequest$;
-var GetObjectTaggingOutput$;
-var GetObjectTaggingRequest$;
-var GetObjectTorrentOutput$;
-var GetObjectTorrentRequest$;
-var GetPublicAccessBlockOutput$;
-var GetPublicAccessBlockRequest$;
-var GlacierJobParameters$;
-var Grant$;
-var Grantee$;
-var HeadBucketOutput$;
-var HeadBucketRequest$;
-var HeadObjectOutput$;
-var HeadObjectRequest$;
-var IdempotencyParameterMismatch$;
-var IndexDocument$;
-var Initiator$;
-var InputSerialization$;
-var IntelligentTieringAndOperator$;
-var IntelligentTieringConfiguration$;
-var IntelligentTieringFilter$;
-var InvalidObjectState$;
-var InvalidRequest$;
-var InvalidWriteOffset$;
-var InventoryConfiguration$;
-var InventoryDestination$;
-var InventoryEncryption$;
-var InventoryFilter$;
-var InventoryS3BucketDestination$;
-var InventorySchedule$;
-var InventoryTableConfiguration$;
-var InventoryTableConfigurationResult$;
-var InventoryTableConfigurationUpdates$;
-var JournalTableConfiguration$;
-var JournalTableConfigurationResult$;
-var JournalTableConfigurationUpdates$;
-var JSONInput$;
-var JSONOutput$;
-var LambdaFunctionConfiguration$;
-var LifecycleExpiration$;
-var LifecycleRule$;
-var LifecycleRuleAndOperator$;
-var LifecycleRuleFilter$;
-var ListBucketAnalyticsConfigurationsOutput$;
-var ListBucketAnalyticsConfigurationsRequest$;
-var ListBucketIntelligentTieringConfigurationsOutput$;
-var ListBucketIntelligentTieringConfigurationsRequest$;
-var ListBucketInventoryConfigurationsOutput$;
-var ListBucketInventoryConfigurationsRequest$;
-var ListBucketMetricsConfigurationsOutput$;
-var ListBucketMetricsConfigurationsRequest$;
-var ListBucketsOutput$;
-var ListBucketsRequest$;
-var ListDirectoryBucketsOutput$;
-var ListDirectoryBucketsRequest$;
-var ListMultipartUploadsOutput$;
-var ListMultipartUploadsRequest$;
-var ListObjectsOutput$;
-var ListObjectsRequest$;
-var ListObjectsV2Output$;
-var ListObjectsV2Request$;
-var ListObjectVersionsOutput$;
-var ListObjectVersionsRequest$;
-var ListPartsOutput$;
-var ListPartsRequest$;
-var LocationInfo$;
-var LoggingEnabled$;
-var MetadataConfiguration$;
-var MetadataConfigurationResult$;
-var MetadataEntry$;
-var MetadataTableConfiguration$;
-var MetadataTableConfigurationResult$;
-var MetadataTableEncryptionConfiguration$;
-var Metrics$;
-var MetricsAndOperator$;
-var MetricsConfiguration$;
-var MultipartUpload$;
-var NoncurrentVersionExpiration$;
-var NoncurrentVersionTransition$;
-var NoSuchBucket$;
-var NoSuchKey$;
-var NoSuchUpload$;
-var NotFound$;
-var NotificationConfiguration$;
-var NotificationConfigurationFilter$;
-var _Object$;
-var ObjectAlreadyInActiveTierError$;
-var ObjectIdentifier$;
-var ObjectLockConfiguration$;
-var ObjectLockLegalHold$;
-var ObjectLockRetention$;
-var ObjectLockRule$;
-var ObjectNotInActiveTierError$;
-var ObjectPart$;
-var ObjectVersion$;
-var OutputLocation$;
-var OutputSerialization$;
-var Owner$;
-var OwnershipControls$;
-var OwnershipControlsRule$;
-var ParquetInput$;
-var Part$;
-var PartitionedPrefix$;
-var PolicyStatus$;
-var Progress$;
-var ProgressEvent$;
-var PublicAccessBlockConfiguration$;
-var PutBucketAbacRequest$;
-var PutBucketAccelerateConfigurationRequest$;
-var PutBucketAclRequest$;
-var PutBucketAnalyticsConfigurationRequest$;
-var PutBucketCorsRequest$;
-var PutBucketEncryptionRequest$;
-var PutBucketIntelligentTieringConfigurationRequest$;
-var PutBucketInventoryConfigurationRequest$;
-var PutBucketLifecycleConfigurationOutput$;
-var PutBucketLifecycleConfigurationRequest$;
-var PutBucketLoggingRequest$;
-var PutBucketMetricsConfigurationRequest$;
-var PutBucketNotificationConfigurationRequest$;
-var PutBucketOwnershipControlsRequest$;
-var PutBucketPolicyRequest$;
-var PutBucketReplicationRequest$;
-var PutBucketRequestPaymentRequest$;
-var PutBucketTaggingRequest$;
-var PutBucketVersioningRequest$;
-var PutBucketWebsiteRequest$;
-var PutObjectAclOutput$;
-var PutObjectAclRequest$;
-var PutObjectLegalHoldOutput$;
-var PutObjectLegalHoldRequest$;
-var PutObjectLockConfigurationOutput$;
-var PutObjectLockConfigurationRequest$;
-var PutObjectOutput$;
-var PutObjectRequest$;
-var PutObjectRetentionOutput$;
-var PutObjectRetentionRequest$;
-var PutObjectTaggingOutput$;
-var PutObjectTaggingRequest$;
-var PutPublicAccessBlockRequest$;
-var QueueConfiguration$;
-var RecordExpiration$;
-var RecordsEvent$;
-var Redirect$;
-var RedirectAllRequestsTo$;
-var RenameObjectOutput$;
-var RenameObjectRequest$;
-var ReplicaModifications$;
-var ReplicationConfiguration$;
-var ReplicationRule$;
-var ReplicationRuleAndOperator$;
-var ReplicationRuleFilter$;
-var ReplicationTime$;
-var ReplicationTimeValue$;
-var RequestPaymentConfiguration$;
-var RequestProgress$;
-var RestoreObjectOutput$;
-var RestoreObjectRequest$;
-var RestoreRequest$;
-var RestoreStatus$;
-var RoutingRule$;
-var S3KeyFilter$;
-var S3Location$;
-var S3TablesDestination$;
-var S3TablesDestinationResult$;
-var ScanRange$;
-var SelectObjectContentOutput$;
-var SelectObjectContentRequest$;
-var SelectParameters$;
-var ServerSideEncryptionByDefault$;
-var ServerSideEncryptionConfiguration$;
-var ServerSideEncryptionRule$;
-var SessionCredentials$;
-var SimplePrefix$;
-var SourceSelectionCriteria$;
-var SSEKMS$;
-var SseKmsEncryptedObjects$;
-var SSES3$;
-var Stats$;
-var StatsEvent$;
-var StorageClassAnalysis$;
-var StorageClassAnalysisDataExport$;
-var Tag$;
-var Tagging$;
-var TargetGrant$;
-var TargetObjectKeyFormat$;
-var Tiering$;
-var TooManyParts$;
-var TopicConfiguration$;
-var Transition$;
-var UpdateBucketMetadataInventoryTableConfigurationRequest$;
-var UpdateBucketMetadataJournalTableConfigurationRequest$;
-var UploadPartCopyOutput$;
-var UploadPartCopyRequest$;
-var UploadPartOutput$;
-var UploadPartRequest$;
-var VersioningConfiguration$;
-var WebsiteConfiguration$;
-var WriteGetObjectResponseRequest$;
-var __Unit;
-var S3ServiceException$;
-var AllowedHeaders;
-var AllowedMethods;
-var AllowedOrigins;
-var AnalyticsConfigurationList;
-var Buckets;
-var ChecksumAlgorithmList;
-var CommonPrefixList;
-var CompletedPartList;
-var CORSRules;
-var DeletedObjects;
-var DeleteMarkers;
-var EncryptionTypeList;
-var Errors;
-var EventList;
-var ExposeHeaders;
-var FilterRuleList;
-var Grants;
-var IntelligentTieringConfigurationList;
-var InventoryConfigurationList;
-var InventoryOptionalFields;
-var LambdaFunctionConfigurationList;
-var LifecycleRules;
-var MetricsConfigurationList;
-var MultipartUploadList;
-var NoncurrentVersionTransitionList;
-var ObjectAttributesList;
-var ObjectIdentifierList;
-var ObjectList;
-var ObjectVersionList;
-var OptionalObjectAttributesList;
-var OwnershipControlsRules;
-var Parts;
-var PartsList;
-var QueueConfigurationList;
-var ReplicationRules;
-var RoutingRules;
-var ServerSideEncryptionRules;
-var TagSet;
-var TargetGrants;
-var TieringList;
-var TopicConfigurationList;
-var TransitionList;
-var UserMetadata;
-var Metadata;
-var AnalyticsFilter$;
-var MetricsFilter$;
-var SelectObjectContentEventStream$;
-var AbortMultipartUpload$;
-var CompleteMultipartUpload$;
-var CopyObject$;
-var CreateBucket$;
-var CreateBucketMetadataConfiguration$;
-var CreateBucketMetadataTableConfiguration$;
-var CreateMultipartUpload$;
-var CreateSession$;
-var DeleteBucket$;
-var DeleteBucketAnalyticsConfiguration$;
-var DeleteBucketCors$;
-var DeleteBucketEncryption$;
-var DeleteBucketIntelligentTieringConfiguration$;
-var DeleteBucketInventoryConfiguration$;
-var DeleteBucketLifecycle$;
-var DeleteBucketMetadataConfiguration$;
-var DeleteBucketMetadataTableConfiguration$;
-var DeleteBucketMetricsConfiguration$;
-var DeleteBucketOwnershipControls$;
-var DeleteBucketPolicy$;
-var DeleteBucketReplication$;
-var DeleteBucketTagging$;
-var DeleteBucketWebsite$;
-var DeleteObject$;
-var DeleteObjects$;
-var DeleteObjectTagging$;
-var DeletePublicAccessBlock$;
-var GetBucketAbac$;
-var GetBucketAccelerateConfiguration$;
-var GetBucketAcl$;
-var GetBucketAnalyticsConfiguration$;
-var GetBucketCors$;
-var GetBucketEncryption$;
-var GetBucketIntelligentTieringConfiguration$;
-var GetBucketInventoryConfiguration$;
-var GetBucketLifecycleConfiguration$;
-var GetBucketLocation$;
-var GetBucketLogging$;
-var GetBucketMetadataConfiguration$;
-var GetBucketMetadataTableConfiguration$;
-var GetBucketMetricsConfiguration$;
-var GetBucketNotificationConfiguration$;
-var GetBucketOwnershipControls$;
-var GetBucketPolicy$;
-var GetBucketPolicyStatus$;
-var GetBucketReplication$;
-var GetBucketRequestPayment$;
-var GetBucketTagging$;
-var GetBucketVersioning$;
-var GetBucketWebsite$;
-var GetObject$;
-var GetObjectAcl$;
-var GetObjectAttributes$;
-var GetObjectLegalHold$;
-var GetObjectLockConfiguration$;
-var GetObjectRetention$;
-var GetObjectTagging$;
-var GetObjectTorrent$;
-var GetPublicAccessBlock$;
-var HeadBucket$;
-var HeadObject$;
-var ListBucketAnalyticsConfigurations$;
-var ListBucketIntelligentTieringConfigurations$;
-var ListBucketInventoryConfigurations$;
-var ListBucketMetricsConfigurations$;
-var ListBuckets$;
-var ListDirectoryBuckets$;
-var ListMultipartUploads$;
-var ListObjects$;
-var ListObjectsV2$;
-var ListObjectVersions$;
-var ListParts$;
-var PutBucketAbac$;
-var PutBucketAccelerateConfiguration$;
-var PutBucketAcl$;
-var PutBucketAnalyticsConfiguration$;
-var PutBucketCors$;
-var PutBucketEncryption$;
-var PutBucketIntelligentTieringConfiguration$;
-var PutBucketInventoryConfiguration$;
-var PutBucketLifecycleConfiguration$;
-var PutBucketLogging$;
-var PutBucketMetricsConfiguration$;
-var PutBucketNotificationConfiguration$;
-var PutBucketOwnershipControls$;
-var PutBucketPolicy$;
-var PutBucketReplication$;
-var PutBucketRequestPayment$;
-var PutBucketTagging$;
-var PutBucketVersioning$;
-var PutBucketWebsite$;
-var PutObject$;
-var PutObjectAcl$;
-var PutObjectLegalHold$;
-var PutObjectLockConfiguration$;
-var PutObjectRetention$;
-var PutObjectTagging$;
-var PutPublicAccessBlock$;
-var RenameObject$;
-var RestoreObject$;
-var SelectObjectContent$;
-var UpdateBucketMetadataInventoryTableConfiguration$;
-var UpdateBucketMetadataJournalTableConfiguration$;
-var UploadPart$;
-var UploadPartCopy$;
-var WriteGetObjectResponse$;
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/schemas/schemas_0.js
+var _A, _AAO, _AC, _ACL, _ACL_, _ACLn, _ACP, _ACT, _ACn, _AD, _AED, _AF, _AH, _AHl, _AI, _AIMU, _AKI, _AM, _AMU, _AMUO, _AMUR, _AMl, _AO, _AOl, _APA, _APAc, _AQRD, _AR, _ARI, _AS, _ASBD, _ASSEBD, _ASr, _AT, _An, _B, _BA, _BAE, _BAI, _BAOBY, _BET, _BGR, _BI, _BKE, _BLC, _BLN, _BLS, _BLT, _BN, _BP, _BPA, _BPP, _BR, _BRy, _BS, _Bo, _Bu, _C, _CA, _CACL, _CB, _CBC, _CBMC, _CBMCR, _CBMTC, _CBMTCR, _CBO, _CBR, _CC, _CCRC, _CCRCC, _CCRCNVME, _CC_, _CD, _CD_, _CDo, _CE, _CE_, _CEo, _CF, _CFC, _CL, _CL_, _CL__, _CLo, _CM, _CMD, _CMU, _CMUO, _CMUOr, _CMUR, _CMURo, _CMURr, _CMUo, _CMUr, _CMh, _CO, _COO, _COR, _CORSC, _CORSR, _CORSRu, _CORo, _CP, _CPL, _CPLo, _CPR, _CPo, _CPom, _CR, _CRSBA, _CR_, _CS, _CSHA, _CSHAh, _CSIM, _CSIMS, _CSINM, _CSIUS, _CSO, _CSR, _CSRo, _CSRr, _CSSSECA, _CSSSECK, _CSSSECKMD, _CSV, _CSVI, _CSVIn, _CSVO, _CSo, _CSr, _CT, _CT_, _CTl, _CTo, _CTom, _CTon, _Co, _Cod, _Com, _Con, _Cont, _Cr, _D, _DAI, _DB, _DBAC, _DBACR, _DBC, _DBCR, _DBE, _DBER, _DBIC, _DBICR, _DBITC, _DBITCR, _DBL, _DBLR, _DBMC, _DBMCR, _DBMCRe, _DBMCe, _DBMTC, _DBMTCR, _DBOC, _DBOCR, _DBP, _DBPR, _DBR, _DBRR, _DBRe, _DBT, _DBTR, _DBW, _DBWR, _DE, _DIM, _DIMS, _DINM, _DIUS, _DM, _DME, _DMR, _DMVI, _DMe, _DN, _DO, _DOO, _DOOe, _DOR, _DORe, _DOT, _DOTO, _DOTR, _DOe, _DOel, _DOele, _DPAB, _DPABR, _DR, _DRe, _DRel, _DRes, _Da, _De, _Del, _Deli, _Des, _Desc, _Det, _E, _EA, _EBC, _EBO, _EC, _ECr, _ED, _EDr, _EE, _EH, _EHx, _EM, _EODM, _EOR, _ES, _ESBO, _ET, _ETL, _ETM, _ETa, _ETn, _ETv, _ETx, _En, _Ena, _End, _Er, _Err, _Ev, _Eve, _Ex, _Exp, _F, _FD, _FHI, _FO, _FR, _FRL, _FRi, _Fi, _Fo, _Fr, _G, _GBA, _GBAC, _GBACO, _GBACOe, _GBACR, _GBACRe, _GBACe, _GBAO, _GBAOe, _GBAR, _GBARe, _GBAe, _GBC, _GBCO, _GBCR, _GBE, _GBEO, _GBER, _GBIC, _GBICO, _GBICR, _GBITC, _GBITCO, _GBITCR, _GBL, _GBLC, _GBLCO, _GBLCR, _GBLO, _GBLOe, _GBLR, _GBLRe, _GBLe, _GBMC, _GBMCO, _GBMCOe, _GBMCR, _GBMCRe, _GBMCRet, _GBMCe, _GBMTC, _GBMTCO, _GBMTCR, _GBMTCRe, _GBNC, _GBNCR, _GBOC, _GBOCO, _GBOCR, _GBP, _GBPO, _GBPR, _GBPS, _GBPSO, _GBPSR, _GBR, _GBRO, _GBRP, _GBRPO, _GBRPR, _GBRR, _GBT, _GBTO, _GBTR, _GBV, _GBVO, _GBVR, _GBW, _GBWO, _GBWR, _GFC, _GJP, _GO, _GOA, _GOAO, _GOAOe, _GOAP, _GOAR, _GOARe, _GOARet, _GOAe, _GOLC, _GOLCO, _GOLCR, _GOLH, _GOLHO, _GOLHR, _GOO, _GOR, _GORO, _GORR, _GORe, _GOT, _GOTO, _GOTOe, _GOTR, _GOTRe, _GOTe, _GPAB, _GPABO, _GPABR, _GR, _GRACP, _GW, _GWACP, _Gr, _Gra, _HB, _HBO, _HBR, _HECRE, _HN, _HO, _HOO, _HOR, _HRC, _I, _IC, _ICL, _ID, _IDn, _IDnv, _IE, _IEn, _IF, _IL, _IM, _IMIT, _IMLMT, _IMS, _IMS_, _IMSf, _IMUR, _IM_, _INM, _INM_, _IOF, _IOS, _IOV, _IP, _IPA, _IPM, _IR, _IRIP, _IS, _ISBD, _ISn, _IT, _ITAO, _ITC, _ITCL, _ITCR, _ITCU, _ITCn, _ITF, _IUS, _IUS_, _IWO, _In, _Ini, _JSON, _JSONI, _JSONO, _JTC, _JTCR, _JTCU, _K, _KC, _KI, _KKA, _KM, _KMSC, _KMSKI, _KMSMKID, _KPE, _L, _LAMBR, _LAMDBR, _LB, _LBAC, _LBACO, _LBACR, _LBACRi, _LBIC, _LBICO, _LBICR, _LBITC, _LBITCO, _LBITCR, _LBMC, _LBMCO, _LBMCR, _LBO, _LBR, _LBRi, _LC, _LCi, _LDB, _LDBO, _LDBR, _LE, _LEi, _LFA, _LFC, _LFCL, _LFCa, _LH, _LI, _LICR, _LM, _LMCR, _LMT, _LMU, _LMUO, _LMUR, _LMURi, _LM_, _LO, _LOO, _LOR, _LOV, _LOVO, _LOVOi, _LOVR, _LOVRi, _LOVi, _LP, _LPO, _LPR, _LPRi, _LR, _LRAO, _LRF, _LRi, _LVR, _M, _MAO, _MAS, _MB, _MC, _MCL, _MCR, _MCe, _MD, _MDB, _MDf, _ME, _MF, _MFA, _MFAD, _MK, _MM, _MOS, _MP, _MTC, _MTCR, _MTEC, _MU, _MUL, _MUa, _Ma, _Me, _Mes, _Mi, _Mo, _N, _NC, _NCF, _NCT, _ND, _NF, _NKM, _NM, _NNV, _NPNM, _NSB, _NSK, _NSU, _NUIM, _NVE, _NVIM, _NVT, _NVTL, _NVTo, _O, _OA, _OAIATE, _OC, _OCR, _OCRw, _OF, _OI, _OIL, _OL, _OLC, _OLE, _OLEFB, _OLLH, _OLLHS, _OLM, _OLR, _OLRUD, _OLRb, _OLb, _ONIATE, _OO, _OOA, _OP, _OPb, _OS, _OSGT, _OSLT, _OSV, _OSu, _OV, _OVL, _Ob, _Obj, _P, _PABC, _PBA, _PBAC, _PBACR, _PBACRu, _PBACu, _PBAR, _PBARu, _PBAu, _PBC, _PBCR, _PBE, _PBER, _PBIC, _PBICR, _PBITC, _PBITCR, _PBL, _PBLC, _PBLCO, _PBLCR, _PBLR, _PBMC, _PBMCR, _PBNC, _PBNCR, _PBOC, _PBOCR, _PBP, _PBPR, _PBR, _PBRP, _PBRPR, _PBRR, _PBT, _PBTR, _PBV, _PBVR, _PBW, _PBWR, _PC, _PDS, _PE, _PI, _PL, _PN, _PNM, _PO, _POA, _POAO, _POAR, _POLC, _POLCO, _POLCR, _POLH, _POLHO, _POLHR, _POO, _POR, _PORO, _PORR, _PORu, _POT, _POTO, _POTR, _PP, _PPAB, _PPABR, _PS, _Pa, _Par, _Parq, _Pay, _Payl, _Pe, _Po, _Pr, _Pri, _Pro, _Q, _QA, _QC, _QCL, _QCu, _QCue, _QEC, _QF, _Qu, _R, _RART, _RC, _RCC, _RCD, _RCE, _RCL, _RCT, _RCe, _RD, _RE, _RED, _REe, _REec, _RKKID, _RKPW, _RKW, _RM, _RO, _ROO, _ROOe, _ROP, _ROR, _RORe, _ROe, _RP, _RPB, _RPC, _RPe, _RR, _RRAO, _RRF, _RRe, _RRep, _RReq, _RRes, _RRo, _RS, _RSe, _RSen, _RT, _RTV, _RTe, _RUD, _Ra, _Re, _Rec, _Red, _Ret, _Ro, _Ru, _S, _SA, _SAK, _SAs, _SB, _SBD, _SC, _SCA, _SCADE, _SCV, _SCe, _SCt, _SDV, _SE, _SIM, _SIMS, _SINM, _SIUS, _SK, _SKEO, _SKF, _SKe, _SL, _SM, _SOC, _SOCES, _SOCO, _SOCR, _SP, _SPi, _SR, _SS, _SSC, _SSE, _SSEA, _SSEBD, _SSEC, _SSECA, _SSECK, _SSECKMD, _SSEKMS, _SSEKMSEC, _SSEKMSKI, _SSER, _SSERe, _SSES, _ST, _STD, _STDR, _S_, _Sc, _Si, _St, _Sta, _Su, _T, _TA, _TAo, _TB, _TBA, _TBT, _TC, _TCL, _TCo, _TCop, _TD, _TDMOS, _TG, _TGa, _TL, _TLr, _TMP, _TN, _TNa, _TOKF, _TP, _TPC, _TS, _TSa, _Ta, _Tag, _Ti, _Tie, _Tier, _Tim, _To, _Top, _Tr, _Tra, _Ty, _U, _UBMITC, _UBMITCR, _UBMJTC, _UBMJTCR, _UI, _UIM, _UM, _UP, _UPC, _UPCO, _UPCR, _UPO, _UPR, _URI, _Up, _V, _VC, _VI, _VIM, _Ve, _Ver, _WC, _WGOR, _WGORR, _WOB, _WRL, _Y, _ar, _br, _c, _ct, _d, _e, _eP, _en, _et, _fo, _h, _hC, _hE, _hH, _hL, _hP, _hPH, _hQ, _hi, _i, _iT, _km, _m, _mb, _mdb, _mk, _mp, _mu, _p, _pN, _pnm, _rcc, _rcd, _rce, _rcl, _rct, _re, _s, _sa, _sm, _uI, _uim, _vI, _vim, _x, _xA, _xF, _xN, _xNm, _xaa, _xaad, _xaapa, _xaari, _xaas, _xaba, _xabgr, _xabln, _xablt, _xabole, _xabolt, _xabr, _xaca, _xacc, _xacc_, _xacc__, _xacm, _xacrsba, _xacs, _xacs_, _xacs__, _xacsim, _xacsims, _xacsinm, _xacsius, _xacsm, _xacsr, _xacssseca, _xacssseck, _xacssseckM, _xacsvi, _xact, _xact_, _xadm, _xae, _xaebo, _xafec, _xafem, _xafhCC, _xafhCD, _xafhCE, _xafhCL, _xafhCR, _xafhCT, _xafhE, _xafhE_, _xafhLM, _xafhar, _xafhxacc, _xafhxacc_, _xafhxacc__, _xafhxacs, _xafhxacs_, _xafhxadm, _xafhxae, _xafhxamm, _xafhxampc, _xafhxaollh, _xafhxaolm, _xafhxaolrud, _xafhxar, _xafhxarc, _xafhxars, _xafhxasc, _xafhxasse, _xafhxasseakki, _xafhxassebke, _xafhxasseca, _xafhxasseckM, _xafhxatc, _xafhxavi, _xafs, _xagfc, _xagr, _xagra, _xagw, _xagwa, _xaimit, _xaimlmt, _xaims, _xam, _xam_, _xamd, _xamm, _xamos, _xamp, _xampc, _xaoa, _xaollh, _xaolm, _xaolrud, _xaoo, _xaooa, _xaos, _xapnm, _xar, _xarc, _xarop, _xarp, _xarr, _xars, _xars_, _xarsim, _xarsims, _xarsinm, _xarsius, _xart, _xasc, _xasca, _xasdv, _xasebo, _xasse, _xasseakki, _xassebke, _xassec, _xasseca, _xasseck, _xasseckM, _xat, _xatc, _xatd, _xatdmos, _xavi, _xawob, _xawrl, _xs, n0, CopySourceSSECustomerKey, SessionCredentialValue, SSECustomerKey, SSEKMSEncryptionContext, SSEKMSKeyId, StreamingBlob, AbacStatus$, AbortIncompleteMultipartUpload$, AbortMultipartUploadOutput$, AbortMultipartUploadRequest$, AccelerateConfiguration$, AccessControlPolicy$, AccessControlTranslation$, AnalyticsAndOperator$, AnalyticsConfiguration$, AnalyticsExportDestination$, AnalyticsS3BucketDestination$, BlockedEncryptionTypes$, Bucket$, BucketAlreadyExists$, BucketAlreadyOwnedByYou$, BucketInfo$, BucketLifecycleConfiguration$, BucketLoggingStatus$, Checksum$, CommonPrefix$, CompletedMultipartUpload$, CompletedPart$, CompleteMultipartUploadOutput$, CompleteMultipartUploadRequest$, Condition$, ContinuationEvent$, CopyObjectOutput$, CopyObjectRequest$, CopyObjectResult$, CopyPartResult$, CORSConfiguration$, CORSRule$, CreateBucketConfiguration$, CreateBucketMetadataConfigurationRequest$, CreateBucketMetadataTableConfigurationRequest$, CreateBucketOutput$, CreateBucketRequest$, CreateMultipartUploadOutput$, CreateMultipartUploadRequest$, CreateSessionOutput$, CreateSessionRequest$, CSVInput$, CSVOutput$, DefaultRetention$, Delete$, DeleteBucketAnalyticsConfigurationRequest$, DeleteBucketCorsRequest$, DeleteBucketEncryptionRequest$, DeleteBucketIntelligentTieringConfigurationRequest$, DeleteBucketInventoryConfigurationRequest$, DeleteBucketLifecycleRequest$, DeleteBucketMetadataConfigurationRequest$, DeleteBucketMetadataTableConfigurationRequest$, DeleteBucketMetricsConfigurationRequest$, DeleteBucketOwnershipControlsRequest$, DeleteBucketPolicyRequest$, DeleteBucketReplicationRequest$, DeleteBucketRequest$, DeleteBucketTaggingRequest$, DeleteBucketWebsiteRequest$, DeletedObject$, DeleteMarkerEntry$, DeleteMarkerReplication$, DeleteObjectOutput$, DeleteObjectRequest$, DeleteObjectsOutput$, DeleteObjectsRequest$, DeleteObjectTaggingOutput$, DeleteObjectTaggingRequest$, DeletePublicAccessBlockRequest$, Destination$, DestinationResult$, Encryption$, EncryptionConfiguration$, EncryptionTypeMismatch$, EndEvent$, _Error$, ErrorDetails$, ErrorDocument$, EventBridgeConfiguration$, ExistingObjectReplication$, FilterRule$, GetBucketAbacOutput$, GetBucketAbacRequest$, GetBucketAccelerateConfigurationOutput$, GetBucketAccelerateConfigurationRequest$, GetBucketAclOutput$, GetBucketAclRequest$, GetBucketAnalyticsConfigurationOutput$, GetBucketAnalyticsConfigurationRequest$, GetBucketCorsOutput$, GetBucketCorsRequest$, GetBucketEncryptionOutput$, GetBucketEncryptionRequest$, GetBucketIntelligentTieringConfigurationOutput$, GetBucketIntelligentTieringConfigurationRequest$, GetBucketInventoryConfigurationOutput$, GetBucketInventoryConfigurationRequest$, GetBucketLifecycleConfigurationOutput$, GetBucketLifecycleConfigurationRequest$, GetBucketLocationOutput$, GetBucketLocationRequest$, GetBucketLoggingOutput$, GetBucketLoggingRequest$, GetBucketMetadataConfigurationOutput$, GetBucketMetadataConfigurationRequest$, GetBucketMetadataConfigurationResult$, GetBucketMetadataTableConfigurationOutput$, GetBucketMetadataTableConfigurationRequest$, GetBucketMetadataTableConfigurationResult$, GetBucketMetricsConfigurationOutput$, GetBucketMetricsConfigurationRequest$, GetBucketNotificationConfigurationRequest$, GetBucketOwnershipControlsOutput$, GetBucketOwnershipControlsRequest$, GetBucketPolicyOutput$, GetBucketPolicyRequest$, GetBucketPolicyStatusOutput$, GetBucketPolicyStatusRequest$, GetBucketReplicationOutput$, GetBucketReplicationRequest$, GetBucketRequestPaymentOutput$, GetBucketRequestPaymentRequest$, GetBucketTaggingOutput$, GetBucketTaggingRequest$, GetBucketVersioningOutput$, GetBucketVersioningRequest$, GetBucketWebsiteOutput$, GetBucketWebsiteRequest$, GetObjectAclOutput$, GetObjectAclRequest$, GetObjectAttributesOutput$, GetObjectAttributesParts$, GetObjectAttributesRequest$, GetObjectLegalHoldOutput$, GetObjectLegalHoldRequest$, GetObjectLockConfigurationOutput$, GetObjectLockConfigurationRequest$, GetObjectOutput$, GetObjectRequest$, GetObjectRetentionOutput$, GetObjectRetentionRequest$, GetObjectTaggingOutput$, GetObjectTaggingRequest$, GetObjectTorrentOutput$, GetObjectTorrentRequest$, GetPublicAccessBlockOutput$, GetPublicAccessBlockRequest$, GlacierJobParameters$, Grant$, Grantee$, HeadBucketOutput$, HeadBucketRequest$, HeadObjectOutput$, HeadObjectRequest$, IdempotencyParameterMismatch$, IndexDocument$, Initiator$, InputSerialization$, IntelligentTieringAndOperator$, IntelligentTieringConfiguration$, IntelligentTieringFilter$, InvalidObjectState$, InvalidRequest$, InvalidWriteOffset$, InventoryConfiguration$, InventoryDestination$, InventoryEncryption$, InventoryFilter$, InventoryS3BucketDestination$, InventorySchedule$, InventoryTableConfiguration$, InventoryTableConfigurationResult$, InventoryTableConfigurationUpdates$, JournalTableConfiguration$, JournalTableConfigurationResult$, JournalTableConfigurationUpdates$, JSONInput$, JSONOutput$, LambdaFunctionConfiguration$, LifecycleExpiration$, LifecycleRule$, LifecycleRuleAndOperator$, LifecycleRuleFilter$, ListBucketAnalyticsConfigurationsOutput$, ListBucketAnalyticsConfigurationsRequest$, ListBucketIntelligentTieringConfigurationsOutput$, ListBucketIntelligentTieringConfigurationsRequest$, ListBucketInventoryConfigurationsOutput$, ListBucketInventoryConfigurationsRequest$, ListBucketMetricsConfigurationsOutput$, ListBucketMetricsConfigurationsRequest$, ListBucketsOutput$, ListBucketsRequest$, ListDirectoryBucketsOutput$, ListDirectoryBucketsRequest$, ListMultipartUploadsOutput$, ListMultipartUploadsRequest$, ListObjectsOutput$, ListObjectsRequest$, ListObjectsV2Output$, ListObjectsV2Request$, ListObjectVersionsOutput$, ListObjectVersionsRequest$, ListPartsOutput$, ListPartsRequest$, LocationInfo$, LoggingEnabled$, MetadataConfiguration$, MetadataConfigurationResult$, MetadataEntry$, MetadataTableConfiguration$, MetadataTableConfigurationResult$, MetadataTableEncryptionConfiguration$, Metrics$, MetricsAndOperator$, MetricsConfiguration$, MultipartUpload$, NoncurrentVersionExpiration$, NoncurrentVersionTransition$, NoSuchBucket$, NoSuchKey$, NoSuchUpload$, NotFound$, NotificationConfiguration$, NotificationConfigurationFilter$, _Object$, ObjectAlreadyInActiveTierError$, ObjectIdentifier$, ObjectLockConfiguration$, ObjectLockLegalHold$, ObjectLockRetention$, ObjectLockRule$, ObjectNotInActiveTierError$, ObjectPart$, ObjectVersion$, OutputLocation$, OutputSerialization$, Owner$, OwnershipControls$, OwnershipControlsRule$, ParquetInput$, Part$, PartitionedPrefix$, PolicyStatus$, Progress$, ProgressEvent$, PublicAccessBlockConfiguration$, PutBucketAbacRequest$, PutBucketAccelerateConfigurationRequest$, PutBucketAclRequest$, PutBucketAnalyticsConfigurationRequest$, PutBucketCorsRequest$, PutBucketEncryptionRequest$, PutBucketIntelligentTieringConfigurationRequest$, PutBucketInventoryConfigurationRequest$, PutBucketLifecycleConfigurationOutput$, PutBucketLifecycleConfigurationRequest$, PutBucketLoggingRequest$, PutBucketMetricsConfigurationRequest$, PutBucketNotificationConfigurationRequest$, PutBucketOwnershipControlsRequest$, PutBucketPolicyRequest$, PutBucketReplicationRequest$, PutBucketRequestPaymentRequest$, PutBucketTaggingRequest$, PutBucketVersioningRequest$, PutBucketWebsiteRequest$, PutObjectAclOutput$, PutObjectAclRequest$, PutObjectLegalHoldOutput$, PutObjectLegalHoldRequest$, PutObjectLockConfigurationOutput$, PutObjectLockConfigurationRequest$, PutObjectOutput$, PutObjectRequest$, PutObjectRetentionOutput$, PutObjectRetentionRequest$, PutObjectTaggingOutput$, PutObjectTaggingRequest$, PutPublicAccessBlockRequest$, QueueConfiguration$, RecordExpiration$, RecordsEvent$, Redirect$, RedirectAllRequestsTo$, RenameObjectOutput$, RenameObjectRequest$, ReplicaModifications$, ReplicationConfiguration$, ReplicationRule$, ReplicationRuleAndOperator$, ReplicationRuleFilter$, ReplicationTime$, ReplicationTimeValue$, RequestPaymentConfiguration$, RequestProgress$, RestoreObjectOutput$, RestoreObjectRequest$, RestoreRequest$, RestoreStatus$, RoutingRule$, S3KeyFilter$, S3Location$, S3TablesDestination$, S3TablesDestinationResult$, ScanRange$, SelectObjectContentOutput$, SelectObjectContentRequest$, SelectParameters$, ServerSideEncryptionByDefault$, ServerSideEncryptionConfiguration$, ServerSideEncryptionRule$, SessionCredentials$, SimplePrefix$, SourceSelectionCriteria$, SSEKMS$, SseKmsEncryptedObjects$, SSES3$, Stats$, StatsEvent$, StorageClassAnalysis$, StorageClassAnalysisDataExport$, Tag$, Tagging$, TargetGrant$, TargetObjectKeyFormat$, Tiering$, TooManyParts$, TopicConfiguration$, Transition$, UpdateBucketMetadataInventoryTableConfigurationRequest$, UpdateBucketMetadataJournalTableConfigurationRequest$, UploadPartCopyOutput$, UploadPartCopyRequest$, UploadPartOutput$, UploadPartRequest$, VersioningConfiguration$, WebsiteConfiguration$, WriteGetObjectResponseRequest$, __Unit, S3ServiceException$, AllowedHeaders, AllowedMethods, AllowedOrigins, AnalyticsConfigurationList, Buckets, ChecksumAlgorithmList, CommonPrefixList, CompletedPartList, CORSRules, DeletedObjects, DeleteMarkers, EncryptionTypeList, Errors, EventList, ExposeHeaders, FilterRuleList, Grants, IntelligentTieringConfigurationList, InventoryConfigurationList, InventoryOptionalFields, LambdaFunctionConfigurationList, LifecycleRules, MetricsConfigurationList, MultipartUploadList, NoncurrentVersionTransitionList, ObjectAttributesList, ObjectIdentifierList, ObjectList, ObjectVersionList, OptionalObjectAttributesList, OwnershipControlsRules, Parts, PartsList, QueueConfigurationList, ReplicationRules, RoutingRules, ServerSideEncryptionRules, TagSet, TargetGrants, TieringList, TopicConfigurationList, TransitionList, UserMetadata, Metadata, AnalyticsFilter$, MetricsFilter$, SelectObjectContentEventStream$, AbortMultipartUpload$, CompleteMultipartUpload$, CopyObject$, CreateBucket$, CreateBucketMetadataConfiguration$, CreateBucketMetadataTableConfiguration$, CreateMultipartUpload$, CreateSession$, DeleteBucket$, DeleteBucketAnalyticsConfiguration$, DeleteBucketCors$, DeleteBucketEncryption$, DeleteBucketIntelligentTieringConfiguration$, DeleteBucketInventoryConfiguration$, DeleteBucketLifecycle$, DeleteBucketMetadataConfiguration$, DeleteBucketMetadataTableConfiguration$, DeleteBucketMetricsConfiguration$, DeleteBucketOwnershipControls$, DeleteBucketPolicy$, DeleteBucketReplication$, DeleteBucketTagging$, DeleteBucketWebsite$, DeleteObject$, DeleteObjects$, DeleteObjectTagging$, DeletePublicAccessBlock$, GetBucketAbac$, GetBucketAccelerateConfiguration$, GetBucketAcl$, GetBucketAnalyticsConfiguration$, GetBucketCors$, GetBucketEncryption$, GetBucketIntelligentTieringConfiguration$, GetBucketInventoryConfiguration$, GetBucketLifecycleConfiguration$, GetBucketLocation$, GetBucketLogging$, GetBucketMetadataConfiguration$, GetBucketMetadataTableConfiguration$, GetBucketMetricsConfiguration$, GetBucketNotificationConfiguration$, GetBucketOwnershipControls$, GetBucketPolicy$, GetBucketPolicyStatus$, GetBucketReplication$, GetBucketRequestPayment$, GetBucketTagging$, GetBucketVersioning$, GetBucketWebsite$, GetObject$, GetObjectAcl$, GetObjectAttributes$, GetObjectLegalHold$, GetObjectLockConfiguration$, GetObjectRetention$, GetObjectTagging$, GetObjectTorrent$, GetPublicAccessBlock$, HeadBucket$, HeadObject$, ListBucketAnalyticsConfigurations$, ListBucketIntelligentTieringConfigurations$, ListBucketInventoryConfigurations$, ListBucketMetricsConfigurations$, ListBuckets$, ListDirectoryBuckets$, ListMultipartUploads$, ListObjects$, ListObjectsV2$, ListObjectVersions$, ListParts$, PutBucketAbac$, PutBucketAccelerateConfiguration$, PutBucketAcl$, PutBucketAnalyticsConfiguration$, PutBucketCors$, PutBucketEncryption$, PutBucketIntelligentTieringConfiguration$, PutBucketInventoryConfiguration$, PutBucketLifecycleConfiguration$, PutBucketLogging$, PutBucketMetricsConfiguration$, PutBucketNotificationConfiguration$, PutBucketOwnershipControls$, PutBucketPolicy$, PutBucketReplication$, PutBucketRequestPayment$, PutBucketTagging$, PutBucketVersioning$, PutBucketWebsite$, PutObject$, PutObjectAcl$, PutObjectLegalHold$, PutObjectLockConfiguration$, PutObjectRetention$, PutObjectTagging$, PutPublicAccessBlock$, RenameObject$, RestoreObject$, SelectObjectContent$, UpdateBucketMetadataInventoryTableConfiguration$, UpdateBucketMetadataJournalTableConfiguration$, UploadPart$, UploadPartCopy$, WriteGetObjectResponse$;
 var init_schemas_0 = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/schemas/schemas_0.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_schema2();
     init_errors();
@@ -20961,10 +19661,12 @@ var init_schemas_0 = __esm({
     ];
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/CreateSessionCommand.js
 var CreateSessionCommand;
 var init_CreateSessionCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/CreateSessionCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -20984,12 +19686,11 @@ var init_CreateSessionCommand = __esm({
       static {
         __name(this, "CreateSessionCommand");
       }
-      static {
-        __name2(this, "CreateSessionCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/package.json
 var package_default;
 var init_package = __esm({
   "../node_modules/@aws-sdk/client-s3/package.json"() {
@@ -21120,56 +19821,65 @@ var init_package = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-crypto/sha1-browser/node_modules/@smithy/util-utf8/dist-es/fromUtf8.browser.js
 var fromUtf84;
 var init_fromUtf8_browser3 = __esm({
   "../node_modules/@aws-crypto/sha1-browser/node_modules/@smithy/util-utf8/dist-es/fromUtf8.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    fromUtf84 = /* @__PURE__ */ __name2((input) => new TextEncoder().encode(input), "fromUtf8");
+    fromUtf84 = /* @__PURE__ */ __name((input) => new TextEncoder().encode(input), "fromUtf8");
   }
 });
+
+// ../node_modules/@aws-crypto/sha1-browser/node_modules/@smithy/util-utf8/dist-es/toUint8Array.js
 var init_toUint8Array3 = __esm({
   "../node_modules/@aws-crypto/sha1-browser/node_modules/@smithy/util-utf8/dist-es/toUint8Array.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_fromUtf8_browser3();
   }
 });
+
+// ../node_modules/@aws-crypto/sha1-browser/node_modules/@smithy/util-utf8/dist-es/toUtf8.browser.js
 var init_toUtf8_browser3 = __esm({
   "../node_modules/@aws-crypto/sha1-browser/node_modules/@smithy/util-utf8/dist-es/toUtf8.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-crypto/sha1-browser/node_modules/@smithy/util-utf8/dist-es/index.js
 var init_dist_es45 = __esm({
   "../node_modules/@aws-crypto/sha1-browser/node_modules/@smithy/util-utf8/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_fromUtf8_browser3();
     init_toUint8Array3();
     init_toUtf8_browser3();
   }
 });
+
+// ../node_modules/@aws-crypto/sha1-browser/build/module/isEmptyData.js
 function isEmptyData2(data) {
   if (typeof data === "string") {
     return data.length === 0;
   }
   return data.byteLength === 0;
 }
-__name(isEmptyData2, "isEmptyData2");
 var init_isEmptyData2 = __esm({
   "../node_modules/@aws-crypto/sha1-browser/build/module/isEmptyData.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(isEmptyData2, "isEmptyData");
+    __name(isEmptyData2, "isEmptyData");
   }
 });
-var SHA_1_HASH;
-var SHA_1_HMAC_ALGO;
-var EMPTY_DATA_SHA_1;
+
+// ../node_modules/@aws-crypto/sha1-browser/build/module/constants.js
+var SHA_1_HASH, SHA_1_HMAC_ALGO, EMPTY_DATA_SHA_1;
 var init_constants10 = __esm({
   "../node_modules/@aws-crypto/sha1-browser/build/module/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     SHA_1_HASH = { name: "SHA-1" };
     SHA_1_HMAC_ALGO = {
@@ -21200,6 +19910,8 @@ var init_constants10 = __esm({
     ]);
   }
 });
+
+// ../node_modules/@aws-sdk/util-locate-window/dist-es/index.js
 function locateWindow() {
   if (typeof window !== "undefined") {
     return window;
@@ -21208,16 +19920,17 @@ function locateWindow() {
   }
   return fallbackWindow;
 }
-__name(locateWindow, "locateWindow");
 var fallbackWindow;
 var init_dist_es46 = __esm({
   "../node_modules/@aws-sdk/util-locate-window/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     fallbackWindow = {};
-    __name2(locateWindow, "locateWindow");
+    __name(locateWindow, "locateWindow");
   }
 });
+
+// ../node_modules/@aws-crypto/sha1-browser/build/module/webCryptoSha1.js
 function convertToBuffer2(data) {
   if (typeof data === "string") {
     return fromUtf84(data);
@@ -21227,11 +19940,10 @@ function convertToBuffer2(data) {
   }
   return new Uint8Array(data);
 }
-__name(convertToBuffer2, "convertToBuffer2");
 var Sha1;
 var init_webCryptoSha1 = __esm({
   "../node_modules/@aws-crypto/sha1-browser/build/module/webCryptoSha1.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es45();
     init_isEmptyData2();
@@ -21249,8 +19961,7 @@ var init_webCryptoSha1 = __esm({
           });
         }
       }
-      __name(Sha13, "Sha13");
-      __name2(Sha13, "Sha1");
+      __name(Sha13, "Sha1");
       Sha13.prototype.update = function(data) {
         if (isEmptyData2(data)) {
           return;
@@ -21284,9 +19995,11 @@ var init_webCryptoSha1 = __esm({
       };
       return Sha13;
     }();
-    __name2(convertToBuffer2, "convertToBuffer");
+    __name(convertToBuffer2, "convertToBuffer");
   }
 });
+
+// ../node_modules/@aws-crypto/supports-web-crypto/build/module/supportsWebCrypto.js
 function supportsWebCrypto(window2) {
   if (supportsSecureRandom(window2) && typeof window2.crypto.subtle === "object") {
     var subtle = window2.crypto.subtle;
@@ -21294,7 +20007,6 @@ function supportsWebCrypto(window2) {
   }
   return false;
 }
-__name(supportsWebCrypto, "supportsWebCrypto");
 function supportsSecureRandom(window2) {
   if (typeof window2 === "object" && typeof window2.crypto === "object") {
     var getRandomValues = window2.crypto.getRandomValues;
@@ -21302,17 +20014,15 @@ function supportsSecureRandom(window2) {
   }
   return false;
 }
-__name(supportsSecureRandom, "supportsSecureRandom");
 function supportsSubtleCrypto(subtle) {
   return subtle && subtleCryptoMethods.every(function(methodName) {
     return typeof subtle[methodName] === "function";
   });
 }
-__name(supportsSubtleCrypto, "supportsSubtleCrypto");
 var subtleCryptoMethods;
 var init_supportsWebCrypto = __esm({
   "../node_modules/@aws-crypto/supports-web-crypto/build/module/supportsWebCrypto.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     subtleCryptoMethods = [
       "decrypt",
@@ -21324,22 +20034,26 @@ var init_supportsWebCrypto = __esm({
       "sign",
       "verify"
     ];
-    __name2(supportsWebCrypto, "supportsWebCrypto");
-    __name2(supportsSecureRandom, "supportsSecureRandom");
-    __name2(supportsSubtleCrypto, "supportsSubtleCrypto");
+    __name(supportsWebCrypto, "supportsWebCrypto");
+    __name(supportsSecureRandom, "supportsSecureRandom");
+    __name(supportsSubtleCrypto, "supportsSubtleCrypto");
   }
 });
+
+// ../node_modules/@aws-crypto/supports-web-crypto/build/module/index.js
 var init_module4 = __esm({
   "../node_modules/@aws-crypto/supports-web-crypto/build/module/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_supportsWebCrypto();
   }
 });
+
+// ../node_modules/@aws-crypto/sha1-browser/build/module/crossPlatformSha1.js
 var Sha12;
 var init_crossPlatformSha1 = __esm({
   "../node_modules/@aws-crypto/sha1-browser/build/module/crossPlatformSha1.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_webCryptoSha1();
     init_module4();
@@ -21354,8 +20068,7 @@ var init_crossPlatformSha1 = __esm({
           throw new Error("SHA1 not supported");
         }
       }
-      __name(Sha13, "Sha13");
-      __name2(Sha13, "Sha1");
+      __name(Sha13, "Sha1");
       Sha13.prototype.update = function(data, encoding) {
         this.hash.update(convertToBuffer(data));
       };
@@ -21369,20 +20082,22 @@ var init_crossPlatformSha1 = __esm({
     }();
   }
 });
+
+// ../node_modules/@aws-crypto/sha1-browser/build/module/index.js
 var init_module5 = __esm({
   "../node_modules/@aws-crypto/sha1-browser/build/module/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_crossPlatformSha1();
     init_webCryptoSha1();
   }
 });
-var SHA_256_HASH;
-var SHA_256_HMAC_ALGO;
-var EMPTY_DATA_SHA_256;
+
+// ../node_modules/@aws-crypto/sha256-browser/build/module/constants.js
+var SHA_256_HASH, SHA_256_HMAC_ALGO, EMPTY_DATA_SHA_256;
 var init_constants11 = __esm({
   "../node_modules/@aws-crypto/sha256-browser/build/module/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     SHA_256_HASH = { name: "SHA-256" };
     SHA_256_HMAC_ALGO = {
@@ -21425,10 +20140,12 @@ var init_constants11 = __esm({
     ]);
   }
 });
+
+// ../node_modules/@aws-crypto/sha256-browser/build/module/webCryptoSha256.js
 var Sha256;
 var init_webCryptoSha256 = __esm({
   "../node_modules/@aws-crypto/sha256-browser/build/module/webCryptoSha256.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_module();
     init_constants11();
@@ -21440,8 +20157,7 @@ var init_webCryptoSha256 = __esm({
         this.secret = secret;
         this.reset();
       }
-      __name(Sha2564, "Sha2564");
-      __name2(Sha2564, "Sha256");
+      __name(Sha2564, "Sha256");
       Sha2564.prototype.update = function(data) {
         if (isEmptyData(data)) {
           return;
@@ -21485,14 +20201,12 @@ var init_webCryptoSha256 = __esm({
     }();
   }
 });
-var BLOCK_SIZE;
-var DIGEST_LENGTH;
-var KEY;
-var INIT;
-var MAX_HASHABLE_LENGTH;
+
+// ../node_modules/@aws-crypto/sha256-js/build/module/constants.js
+var BLOCK_SIZE, DIGEST_LENGTH, KEY, INIT, MAX_HASHABLE_LENGTH;
 var init_constants12 = __esm({
   "../node_modules/@aws-crypto/sha256-js/build/module/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     BLOCK_SIZE = 64;
     DIGEST_LENGTH = 32;
@@ -21575,10 +20289,12 @@ var init_constants12 = __esm({
     MAX_HASHABLE_LENGTH = Math.pow(2, 53) - 1;
   }
 });
+
+// ../node_modules/@aws-crypto/sha256-js/build/module/RawSha256.js
 var RawSha256;
 var init_RawSha256 = __esm({
   "../node_modules/@aws-crypto/sha256-js/build/module/RawSha256.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_constants12();
     RawSha256 = /** @class */
@@ -21591,8 +20307,7 @@ var init_RawSha256 = __esm({
         this.bytesHashed = 0;
         this.finished = false;
       }
-      __name(RawSha2562, "RawSha2562");
-      __name2(RawSha2562, "RawSha256");
+      __name(RawSha2562, "RawSha256");
       RawSha2562.prototype.update = function(data) {
         if (this.finished) {
           throw new Error("Attempted to update an already finished hash.");
@@ -21679,6 +20394,8 @@ var init_RawSha256 = __esm({
     }();
   }
 });
+
+// ../node_modules/@aws-crypto/sha256-js/build/module/jsSha256.js
 function bufferFromSecret(secret) {
   var input = convertToBuffer(secret);
   if (input.byteLength > BLOCK_SIZE) {
@@ -21690,11 +20407,10 @@ function bufferFromSecret(secret) {
   buffer.set(input);
   return buffer;
 }
-__name(bufferFromSecret, "bufferFromSecret");
 var Sha2562;
 var init_jsSha256 = __esm({
   "../node_modules/@aws-crypto/sha256-js/build/module/jsSha256.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_tslib_es6();
     init_constants12();
@@ -21707,8 +20423,7 @@ var init_jsSha256 = __esm({
         this.hash = new RawSha256();
         this.reset();
       }
-      __name(Sha2564, "Sha2564");
-      __name2(Sha2564, "Sha256");
+      __name(Sha2564, "Sha256");
       Sha2564.prototype.update = function(toHash) {
         if (isEmptyData(toHash) || this.error) {
           return;
@@ -21758,20 +20473,24 @@ var init_jsSha256 = __esm({
       };
       return Sha2564;
     }();
-    __name2(bufferFromSecret, "bufferFromSecret");
+    __name(bufferFromSecret, "bufferFromSecret");
   }
 });
+
+// ../node_modules/@aws-crypto/sha256-js/build/module/index.js
 var init_module6 = __esm({
   "../node_modules/@aws-crypto/sha256-js/build/module/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_jsSha256();
   }
 });
+
+// ../node_modules/@aws-crypto/sha256-browser/build/module/crossPlatformSha256.js
 var Sha2563;
 var init_crossPlatformSha256 = __esm({
   "../node_modules/@aws-crypto/sha256-browser/build/module/crossPlatformSha256.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_webCryptoSha256();
     init_module6();
@@ -21787,8 +20506,7 @@ var init_crossPlatformSha256 = __esm({
           this.hash = new Sha2562(secret);
         }
       }
-      __name(Sha2564, "Sha2564");
-      __name2(Sha2564, "Sha256");
+      __name(Sha2564, "Sha256");
       Sha2564.prototype.update = function(data, encoding) {
         this.hash.update(convertToBuffer(data));
       };
@@ -21802,21 +20520,24 @@ var init_crossPlatformSha256 = __esm({
     }();
   }
 });
+
+// ../node_modules/@aws-crypto/sha256-browser/build/module/index.js
 var init_module7 = __esm({
   "../node_modules/@aws-crypto/sha256-browser/build/module/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_crossPlatformSha256();
     init_webCryptoSha256();
   }
 });
-var createDefaultUserAgentProvider;
-var fallback;
+
+// ../node_modules/@aws-sdk/util-user-agent-browser/dist-es/index.js
+var createDefaultUserAgentProvider, fallback;
 var init_dist_es47 = __esm({
   "../node_modules/@aws-sdk/util-user-agent-browser/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    createDefaultUserAgentProvider = /* @__PURE__ */ __name2(({ serviceId, clientVersion }) => async (config) => {
+    createDefaultUserAgentProvider = /* @__PURE__ */ __name(({ serviceId, clientVersion }) => async (config) => {
       const navigator = typeof window !== "undefined" ? window.navigator : void 0;
       const uaString = navigator?.userAgent ?? "";
       const osName = navigator?.userAgentData?.platform ?? fallback.os(uaString) ?? "other";
@@ -21869,6 +20590,8 @@ var init_dist_es47 = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/eventstream-codec/dist-es/Int64.js
 function negate2(bytes) {
   for (let i2 = 0; i2 < 8; i2++) {
     bytes[i2] ^= 255;
@@ -21879,19 +20602,15 @@ function negate2(bytes) {
       break;
   }
 }
-__name(negate2, "negate2");
 var Int642;
 var init_Int64 = __esm({
   "../node_modules/@smithy/eventstream-codec/dist-es/Int64.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es11();
     Int642 = class _Int64 {
       static {
-        __name(this, "_Int64");
-      }
-      static {
-        __name2(this, "Int64");
+        __name(this, "Int64");
       }
       bytes;
       constructor(bytes) {
@@ -21925,33 +20644,21 @@ var init_Int64 = __esm({
         return String(this.valueOf());
       }
     };
-    __name2(negate2, "negate");
+    __name(negate2, "negate");
   }
 });
-var HeaderMarshaller;
-var HEADER_VALUE_TYPE2;
-var BOOLEAN_TAG;
-var BYTE_TAG;
-var SHORT_TAG;
-var INT_TAG;
-var LONG_TAG;
-var BINARY_TAG;
-var STRING_TAG;
-var TIMESTAMP_TAG;
-var UUID_TAG;
-var UUID_PATTERN2;
+
+// ../node_modules/@smithy/eventstream-codec/dist-es/HeaderMarshaller.js
+var HeaderMarshaller, HEADER_VALUE_TYPE2, BOOLEAN_TAG, BYTE_TAG, SHORT_TAG, INT_TAG, LONG_TAG, BINARY_TAG, STRING_TAG, TIMESTAMP_TAG, UUID_TAG, UUID_PATTERN2;
 var init_HeaderMarshaller = __esm({
   "../node_modules/@smithy/eventstream-codec/dist-es/HeaderMarshaller.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es11();
     init_Int64();
     HeaderMarshaller = class {
       static {
         __name(this, "HeaderMarshaller");
-      }
-      static {
-        __name2(this, "HeaderMarshaller");
       }
       toUtf8;
       fromUtf8;
@@ -22135,6 +20842,8 @@ var init_HeaderMarshaller = __esm({
     UUID_PATTERN2 = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/;
   }
 });
+
+// ../node_modules/@smithy/eventstream-codec/dist-es/splitMessage.js
 function splitMessage({ byteLength, byteOffset, buffer }) {
   if (byteLength < MINIMUM_MESSAGE_LENGTH) {
     throw new Error("Provided message too short to accommodate event stream message overhead");
@@ -22160,27 +20869,25 @@ function splitMessage({ byteLength, byteOffset, buffer }) {
     body: new Uint8Array(buffer, byteOffset + PRELUDE_LENGTH + CHECKSUM_LENGTH + headerLength, messageLength - headerLength - (PRELUDE_LENGTH + CHECKSUM_LENGTH + CHECKSUM_LENGTH))
   };
 }
-__name(splitMessage, "splitMessage");
-var PRELUDE_MEMBER_LENGTH;
-var PRELUDE_LENGTH;
-var CHECKSUM_LENGTH;
-var MINIMUM_MESSAGE_LENGTH;
+var PRELUDE_MEMBER_LENGTH, PRELUDE_LENGTH, CHECKSUM_LENGTH, MINIMUM_MESSAGE_LENGTH;
 var init_splitMessage = __esm({
   "../node_modules/@smithy/eventstream-codec/dist-es/splitMessage.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_module3();
     PRELUDE_MEMBER_LENGTH = 4;
     PRELUDE_LENGTH = PRELUDE_MEMBER_LENGTH * 2;
     CHECKSUM_LENGTH = 4;
     MINIMUM_MESSAGE_LENGTH = PRELUDE_LENGTH + CHECKSUM_LENGTH * 2;
-    __name2(splitMessage, "splitMessage");
+    __name(splitMessage, "splitMessage");
   }
 });
+
+// ../node_modules/@smithy/eventstream-codec/dist-es/EventStreamCodec.js
 var EventStreamCodec;
 var init_EventStreamCodec = __esm({
   "../node_modules/@smithy/eventstream-codec/dist-es/EventStreamCodec.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_module3();
     init_HeaderMarshaller();
@@ -22188,9 +20895,6 @@ var init_EventStreamCodec = __esm({
     EventStreamCodec = class {
       static {
         __name(this, "EventStreamCodec");
-      }
-      static {
-        __name2(this, "EventStreamCodec");
       }
       headerMarshaller;
       messageBuffer;
@@ -22255,23 +20959,24 @@ var init_EventStreamCodec = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/eventstream-codec/dist-es/Message.js
 var init_Message = __esm({
   "../node_modules/@smithy/eventstream-codec/dist-es/Message.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/eventstream-codec/dist-es/MessageDecoderStream.js
 var MessageDecoderStream;
 var init_MessageDecoderStream = __esm({
   "../node_modules/@smithy/eventstream-codec/dist-es/MessageDecoderStream.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     MessageDecoderStream = class {
       static {
         __name(this, "MessageDecoderStream");
-      }
-      static {
-        __name2(this, "MessageDecoderStream");
       }
       options;
       constructor(options) {
@@ -22289,17 +20994,16 @@ var init_MessageDecoderStream = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/eventstream-codec/dist-es/MessageEncoderStream.js
 var MessageEncoderStream;
 var init_MessageEncoderStream = __esm({
   "../node_modules/@smithy/eventstream-codec/dist-es/MessageEncoderStream.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     MessageEncoderStream = class {
       static {
         __name(this, "MessageEncoderStream");
-      }
-      static {
-        __name2(this, "MessageEncoderStream");
       }
       options;
       constructor(options) {
@@ -22320,17 +21024,16 @@ var init_MessageEncoderStream = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/eventstream-codec/dist-es/SmithyMessageDecoderStream.js
 var SmithyMessageDecoderStream;
 var init_SmithyMessageDecoderStream = __esm({
   "../node_modules/@smithy/eventstream-codec/dist-es/SmithyMessageDecoderStream.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     SmithyMessageDecoderStream = class {
       static {
         __name(this, "SmithyMessageDecoderStream");
-      }
-      static {
-        __name2(this, "SmithyMessageDecoderStream");
       }
       options;
       constructor(options) {
@@ -22350,17 +21053,16 @@ var init_SmithyMessageDecoderStream = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/eventstream-codec/dist-es/SmithyMessageEncoderStream.js
 var SmithyMessageEncoderStream;
 var init_SmithyMessageEncoderStream = __esm({
   "../node_modules/@smithy/eventstream-codec/dist-es/SmithyMessageEncoderStream.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     SmithyMessageEncoderStream = class {
       static {
         __name(this, "SmithyMessageEncoderStream");
-      }
-      static {
-        __name2(this, "SmithyMessageEncoderStream");
       }
       options;
       constructor(options) {
@@ -22378,9 +21080,11 @@ var init_SmithyMessageEncoderStream = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/eventstream-codec/dist-es/index.js
 var init_dist_es48 = __esm({
   "../node_modules/@smithy/eventstream-codec/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_EventStreamCodec();
     init_HeaderMarshaller();
@@ -22392,12 +21096,14 @@ var init_dist_es48 = __esm({
     init_SmithyMessageEncoderStream();
   }
 });
+
+// ../node_modules/@smithy/eventstream-serde-universal/dist-es/getChunkedStream.js
 function getChunkedStream(source) {
   let currentMessageTotalLength = 0;
   let currentMessagePendingLength = 0;
   let currentMessage = null;
   let messageLengthBuffer = null;
-  const allocateMessage = /* @__PURE__ */ __name2((size) => {
+  const allocateMessage = /* @__PURE__ */ __name((size) => {
     if (typeof size !== "number") {
       throw new Error("Attempted to allocate an event message where size was not a number: " + size);
     }
@@ -22407,7 +21113,7 @@ function getChunkedStream(source) {
     const currentMessageView = new DataView(currentMessage.buffer);
     currentMessageView.setUint32(0, size, false);
   }, "allocateMessage");
-  const iterator = /* @__PURE__ */ __name2(async function* () {
+  const iterator = /* @__PURE__ */ __name(async function* () {
     const sourceIterator = source[Symbol.asyncIterator]();
     while (true) {
       const { value, done } = await sourceIterator.next();
@@ -22456,14 +21162,15 @@ function getChunkedStream(source) {
     [Symbol.asyncIterator]: iterator
   };
 }
-__name(getChunkedStream, "getChunkedStream");
 var init_getChunkedStream = __esm({
   "../node_modules/@smithy/eventstream-serde-universal/dist-es/getChunkedStream.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(getChunkedStream, "getChunkedStream");
+    __name(getChunkedStream, "getChunkedStream");
   }
 });
+
+// ../node_modules/@smithy/eventstream-serde-universal/dist-es/getUnmarshalledStream.js
 function getMessageUnmarshaller(deserializer, toUtf82) {
   return async function(message) {
     const { value: messageType } = message.headers[":message-type"];
@@ -22494,18 +21201,19 @@ function getMessageUnmarshaller(deserializer, toUtf82) {
     }
   };
 }
-__name(getMessageUnmarshaller, "getMessageUnmarshaller");
 var init_getUnmarshalledStream = __esm({
   "../node_modules/@smithy/eventstream-serde-universal/dist-es/getUnmarshalledStream.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(getMessageUnmarshaller, "getMessageUnmarshaller");
+    __name(getMessageUnmarshaller, "getMessageUnmarshaller");
   }
 });
+
+// ../node_modules/@smithy/eventstream-serde-universal/dist-es/EventStreamMarshaller.js
 var EventStreamMarshaller;
 var init_EventStreamMarshaller = __esm({
   "../node_modules/@smithy/eventstream-serde-universal/dist-es/EventStreamMarshaller.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es48();
     init_getChunkedStream();
@@ -22513,9 +21221,6 @@ var init_EventStreamMarshaller = __esm({
     EventStreamMarshaller = class {
       static {
         __name(this, "EventStreamMarshaller");
-      }
-      static {
-        __name2(this, "EventStreamMarshaller");
       }
       eventStreamCodec;
       utfEncoder;
@@ -22540,27 +21245,32 @@ var init_EventStreamMarshaller = __esm({
     };
   }
 });
+
+// ../node_modules/@smithy/eventstream-serde-universal/dist-es/provider.js
 var init_provider = __esm({
   "../node_modules/@smithy/eventstream-serde-universal/dist-es/provider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/eventstream-serde-universal/dist-es/index.js
 var init_dist_es49 = __esm({
   "../node_modules/@smithy/eventstream-serde-universal/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_EventStreamMarshaller();
     init_provider();
   }
 });
-var readableStreamtoIterable;
-var iterableToReadableStream;
+
+// ../node_modules/@smithy/eventstream-serde-browser/dist-es/utils.js
+var readableStreamtoIterable, iterableToReadableStream;
 var init_utils3 = __esm({
   "../node_modules/@smithy/eventstream-serde-browser/dist-es/utils.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    readableStreamtoIterable = /* @__PURE__ */ __name2((readableStream) => ({
+    readableStreamtoIterable = /* @__PURE__ */ __name((readableStream) => ({
       [Symbol.asyncIterator]: async function* () {
         const reader = readableStream.getReader();
         try {
@@ -22575,7 +21285,7 @@ var init_utils3 = __esm({
         }
       }
     }), "readableStreamtoIterable");
-    iterableToReadableStream = /* @__PURE__ */ __name2((asyncIterable) => {
+    iterableToReadableStream = /* @__PURE__ */ __name((asyncIterable) => {
       const iterator = asyncIterable[Symbol.asyncIterator]();
       return new ReadableStream({
         async pull(controller) {
@@ -22589,20 +21299,18 @@ var init_utils3 = __esm({
     }, "iterableToReadableStream");
   }
 });
-var EventStreamMarshaller2;
-var isReadableStream2;
+
+// ../node_modules/@smithy/eventstream-serde-browser/dist-es/EventStreamMarshaller.js
+var EventStreamMarshaller2, isReadableStream2;
 var init_EventStreamMarshaller2 = __esm({
   "../node_modules/@smithy/eventstream-serde-browser/dist-es/EventStreamMarshaller.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es49();
     init_utils3();
     EventStreamMarshaller2 = class {
       static {
-        __name(this, "EventStreamMarshaller2");
-      }
-      static {
-        __name2(this, "EventStreamMarshaller");
+        __name(this, "EventStreamMarshaller");
       }
       universalMarshaller;
       constructor({ utf8Encoder, utf8Decoder }) {
@@ -22620,27 +21328,33 @@ var init_EventStreamMarshaller2 = __esm({
         return typeof ReadableStream === "function" ? iterableToReadableStream(serialziedIterable) : serialziedIterable;
       }
     };
-    isReadableStream2 = /* @__PURE__ */ __name2((body) => typeof ReadableStream === "function" && body instanceof ReadableStream, "isReadableStream");
+    isReadableStream2 = /* @__PURE__ */ __name((body) => typeof ReadableStream === "function" && body instanceof ReadableStream, "isReadableStream");
   }
 });
+
+// ../node_modules/@smithy/eventstream-serde-browser/dist-es/provider.js
 var eventStreamSerdeProvider;
 var init_provider2 = __esm({
   "../node_modules/@smithy/eventstream-serde-browser/dist-es/provider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_EventStreamMarshaller2();
-    eventStreamSerdeProvider = /* @__PURE__ */ __name2((options) => new EventStreamMarshaller2(options), "eventStreamSerdeProvider");
+    eventStreamSerdeProvider = /* @__PURE__ */ __name((options) => new EventStreamMarshaller2(options), "eventStreamSerdeProvider");
   }
 });
+
+// ../node_modules/@smithy/eventstream-serde-browser/dist-es/index.js
 var init_dist_es50 = __esm({
   "../node_modules/@smithy/eventstream-serde-browser/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_EventStreamMarshaller2();
     init_provider2();
     init_utils3();
   }
 });
+
+// ../node_modules/@smithy/chunked-blob-reader/dist-es/index.js
 async function blobReader(blob, onChunk, chunkSize = 1024 * 1024) {
   const size = blob.size;
   let totalBytesRead = 0;
@@ -22650,91 +21364,94 @@ async function blobReader(blob, onChunk, chunkSize = 1024 * 1024) {
     totalBytesRead += slice.size;
   }
 }
-__name(blobReader, "blobReader");
 var init_dist_es51 = __esm({
   "../node_modules/@smithy/chunked-blob-reader/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(blobReader, "blobReader");
+    __name(blobReader, "blobReader");
   }
 });
+
+// ../node_modules/@smithy/hash-blob-browser/dist-es/index.js
 var blobHasher;
 var init_dist_es52 = __esm({
   "../node_modules/@smithy/hash-blob-browser/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es51();
-    blobHasher = /* @__PURE__ */ __name2(/* @__PURE__ */ __name(async function blobHasher2(hashCtor, blob) {
+    blobHasher = /* @__PURE__ */ __name(async function blobHasher2(hashCtor, blob) {
       const hash = new hashCtor();
       await blobReader(blob, (chunk) => {
         hash.update(chunk);
       });
       return hash.digest();
-    }, "blobHasher2"), "blobHasher");
+    }, "blobHasher");
   }
 });
+
+// ../node_modules/@smithy/invalid-dependency/dist-es/invalidFunction.js
 var init_invalidFunction = __esm({
   "../node_modules/@smithy/invalid-dependency/dist-es/invalidFunction.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@smithy/invalid-dependency/dist-es/invalidProvider.js
 var invalidProvider;
 var init_invalidProvider = __esm({
   "../node_modules/@smithy/invalid-dependency/dist-es/invalidProvider.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    invalidProvider = /* @__PURE__ */ __name2((message) => () => Promise.reject(message), "invalidProvider");
+    invalidProvider = /* @__PURE__ */ __name((message) => () => Promise.reject(message), "invalidProvider");
   }
 });
+
+// ../node_modules/@smithy/invalid-dependency/dist-es/index.js
 var init_dist_es53 = __esm({
   "../node_modules/@smithy/invalid-dependency/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_invalidFunction();
     init_invalidProvider();
   }
 });
-var BLOCK_SIZE2;
-var DIGEST_LENGTH2;
-var INIT2;
+
+// ../node_modules/@smithy/md5-js/dist-es/constants.js
+var BLOCK_SIZE2, DIGEST_LENGTH2, INIT2;
 var init_constants13 = __esm({
   "../node_modules/@smithy/md5-js/dist-es/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     BLOCK_SIZE2 = 64;
     DIGEST_LENGTH2 = 16;
     INIT2 = [1732584193, 4023233417, 2562383102, 271733878];
   }
 });
+
+// ../node_modules/@smithy/md5-js/dist-es/index.js
 function cmn(q2, a2, b2, x2, s2, t8) {
   a2 = (a2 + q2 & 4294967295) + (x2 + t8 & 4294967295) & 4294967295;
   return (a2 << s2 | a2 >>> 32 - s2) + b2 & 4294967295;
 }
-__name(cmn, "cmn");
 function ff(a2, b2, c2, d2, x2, s2, t8) {
   return cmn(b2 & c2 | ~b2 & d2, a2, b2, x2, s2, t8);
 }
-__name(ff, "ff");
 function gg(a2, b2, c2, d2, x2, s2, t8) {
   return cmn(b2 & d2 | c2 & ~d2, a2, b2, x2, s2, t8);
 }
-__name(gg, "gg");
 function hh(a2, b2, c2, d2, x2, s2, t8) {
   return cmn(b2 ^ c2 ^ d2, a2, b2, x2, s2, t8);
 }
-__name(hh, "hh");
 function ii(a2, b2, c2, d2, x2, s2, t8) {
   return cmn(c2 ^ (b2 | ~d2), a2, b2, x2, s2, t8);
 }
-__name(ii, "ii");
 function isEmptyData3(data) {
   if (typeof data === "string") {
     return data.length === 0;
   }
   return data.byteLength === 0;
 }
-__name(isEmptyData3, "isEmptyData3");
 function convertToBuffer3(data) {
   if (typeof data === "string") {
     return fromUtf8(data);
@@ -22744,20 +21461,16 @@ function convertToBuffer3(data) {
   }
   return new Uint8Array(data);
 }
-__name(convertToBuffer3, "convertToBuffer3");
 var Md5;
 var init_dist_es54 = __esm({
   "../node_modules/@smithy/md5-js/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es6();
     init_constants13();
     Md5 = class {
       static {
         __name(this, "Md5");
-      }
-      static {
-        __name2(this, "Md5");
       }
       state;
       buffer;
@@ -22892,32 +21605,35 @@ var init_dist_es54 = __esm({
         this.finished = false;
       }
     };
-    __name2(cmn, "cmn");
-    __name2(ff, "ff");
-    __name2(gg, "gg");
-    __name2(hh, "hh");
-    __name2(ii, "ii");
-    __name2(isEmptyData3, "isEmptyData");
-    __name2(convertToBuffer3, "convertToBuffer");
+    __name(cmn, "cmn");
+    __name(ff, "ff");
+    __name(gg, "gg");
+    __name(hh, "hh");
+    __name(ii, "ii");
+    __name(isEmptyData3, "isEmptyData");
+    __name(convertToBuffer3, "convertToBuffer");
   }
 });
+
+// ../node_modules/@smithy/util-defaults-mode-browser/dist-es/constants.js
 var DEFAULTS_MODE_OPTIONS;
 var init_constants14 = __esm({
   "../node_modules/@smithy/util-defaults-mode-browser/dist-es/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     DEFAULTS_MODE_OPTIONS = ["in-region", "cross-region", "mobile", "standard", "legacy"];
   }
 });
-var resolveDefaultsModeConfig;
-var useMobileConfiguration;
+
+// ../node_modules/@smithy/util-defaults-mode-browser/dist-es/resolveDefaultsModeConfig.js
+var resolveDefaultsModeConfig, useMobileConfiguration;
 var init_resolveDefaultsModeConfig = __esm({
   "../node_modules/@smithy/util-defaults-mode-browser/dist-es/resolveDefaultsModeConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es15();
     init_constants14();
-    resolveDefaultsModeConfig = /* @__PURE__ */ __name2(({ defaultsMode } = {}) => memoize(async () => {
+    resolveDefaultsModeConfig = /* @__PURE__ */ __name(({ defaultsMode } = {}) => memoize(async () => {
       const mode = typeof defaultsMode === "function" ? await defaultsMode() : defaultsMode;
       switch (mode?.toLowerCase()) {
         case "auto":
@@ -22934,7 +21650,7 @@ var init_resolveDefaultsModeConfig = __esm({
           throw new Error(`Invalid parameter for "defaultsMode", expect ${DEFAULTS_MODE_OPTIONS.join(", ")}, got ${mode}`);
       }
     }), "resolveDefaultsModeConfig");
-    useMobileConfiguration = /* @__PURE__ */ __name2(() => {
+    useMobileConfiguration = /* @__PURE__ */ __name(() => {
       const navigator = window?.navigator;
       if (navigator?.connection) {
         const { effectiveType, rtt, downlink } = navigator?.connection;
@@ -22947,17 +21663,21 @@ var init_resolveDefaultsModeConfig = __esm({
     }, "useMobileConfiguration");
   }
 });
+
+// ../node_modules/@smithy/util-defaults-mode-browser/dist-es/index.js
 var init_dist_es55 = __esm({
   "../node_modules/@smithy/util-defaults-mode-browser/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_resolveDefaultsModeConfig();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/runtimeConfig.shared.js
 var getRuntimeConfig;
 var init_runtimeConfig_shared = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/runtimeConfig.shared.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es22();
     init_protocols2();
@@ -22969,7 +21689,7 @@ var init_runtimeConfig_shared = __esm({
     init_dist_es6();
     init_httpAuthSchemeProvider();
     init_endpointResolver();
-    getRuntimeConfig = /* @__PURE__ */ __name2((config) => {
+    getRuntimeConfig = /* @__PURE__ */ __name((config) => {
       return {
         apiVersion: "2006-03-01",
         base64Decoder: config?.base64Decoder ?? fromBase64,
@@ -22982,12 +21702,12 @@ var init_runtimeConfig_shared = __esm({
         httpAuthSchemes: config?.httpAuthSchemes ?? [
           {
             schemeId: "aws.auth#sigv4",
-            identityProvider: /* @__PURE__ */ __name2((ipc) => ipc.getIdentityProvider("aws.auth#sigv4"), "identityProvider"),
+            identityProvider: /* @__PURE__ */ __name((ipc) => ipc.getIdentityProvider("aws.auth#sigv4"), "identityProvider"),
             signer: new AwsSdkSigV4Signer()
           },
           {
             schemeId: "aws.auth#sigv4a",
-            identityProvider: /* @__PURE__ */ __name2((ipc) => ipc.getIdentityProvider("aws.auth#sigv4a"), "identityProvider"),
+            identityProvider: /* @__PURE__ */ __name((ipc) => ipc.getIdentityProvider("aws.auth#sigv4a"), "identityProvider"),
             signer: new AwsSdkSigV4ASigner()
           }
         ],
@@ -23011,10 +21731,12 @@ var init_runtimeConfig_shared = __esm({
     }, "getRuntimeConfig");
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/runtimeConfig.browser.js
 var getRuntimeConfig2;
 var init_runtimeConfig_browser = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/runtimeConfig.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_package();
     init_module5();
@@ -23031,9 +21753,9 @@ var init_runtimeConfig_browser = __esm({
     init_dist_es55();
     init_dist_es41();
     init_runtimeConfig_shared();
-    getRuntimeConfig2 = /* @__PURE__ */ __name2((config) => {
+    getRuntimeConfig2 = /* @__PURE__ */ __name((config) => {
       const defaultsMode = resolveDefaultsModeConfig(config);
-      const defaultConfigProvider = /* @__PURE__ */ __name2(() => defaultsMode().then(loadConfigsForDefaultMode), "defaultConfigProvider");
+      const defaultConfigProvider = /* @__PURE__ */ __name(() => defaultsMode().then(loadConfigsForDefaultMode), "defaultConfigProvider");
       const clientSharedValues = getRuntimeConfig(config);
       return {
         ...clientSharedValues,
@@ -23059,13 +21781,14 @@ var init_runtimeConfig_browser = __esm({
     }, "getRuntimeConfig");
   }
 });
-var getAwsRegionExtensionConfiguration;
-var resolveAwsRegionExtensionConfiguration;
+
+// ../node_modules/@aws-sdk/region-config-resolver/dist-es/extensions/index.js
+var getAwsRegionExtensionConfiguration, resolveAwsRegionExtensionConfiguration;
 var init_extensions4 = __esm({
   "../node_modules/@aws-sdk/region-config-resolver/dist-es/extensions/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    getAwsRegionExtensionConfiguration = /* @__PURE__ */ __name2((runtimeConfig) => {
+    getAwsRegionExtensionConfiguration = /* @__PURE__ */ __name((runtimeConfig) => {
       return {
         setRegion(region) {
           runtimeConfig.region = region;
@@ -23075,41 +21798,48 @@ var init_extensions4 = __esm({
         }
       };
     }, "getAwsRegionExtensionConfiguration");
-    resolveAwsRegionExtensionConfiguration = /* @__PURE__ */ __name2((awsRegionExtensionConfiguration) => {
+    resolveAwsRegionExtensionConfiguration = /* @__PURE__ */ __name((awsRegionExtensionConfiguration) => {
       return {
         region: awsRegionExtensionConfiguration.region()
       };
     }, "resolveAwsRegionExtensionConfiguration");
   }
 });
+
+// ../node_modules/@aws-sdk/region-config-resolver/dist-es/regionConfig/awsRegionConfig.js
 var init_awsRegionConfig = __esm({
   "../node_modules/@aws-sdk/region-config-resolver/dist-es/regionConfig/awsRegionConfig.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/region-config-resolver/dist-es/regionConfig/stsRegionDefaultResolver.browser.js
 var init_stsRegionDefaultResolver_browser = __esm({
   "../node_modules/@aws-sdk/region-config-resolver/dist-es/regionConfig/stsRegionDefaultResolver.browser.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/region-config-resolver/dist-es/index.js
 var init_dist_es56 = __esm({
   "../node_modules/@aws-sdk/region-config-resolver/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_extensions4();
     init_awsRegionConfig();
     init_stsRegionDefaultResolver_browser();
   }
 });
-var getHttpAuthExtensionConfiguration;
-var resolveHttpAuthRuntimeConfig;
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/auth/httpAuthExtensionConfiguration.js
+var getHttpAuthExtensionConfiguration, resolveHttpAuthRuntimeConfig;
 var init_httpAuthExtensionConfiguration = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/auth/httpAuthExtensionConfiguration.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    getHttpAuthExtensionConfiguration = /* @__PURE__ */ __name2((runtimeConfig) => {
+    getHttpAuthExtensionConfiguration = /* @__PURE__ */ __name((runtimeConfig) => {
       const _httpAuthSchemes = runtimeConfig.httpAuthSchemes;
       let _httpAuthSchemeProvider = runtimeConfig.httpAuthSchemeProvider;
       let _credentials = runtimeConfig.credentials;
@@ -23139,7 +21869,7 @@ var init_httpAuthExtensionConfiguration = __esm({
         }
       };
     }, "getHttpAuthExtensionConfiguration");
-    resolveHttpAuthRuntimeConfig = /* @__PURE__ */ __name2((config) => {
+    resolveHttpAuthRuntimeConfig = /* @__PURE__ */ __name((config) => {
       return {
         httpAuthSchemes: config.httpAuthSchemes(),
         httpAuthSchemeProvider: config.httpAuthSchemeProvider(),
@@ -23148,26 +21878,30 @@ var init_httpAuthExtensionConfiguration = __esm({
     }, "resolveHttpAuthRuntimeConfig");
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/runtimeExtensions.js
 var resolveRuntimeExtensions;
 var init_runtimeExtensions = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/runtimeExtensions.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es56();
     init_dist_es2();
     init_dist_es20();
     init_httpAuthExtensionConfiguration();
-    resolveRuntimeExtensions = /* @__PURE__ */ __name2((runtimeConfig, extensions) => {
+    resolveRuntimeExtensions = /* @__PURE__ */ __name((runtimeConfig, extensions) => {
       const extensionConfiguration = Object.assign(getAwsRegionExtensionConfiguration(runtimeConfig), getDefaultExtensionConfiguration(runtimeConfig), getHttpHandlerExtensionConfiguration(runtimeConfig), getHttpAuthExtensionConfiguration(runtimeConfig));
       extensions.forEach((extension) => extension.configure(extensionConfiguration));
       return Object.assign(runtimeConfig, resolveAwsRegionExtensionConfiguration(extensionConfiguration), resolveDefaultRuntimeConfig(extensionConfiguration), resolveHttpHandlerRuntimeConfig(extensionConfiguration), resolveHttpAuthRuntimeConfig(extensionConfiguration));
     }, "resolveRuntimeExtensions");
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/S3Client.js
 var S3Client;
 var init_S3Client = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/S3Client.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es3();
     init_dist_es25();
@@ -23192,9 +21926,6 @@ var init_S3Client = __esm({
     S3Client = class extends Client {
       static {
         __name(this, "S3Client");
-      }
-      static {
-        __name2(this, "S3Client");
       }
       config;
       constructor(...[configuration]) {
@@ -23222,7 +21953,7 @@ var init_S3Client = __esm({
         this.middlewareStack.use(getRecursionDetectionPlugin(this.config));
         this.middlewareStack.use(getHttpAuthSchemeEndpointRuleSetPlugin(this.config, {
           httpAuthSchemeParametersProvider: defaultS3HttpAuthSchemeParametersProvider,
-          identityProviderConfigProvider: /* @__PURE__ */ __name2(async (config) => new DefaultIdentityProviderConfig({
+          identityProviderConfigProvider: /* @__PURE__ */ __name(async (config) => new DefaultIdentityProviderConfig({
             "aws.auth#sigv4": config.credentials,
             "aws.auth#sigv4a": config.credentials
           }), "identityProviderConfigProvider")
@@ -23240,10 +21971,12 @@ var init_S3Client = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/AbortMultipartUploadCommand.js
 var AbortMultipartUploadCommand;
 var init_AbortMultipartUploadCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/AbortMultipartUploadCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -23263,12 +21996,11 @@ var init_AbortMultipartUploadCommand = __esm({
       static {
         __name(this, "AbortMultipartUploadCommand");
       }
-      static {
-        __name2(this, "AbortMultipartUploadCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-ssec/dist-es/index.js
 function ssecMiddleware(options) {
   return (next) => async (args) => {
     const input = { ...args.input };
@@ -23308,7 +22040,6 @@ function ssecMiddleware(options) {
     });
   };
 }
-__name(ssecMiddleware, "ssecMiddleware");
 function isValidBase64EncodedSSECustomerKey(str, options) {
   const base64Regex = /^(?:[A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/;
   if (!base64Regex.test(str))
@@ -23320,32 +22051,32 @@ function isValidBase64EncodedSSECustomerKey(str, options) {
     return false;
   }
 }
-__name(isValidBase64EncodedSSECustomerKey, "isValidBase64EncodedSSECustomerKey");
-var ssecMiddlewareOptions;
-var getSsecPlugin;
+var ssecMiddlewareOptions, getSsecPlugin;
 var init_dist_es57 = __esm({
   "../node_modules/@aws-sdk/middleware-ssec/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(ssecMiddleware, "ssecMiddleware");
+    __name(ssecMiddleware, "ssecMiddleware");
     ssecMiddlewareOptions = {
       name: "ssecMiddleware",
       step: "initialize",
       tags: ["SSE"],
       override: true
     };
-    getSsecPlugin = /* @__PURE__ */ __name2((config) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getSsecPlugin = /* @__PURE__ */ __name((config) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(ssecMiddleware(config), ssecMiddlewareOptions);
       }, "applyToStack")
     }), "getSsecPlugin");
-    __name2(isValidBase64EncodedSSECustomerKey, "isValidBase64EncodedSSECustomerKey");
+    __name(isValidBase64EncodedSSECustomerKey, "isValidBase64EncodedSSECustomerKey");
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/CompleteMultipartUploadCommand.js
 var CompleteMultipartUploadCommand;
 var init_CompleteMultipartUploadCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/CompleteMultipartUploadCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es57();
@@ -23367,16 +22098,15 @@ var init_CompleteMultipartUploadCommand = __esm({
       static {
         __name(this, "CompleteMultipartUploadCommand");
       }
-      static {
-        __name2(this, "CompleteMultipartUploadCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/CopyObjectCommand.js
 var CopyObjectCommand;
 var init_CopyObjectCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/CopyObjectCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es57();
@@ -23400,12 +22130,11 @@ var init_CopyObjectCommand = __esm({
       static {
         __name(this, "CopyObjectCommand");
       }
-      static {
-        __name2(this, "CopyObjectCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/middleware-location-constraint/dist-es/index.js
 function locationConstraintMiddleware(options) {
   return (next) => async (args) => {
     const { CreateBucketConfiguration } = args.input;
@@ -23419,31 +22148,31 @@ function locationConstraintMiddleware(options) {
     return next(args);
   };
 }
-__name(locationConstraintMiddleware, "locationConstraintMiddleware");
-var locationConstraintMiddlewareOptions;
-var getLocationConstraintPlugin;
+var locationConstraintMiddlewareOptions, getLocationConstraintPlugin;
 var init_dist_es58 = __esm({
   "../node_modules/@aws-sdk/middleware-location-constraint/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(locationConstraintMiddleware, "locationConstraintMiddleware");
+    __name(locationConstraintMiddleware, "locationConstraintMiddleware");
     locationConstraintMiddlewareOptions = {
       step: "initialize",
       tags: ["LOCATION_CONSTRAINT", "CREATE_BUCKET_CONFIGURATION"],
       name: "locationConstraintMiddleware",
       override: true
     };
-    getLocationConstraintPlugin = /* @__PURE__ */ __name2((config) => ({
-      applyToStack: /* @__PURE__ */ __name2((clientStack) => {
+    getLocationConstraintPlugin = /* @__PURE__ */ __name((config) => ({
+      applyToStack: /* @__PURE__ */ __name((clientStack) => {
         clientStack.add(locationConstraintMiddleware(config), locationConstraintMiddlewareOptions);
       }, "applyToStack")
     }), "getLocationConstraintPlugin");
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/CreateBucketCommand.js
 var CreateBucketCommand;
 var init_CreateBucketCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/CreateBucketCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es58();
     init_dist_es30();
@@ -23466,16 +22195,15 @@ var init_CreateBucketCommand = __esm({
       static {
         __name(this, "CreateBucketCommand");
       }
-      static {
-        __name2(this, "CreateBucketCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/CreateBucketMetadataConfigurationCommand.js
 var CreateBucketMetadataConfigurationCommand;
 var init_CreateBucketMetadataConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/CreateBucketMetadataConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -23498,16 +22226,15 @@ var init_CreateBucketMetadataConfigurationCommand = __esm({
       static {
         __name(this, "CreateBucketMetadataConfigurationCommand");
       }
-      static {
-        __name2(this, "CreateBucketMetadataConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/CreateBucketMetadataTableConfigurationCommand.js
 var CreateBucketMetadataTableConfigurationCommand;
 var init_CreateBucketMetadataTableConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/CreateBucketMetadataTableConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -23530,16 +22257,15 @@ var init_CreateBucketMetadataTableConfigurationCommand = __esm({
       static {
         __name(this, "CreateBucketMetadataTableConfigurationCommand");
       }
-      static {
-        __name2(this, "CreateBucketMetadataTableConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/CreateMultipartUploadCommand.js
 var CreateMultipartUploadCommand;
 var init_CreateMultipartUploadCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/CreateMultipartUploadCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es57();
@@ -23561,16 +22287,15 @@ var init_CreateMultipartUploadCommand = __esm({
       static {
         __name(this, "CreateMultipartUploadCommand");
       }
-      static {
-        __name2(this, "CreateMultipartUploadCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketAnalyticsConfigurationCommand.js
 var DeleteBucketAnalyticsConfigurationCommand;
 var init_DeleteBucketAnalyticsConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketAnalyticsConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23586,16 +22311,15 @@ var init_DeleteBucketAnalyticsConfigurationCommand = __esm({
       static {
         __name(this, "DeleteBucketAnalyticsConfigurationCommand");
       }
-      static {
-        __name2(this, "DeleteBucketAnalyticsConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketCommand.js
 var DeleteBucketCommand;
 var init_DeleteBucketCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23611,16 +22335,15 @@ var init_DeleteBucketCommand = __esm({
       static {
         __name(this, "DeleteBucketCommand");
       }
-      static {
-        __name2(this, "DeleteBucketCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketCorsCommand.js
 var DeleteBucketCorsCommand;
 var init_DeleteBucketCorsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketCorsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23636,16 +22359,15 @@ var init_DeleteBucketCorsCommand = __esm({
       static {
         __name(this, "DeleteBucketCorsCommand");
       }
-      static {
-        __name2(this, "DeleteBucketCorsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketEncryptionCommand.js
 var DeleteBucketEncryptionCommand;
 var init_DeleteBucketEncryptionCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketEncryptionCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23661,16 +22383,15 @@ var init_DeleteBucketEncryptionCommand = __esm({
       static {
         __name(this, "DeleteBucketEncryptionCommand");
       }
-      static {
-        __name2(this, "DeleteBucketEncryptionCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketIntelligentTieringConfigurationCommand.js
 var DeleteBucketIntelligentTieringConfigurationCommand;
 var init_DeleteBucketIntelligentTieringConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketIntelligentTieringConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23686,16 +22407,15 @@ var init_DeleteBucketIntelligentTieringConfigurationCommand = __esm({
       static {
         __name(this, "DeleteBucketIntelligentTieringConfigurationCommand");
       }
-      static {
-        __name2(this, "DeleteBucketIntelligentTieringConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketInventoryConfigurationCommand.js
 var DeleteBucketInventoryConfigurationCommand;
 var init_DeleteBucketInventoryConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketInventoryConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23711,16 +22431,15 @@ var init_DeleteBucketInventoryConfigurationCommand = __esm({
       static {
         __name(this, "DeleteBucketInventoryConfigurationCommand");
       }
-      static {
-        __name2(this, "DeleteBucketInventoryConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketLifecycleCommand.js
 var DeleteBucketLifecycleCommand;
 var init_DeleteBucketLifecycleCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketLifecycleCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23736,16 +22455,15 @@ var init_DeleteBucketLifecycleCommand = __esm({
       static {
         __name(this, "DeleteBucketLifecycleCommand");
       }
-      static {
-        __name2(this, "DeleteBucketLifecycleCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketMetadataConfigurationCommand.js
 var DeleteBucketMetadataConfigurationCommand;
 var init_DeleteBucketMetadataConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketMetadataConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23761,16 +22479,15 @@ var init_DeleteBucketMetadataConfigurationCommand = __esm({
       static {
         __name(this, "DeleteBucketMetadataConfigurationCommand");
       }
-      static {
-        __name2(this, "DeleteBucketMetadataConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketMetadataTableConfigurationCommand.js
 var DeleteBucketMetadataTableConfigurationCommand;
 var init_DeleteBucketMetadataTableConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketMetadataTableConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23786,16 +22503,15 @@ var init_DeleteBucketMetadataTableConfigurationCommand = __esm({
       static {
         __name(this, "DeleteBucketMetadataTableConfigurationCommand");
       }
-      static {
-        __name2(this, "DeleteBucketMetadataTableConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketMetricsConfigurationCommand.js
 var DeleteBucketMetricsConfigurationCommand;
 var init_DeleteBucketMetricsConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketMetricsConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23811,16 +22527,15 @@ var init_DeleteBucketMetricsConfigurationCommand = __esm({
       static {
         __name(this, "DeleteBucketMetricsConfigurationCommand");
       }
-      static {
-        __name2(this, "DeleteBucketMetricsConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketOwnershipControlsCommand.js
 var DeleteBucketOwnershipControlsCommand;
 var init_DeleteBucketOwnershipControlsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketOwnershipControlsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23836,16 +22551,15 @@ var init_DeleteBucketOwnershipControlsCommand = __esm({
       static {
         __name(this, "DeleteBucketOwnershipControlsCommand");
       }
-      static {
-        __name2(this, "DeleteBucketOwnershipControlsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketPolicyCommand.js
 var DeleteBucketPolicyCommand;
 var init_DeleteBucketPolicyCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketPolicyCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23861,16 +22575,15 @@ var init_DeleteBucketPolicyCommand = __esm({
       static {
         __name(this, "DeleteBucketPolicyCommand");
       }
-      static {
-        __name2(this, "DeleteBucketPolicyCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketReplicationCommand.js
 var DeleteBucketReplicationCommand;
 var init_DeleteBucketReplicationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketReplicationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23886,16 +22599,15 @@ var init_DeleteBucketReplicationCommand = __esm({
       static {
         __name(this, "DeleteBucketReplicationCommand");
       }
-      static {
-        __name2(this, "DeleteBucketReplicationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketTaggingCommand.js
 var DeleteBucketTaggingCommand;
 var init_DeleteBucketTaggingCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketTaggingCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23911,16 +22623,15 @@ var init_DeleteBucketTaggingCommand = __esm({
       static {
         __name(this, "DeleteBucketTaggingCommand");
       }
-      static {
-        __name2(this, "DeleteBucketTaggingCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketWebsiteCommand.js
 var DeleteBucketWebsiteCommand;
 var init_DeleteBucketWebsiteCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteBucketWebsiteCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -23936,16 +22647,15 @@ var init_DeleteBucketWebsiteCommand = __esm({
       static {
         __name(this, "DeleteBucketWebsiteCommand");
       }
-      static {
-        __name2(this, "DeleteBucketWebsiteCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteObjectCommand.js
 var DeleteObjectCommand;
 var init_DeleteObjectCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteObjectCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -23965,16 +22675,15 @@ var init_DeleteObjectCommand = __esm({
       static {
         __name(this, "DeleteObjectCommand");
       }
-      static {
-        __name2(this, "DeleteObjectCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteObjectsCommand.js
 var DeleteObjectsCommand;
 var init_DeleteObjectsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteObjectsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -23998,16 +22707,15 @@ var init_DeleteObjectsCommand = __esm({
       static {
         __name(this, "DeleteObjectsCommand");
       }
-      static {
-        __name2(this, "DeleteObjectsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteObjectTaggingCommand.js
 var DeleteObjectTaggingCommand;
 var init_DeleteObjectTaggingCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeleteObjectTaggingCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24026,16 +22734,15 @@ var init_DeleteObjectTaggingCommand = __esm({
       static {
         __name(this, "DeleteObjectTaggingCommand");
       }
-      static {
-        __name2(this, "DeleteObjectTaggingCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/DeletePublicAccessBlockCommand.js
 var DeletePublicAccessBlockCommand;
 var init_DeletePublicAccessBlockCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/DeletePublicAccessBlockCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -24051,16 +22758,15 @@ var init_DeletePublicAccessBlockCommand = __esm({
       static {
         __name(this, "DeletePublicAccessBlockCommand");
       }
-      static {
-        __name2(this, "DeletePublicAccessBlockCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketAbacCommand.js
 var GetBucketAbacCommand;
 var init_GetBucketAbacCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketAbacCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24079,16 +22785,15 @@ var init_GetBucketAbacCommand = __esm({
       static {
         __name(this, "GetBucketAbacCommand");
       }
-      static {
-        __name2(this, "GetBucketAbacCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketAccelerateConfigurationCommand.js
 var GetBucketAccelerateConfigurationCommand;
 var init_GetBucketAccelerateConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketAccelerateConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24108,16 +22813,15 @@ var init_GetBucketAccelerateConfigurationCommand = __esm({
       static {
         __name(this, "GetBucketAccelerateConfigurationCommand");
       }
-      static {
-        __name2(this, "GetBucketAccelerateConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketAclCommand.js
 var GetBucketAclCommand;
 var init_GetBucketAclCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketAclCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24137,16 +22841,15 @@ var init_GetBucketAclCommand = __esm({
       static {
         __name(this, "GetBucketAclCommand");
       }
-      static {
-        __name2(this, "GetBucketAclCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketAnalyticsConfigurationCommand.js
 var GetBucketAnalyticsConfigurationCommand;
 var init_GetBucketAnalyticsConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketAnalyticsConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24166,16 +22869,15 @@ var init_GetBucketAnalyticsConfigurationCommand = __esm({
       static {
         __name(this, "GetBucketAnalyticsConfigurationCommand");
       }
-      static {
-        __name2(this, "GetBucketAnalyticsConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketCorsCommand.js
 var GetBucketCorsCommand;
 var init_GetBucketCorsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketCorsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24195,16 +22897,15 @@ var init_GetBucketCorsCommand = __esm({
       static {
         __name(this, "GetBucketCorsCommand");
       }
-      static {
-        __name2(this, "GetBucketCorsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketEncryptionCommand.js
 var GetBucketEncryptionCommand;
 var init_GetBucketEncryptionCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketEncryptionCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24224,16 +22925,15 @@ var init_GetBucketEncryptionCommand = __esm({
       static {
         __name(this, "GetBucketEncryptionCommand");
       }
-      static {
-        __name2(this, "GetBucketEncryptionCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketIntelligentTieringConfigurationCommand.js
 var GetBucketIntelligentTieringConfigurationCommand;
 var init_GetBucketIntelligentTieringConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketIntelligentTieringConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24253,16 +22953,15 @@ var init_GetBucketIntelligentTieringConfigurationCommand = __esm({
       static {
         __name(this, "GetBucketIntelligentTieringConfigurationCommand");
       }
-      static {
-        __name2(this, "GetBucketIntelligentTieringConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketInventoryConfigurationCommand.js
 var GetBucketInventoryConfigurationCommand;
 var init_GetBucketInventoryConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketInventoryConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24282,16 +22981,15 @@ var init_GetBucketInventoryConfigurationCommand = __esm({
       static {
         __name(this, "GetBucketInventoryConfigurationCommand");
       }
-      static {
-        __name2(this, "GetBucketInventoryConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketLifecycleConfigurationCommand.js
 var GetBucketLifecycleConfigurationCommand;
 var init_GetBucketLifecycleConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketLifecycleConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24311,16 +23009,15 @@ var init_GetBucketLifecycleConfigurationCommand = __esm({
       static {
         __name(this, "GetBucketLifecycleConfigurationCommand");
       }
-      static {
-        __name2(this, "GetBucketLifecycleConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketLocationCommand.js
 var GetBucketLocationCommand;
 var init_GetBucketLocationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketLocationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24340,16 +23037,15 @@ var init_GetBucketLocationCommand = __esm({
       static {
         __name(this, "GetBucketLocationCommand");
       }
-      static {
-        __name2(this, "GetBucketLocationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketLoggingCommand.js
 var GetBucketLoggingCommand;
 var init_GetBucketLoggingCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketLoggingCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24369,16 +23065,15 @@ var init_GetBucketLoggingCommand = __esm({
       static {
         __name(this, "GetBucketLoggingCommand");
       }
-      static {
-        __name2(this, "GetBucketLoggingCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketMetadataConfigurationCommand.js
 var GetBucketMetadataConfigurationCommand;
 var init_GetBucketMetadataConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketMetadataConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24398,16 +23093,15 @@ var init_GetBucketMetadataConfigurationCommand = __esm({
       static {
         __name(this, "GetBucketMetadataConfigurationCommand");
       }
-      static {
-        __name2(this, "GetBucketMetadataConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketMetadataTableConfigurationCommand.js
 var GetBucketMetadataTableConfigurationCommand;
 var init_GetBucketMetadataTableConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketMetadataTableConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24427,16 +23121,15 @@ var init_GetBucketMetadataTableConfigurationCommand = __esm({
       static {
         __name(this, "GetBucketMetadataTableConfigurationCommand");
       }
-      static {
-        __name2(this, "GetBucketMetadataTableConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketMetricsConfigurationCommand.js
 var GetBucketMetricsConfigurationCommand;
 var init_GetBucketMetricsConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketMetricsConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24456,16 +23149,15 @@ var init_GetBucketMetricsConfigurationCommand = __esm({
       static {
         __name(this, "GetBucketMetricsConfigurationCommand");
       }
-      static {
-        __name2(this, "GetBucketMetricsConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketNotificationConfigurationCommand.js
 var GetBucketNotificationConfigurationCommand;
 var init_GetBucketNotificationConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketNotificationConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24485,16 +23177,15 @@ var init_GetBucketNotificationConfigurationCommand = __esm({
       static {
         __name(this, "GetBucketNotificationConfigurationCommand");
       }
-      static {
-        __name2(this, "GetBucketNotificationConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketOwnershipControlsCommand.js
 var GetBucketOwnershipControlsCommand;
 var init_GetBucketOwnershipControlsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketOwnershipControlsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24514,16 +23205,15 @@ var init_GetBucketOwnershipControlsCommand = __esm({
       static {
         __name(this, "GetBucketOwnershipControlsCommand");
       }
-      static {
-        __name2(this, "GetBucketOwnershipControlsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketPolicyCommand.js
 var GetBucketPolicyCommand;
 var init_GetBucketPolicyCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketPolicyCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24543,16 +23233,15 @@ var init_GetBucketPolicyCommand = __esm({
       static {
         __name(this, "GetBucketPolicyCommand");
       }
-      static {
-        __name2(this, "GetBucketPolicyCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketPolicyStatusCommand.js
 var GetBucketPolicyStatusCommand;
 var init_GetBucketPolicyStatusCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketPolicyStatusCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24572,16 +23261,15 @@ var init_GetBucketPolicyStatusCommand = __esm({
       static {
         __name(this, "GetBucketPolicyStatusCommand");
       }
-      static {
-        __name2(this, "GetBucketPolicyStatusCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketReplicationCommand.js
 var GetBucketReplicationCommand;
 var init_GetBucketReplicationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketReplicationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24601,16 +23289,15 @@ var init_GetBucketReplicationCommand = __esm({
       static {
         __name(this, "GetBucketReplicationCommand");
       }
-      static {
-        __name2(this, "GetBucketReplicationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketRequestPaymentCommand.js
 var GetBucketRequestPaymentCommand;
 var init_GetBucketRequestPaymentCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketRequestPaymentCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24630,16 +23317,15 @@ var init_GetBucketRequestPaymentCommand = __esm({
       static {
         __name(this, "GetBucketRequestPaymentCommand");
       }
-      static {
-        __name2(this, "GetBucketRequestPaymentCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketTaggingCommand.js
 var GetBucketTaggingCommand;
 var init_GetBucketTaggingCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketTaggingCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24659,16 +23345,15 @@ var init_GetBucketTaggingCommand = __esm({
       static {
         __name(this, "GetBucketTaggingCommand");
       }
-      static {
-        __name2(this, "GetBucketTaggingCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketVersioningCommand.js
 var GetBucketVersioningCommand;
 var init_GetBucketVersioningCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketVersioningCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24688,16 +23373,15 @@ var init_GetBucketVersioningCommand = __esm({
       static {
         __name(this, "GetBucketVersioningCommand");
       }
-      static {
-        __name2(this, "GetBucketVersioningCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketWebsiteCommand.js
 var GetBucketWebsiteCommand;
 var init_GetBucketWebsiteCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetBucketWebsiteCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24717,16 +23401,15 @@ var init_GetBucketWebsiteCommand = __esm({
       static {
         __name(this, "GetBucketWebsiteCommand");
       }
-      static {
-        __name2(this, "GetBucketWebsiteCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectAclCommand.js
 var GetObjectAclCommand;
 var init_GetObjectAclCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectAclCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24746,16 +23429,15 @@ var init_GetObjectAclCommand = __esm({
       static {
         __name(this, "GetObjectAclCommand");
       }
-      static {
-        __name2(this, "GetObjectAclCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectAttributesCommand.js
 var GetObjectAttributesCommand;
 var init_GetObjectAttributesCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectAttributesCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es57();
@@ -24776,16 +23458,15 @@ var init_GetObjectAttributesCommand = __esm({
       static {
         __name(this, "GetObjectAttributesCommand");
       }
-      static {
-        __name2(this, "GetObjectAttributesCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectCommand.js
 var GetObjectCommand;
 var init_GetObjectCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -24813,16 +23494,15 @@ var init_GetObjectCommand = __esm({
       static {
         __name(this, "GetObjectCommand");
       }
-      static {
-        __name2(this, "GetObjectCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectLegalHoldCommand.js
 var GetObjectLegalHoldCommand;
 var init_GetObjectLegalHoldCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectLegalHoldCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24841,16 +23521,15 @@ var init_GetObjectLegalHoldCommand = __esm({
       static {
         __name(this, "GetObjectLegalHoldCommand");
       }
-      static {
-        __name2(this, "GetObjectLegalHoldCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectLockConfigurationCommand.js
 var GetObjectLockConfigurationCommand;
 var init_GetObjectLockConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectLockConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24869,16 +23548,15 @@ var init_GetObjectLockConfigurationCommand = __esm({
       static {
         __name(this, "GetObjectLockConfigurationCommand");
       }
-      static {
-        __name2(this, "GetObjectLockConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectRetentionCommand.js
 var GetObjectRetentionCommand;
 var init_GetObjectRetentionCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectRetentionCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24897,16 +23575,15 @@ var init_GetObjectRetentionCommand = __esm({
       static {
         __name(this, "GetObjectRetentionCommand");
       }
-      static {
-        __name2(this, "GetObjectRetentionCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectTaggingCommand.js
 var GetObjectTaggingCommand;
 var init_GetObjectTaggingCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectTaggingCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24925,16 +23602,15 @@ var init_GetObjectTaggingCommand = __esm({
       static {
         __name(this, "GetObjectTaggingCommand");
       }
-      static {
-        __name2(this, "GetObjectTaggingCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectTorrentCommand.js
 var GetObjectTorrentCommand;
 var init_GetObjectTorrentCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetObjectTorrentCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -24949,16 +23625,15 @@ var init_GetObjectTorrentCommand = __esm({
       static {
         __name(this, "GetObjectTorrentCommand");
       }
-      static {
-        __name2(this, "GetObjectTorrentCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/GetPublicAccessBlockCommand.js
 var GetPublicAccessBlockCommand;
 var init_GetPublicAccessBlockCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/GetPublicAccessBlockCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -24978,16 +23653,15 @@ var init_GetPublicAccessBlockCommand = __esm({
       static {
         __name(this, "GetPublicAccessBlockCommand");
       }
-      static {
-        __name2(this, "GetPublicAccessBlockCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/HeadBucketCommand.js
 var HeadBucketCommand;
 var init_HeadBucketCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/HeadBucketCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25006,16 +23680,15 @@ var init_HeadBucketCommand = __esm({
       static {
         __name(this, "HeadBucketCommand");
       }
-      static {
-        __name2(this, "HeadBucketCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/HeadObjectCommand.js
 var HeadObjectCommand;
 var init_HeadObjectCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/HeadObjectCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es57();
@@ -25038,16 +23711,15 @@ var init_HeadObjectCommand = __esm({
       static {
         __name(this, "HeadObjectCommand");
       }
-      static {
-        __name2(this, "HeadObjectCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListBucketAnalyticsConfigurationsCommand.js
 var ListBucketAnalyticsConfigurationsCommand;
 var init_ListBucketAnalyticsConfigurationsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListBucketAnalyticsConfigurationsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25067,16 +23739,15 @@ var init_ListBucketAnalyticsConfigurationsCommand = __esm({
       static {
         __name(this, "ListBucketAnalyticsConfigurationsCommand");
       }
-      static {
-        __name2(this, "ListBucketAnalyticsConfigurationsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListBucketIntelligentTieringConfigurationsCommand.js
 var ListBucketIntelligentTieringConfigurationsCommand;
 var init_ListBucketIntelligentTieringConfigurationsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListBucketIntelligentTieringConfigurationsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25096,16 +23767,15 @@ var init_ListBucketIntelligentTieringConfigurationsCommand = __esm({
       static {
         __name(this, "ListBucketIntelligentTieringConfigurationsCommand");
       }
-      static {
-        __name2(this, "ListBucketIntelligentTieringConfigurationsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListBucketInventoryConfigurationsCommand.js
 var ListBucketInventoryConfigurationsCommand;
 var init_ListBucketInventoryConfigurationsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListBucketInventoryConfigurationsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25125,16 +23795,15 @@ var init_ListBucketInventoryConfigurationsCommand = __esm({
       static {
         __name(this, "ListBucketInventoryConfigurationsCommand");
       }
-      static {
-        __name2(this, "ListBucketInventoryConfigurationsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListBucketMetricsConfigurationsCommand.js
 var ListBucketMetricsConfigurationsCommand;
 var init_ListBucketMetricsConfigurationsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListBucketMetricsConfigurationsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25153,16 +23822,15 @@ var init_ListBucketMetricsConfigurationsCommand = __esm({
       static {
         __name(this, "ListBucketMetricsConfigurationsCommand");
       }
-      static {
-        __name2(this, "ListBucketMetricsConfigurationsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListBucketsCommand.js
 var ListBucketsCommand;
 var init_ListBucketsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListBucketsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25178,16 +23846,15 @@ var init_ListBucketsCommand = __esm({
       static {
         __name(this, "ListBucketsCommand");
       }
-      static {
-        __name2(this, "ListBucketsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListDirectoryBucketsCommand.js
 var ListDirectoryBucketsCommand;
 var init_ListDirectoryBucketsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListDirectoryBucketsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25206,16 +23873,15 @@ var init_ListDirectoryBucketsCommand = __esm({
       static {
         __name(this, "ListDirectoryBucketsCommand");
       }
-      static {
-        __name2(this, "ListDirectoryBucketsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListMultipartUploadsCommand.js
 var ListMultipartUploadsCommand;
 var init_ListMultipartUploadsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListMultipartUploadsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25235,16 +23901,15 @@ var init_ListMultipartUploadsCommand = __esm({
       static {
         __name(this, "ListMultipartUploadsCommand");
       }
-      static {
-        __name2(this, "ListMultipartUploadsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListObjectsCommand.js
 var ListObjectsCommand;
 var init_ListObjectsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListObjectsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25264,16 +23929,15 @@ var init_ListObjectsCommand = __esm({
       static {
         __name(this, "ListObjectsCommand");
       }
-      static {
-        __name2(this, "ListObjectsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListObjectsV2Command.js
 var ListObjectsV2Command;
 var init_ListObjectsV2Command = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListObjectsV2Command.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25293,16 +23957,15 @@ var init_ListObjectsV2Command = __esm({
       static {
         __name(this, "ListObjectsV2Command");
       }
-      static {
-        __name2(this, "ListObjectsV2Command");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListObjectVersionsCommand.js
 var ListObjectVersionsCommand;
 var init_ListObjectVersionsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListObjectVersionsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -25322,16 +23985,15 @@ var init_ListObjectVersionsCommand = __esm({
       static {
         __name(this, "ListObjectVersionsCommand");
       }
-      static {
-        __name2(this, "ListObjectVersionsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/ListPartsCommand.js
 var ListPartsCommand;
 var init_ListPartsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/ListPartsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es57();
@@ -25353,16 +24015,15 @@ var init_ListPartsCommand = __esm({
       static {
         __name(this, "ListPartsCommand");
       }
-      static {
-        __name2(this, "ListPartsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketAbacCommand.js
 var PutBucketAbacCommand;
 var init_PutBucketAbacCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketAbacCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25384,16 +24045,15 @@ var init_PutBucketAbacCommand = __esm({
       static {
         __name(this, "PutBucketAbacCommand");
       }
-      static {
-        __name2(this, "PutBucketAbacCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketAccelerateConfigurationCommand.js
 var PutBucketAccelerateConfigurationCommand;
 var init_PutBucketAccelerateConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketAccelerateConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25416,16 +24076,15 @@ var init_PutBucketAccelerateConfigurationCommand = __esm({
       static {
         __name(this, "PutBucketAccelerateConfigurationCommand");
       }
-      static {
-        __name2(this, "PutBucketAccelerateConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketAclCommand.js
 var PutBucketAclCommand;
 var init_PutBucketAclCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketAclCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25448,16 +24107,15 @@ var init_PutBucketAclCommand = __esm({
       static {
         __name(this, "PutBucketAclCommand");
       }
-      static {
-        __name2(this, "PutBucketAclCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketAnalyticsConfigurationCommand.js
 var PutBucketAnalyticsConfigurationCommand;
 var init_PutBucketAnalyticsConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketAnalyticsConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -25473,16 +24131,15 @@ var init_PutBucketAnalyticsConfigurationCommand = __esm({
       static {
         __name(this, "PutBucketAnalyticsConfigurationCommand");
       }
-      static {
-        __name2(this, "PutBucketAnalyticsConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketCorsCommand.js
 var PutBucketCorsCommand;
 var init_PutBucketCorsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketCorsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25505,16 +24162,15 @@ var init_PutBucketCorsCommand = __esm({
       static {
         __name(this, "PutBucketCorsCommand");
       }
-      static {
-        __name2(this, "PutBucketCorsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketEncryptionCommand.js
 var PutBucketEncryptionCommand;
 var init_PutBucketEncryptionCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketEncryptionCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25537,16 +24193,15 @@ var init_PutBucketEncryptionCommand = __esm({
       static {
         __name(this, "PutBucketEncryptionCommand");
       }
-      static {
-        __name2(this, "PutBucketEncryptionCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketIntelligentTieringConfigurationCommand.js
 var PutBucketIntelligentTieringConfigurationCommand;
 var init_PutBucketIntelligentTieringConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketIntelligentTieringConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -25562,16 +24217,15 @@ var init_PutBucketIntelligentTieringConfigurationCommand = __esm({
       static {
         __name(this, "PutBucketIntelligentTieringConfigurationCommand");
       }
-      static {
-        __name2(this, "PutBucketIntelligentTieringConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketInventoryConfigurationCommand.js
 var PutBucketInventoryConfigurationCommand;
 var init_PutBucketInventoryConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketInventoryConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -25587,16 +24241,15 @@ var init_PutBucketInventoryConfigurationCommand = __esm({
       static {
         __name(this, "PutBucketInventoryConfigurationCommand");
       }
-      static {
-        __name2(this, "PutBucketInventoryConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketLifecycleConfigurationCommand.js
 var PutBucketLifecycleConfigurationCommand;
 var init_PutBucketLifecycleConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketLifecycleConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -25621,16 +24274,15 @@ var init_PutBucketLifecycleConfigurationCommand = __esm({
       static {
         __name(this, "PutBucketLifecycleConfigurationCommand");
       }
-      static {
-        __name2(this, "PutBucketLifecycleConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketLoggingCommand.js
 var PutBucketLoggingCommand;
 var init_PutBucketLoggingCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketLoggingCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25653,16 +24305,15 @@ var init_PutBucketLoggingCommand = __esm({
       static {
         __name(this, "PutBucketLoggingCommand");
       }
-      static {
-        __name2(this, "PutBucketLoggingCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketMetricsConfigurationCommand.js
 var PutBucketMetricsConfigurationCommand;
 var init_PutBucketMetricsConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketMetricsConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -25678,16 +24329,15 @@ var init_PutBucketMetricsConfigurationCommand = __esm({
       static {
         __name(this, "PutBucketMetricsConfigurationCommand");
       }
-      static {
-        __name2(this, "PutBucketMetricsConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketNotificationConfigurationCommand.js
 var PutBucketNotificationConfigurationCommand;
 var init_PutBucketNotificationConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketNotificationConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -25703,16 +24353,15 @@ var init_PutBucketNotificationConfigurationCommand = __esm({
       static {
         __name(this, "PutBucketNotificationConfigurationCommand");
       }
-      static {
-        __name2(this, "PutBucketNotificationConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketOwnershipControlsCommand.js
 var PutBucketOwnershipControlsCommand;
 var init_PutBucketOwnershipControlsCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketOwnershipControlsCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25735,16 +24384,15 @@ var init_PutBucketOwnershipControlsCommand = __esm({
       static {
         __name(this, "PutBucketOwnershipControlsCommand");
       }
-      static {
-        __name2(this, "PutBucketOwnershipControlsCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketPolicyCommand.js
 var PutBucketPolicyCommand;
 var init_PutBucketPolicyCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketPolicyCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25767,16 +24415,15 @@ var init_PutBucketPolicyCommand = __esm({
       static {
         __name(this, "PutBucketPolicyCommand");
       }
-      static {
-        __name2(this, "PutBucketPolicyCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketReplicationCommand.js
 var PutBucketReplicationCommand;
 var init_PutBucketReplicationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketReplicationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25799,16 +24446,15 @@ var init_PutBucketReplicationCommand = __esm({
       static {
         __name(this, "PutBucketReplicationCommand");
       }
-      static {
-        __name2(this, "PutBucketReplicationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketRequestPaymentCommand.js
 var PutBucketRequestPaymentCommand;
 var init_PutBucketRequestPaymentCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketRequestPaymentCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25831,16 +24477,15 @@ var init_PutBucketRequestPaymentCommand = __esm({
       static {
         __name(this, "PutBucketRequestPaymentCommand");
       }
-      static {
-        __name2(this, "PutBucketRequestPaymentCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketTaggingCommand.js
 var PutBucketTaggingCommand;
 var init_PutBucketTaggingCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketTaggingCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25863,16 +24508,15 @@ var init_PutBucketTaggingCommand = __esm({
       static {
         __name(this, "PutBucketTaggingCommand");
       }
-      static {
-        __name2(this, "PutBucketTaggingCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketVersioningCommand.js
 var PutBucketVersioningCommand;
 var init_PutBucketVersioningCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketVersioningCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25895,16 +24539,15 @@ var init_PutBucketVersioningCommand = __esm({
       static {
         __name(this, "PutBucketVersioningCommand");
       }
-      static {
-        __name2(this, "PutBucketVersioningCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketWebsiteCommand.js
 var PutBucketWebsiteCommand;
 var init_PutBucketWebsiteCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutBucketWebsiteCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -25927,16 +24570,15 @@ var init_PutBucketWebsiteCommand = __esm({
       static {
         __name(this, "PutBucketWebsiteCommand");
       }
-      static {
-        __name2(this, "PutBucketWebsiteCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectAclCommand.js
 var PutObjectAclCommand;
 var init_PutObjectAclCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectAclCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -25961,16 +24603,15 @@ var init_PutObjectAclCommand = __esm({
       static {
         __name(this, "PutObjectAclCommand");
       }
-      static {
-        __name2(this, "PutObjectAclCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectCommand.js
 var PutObjectCommand;
 var init_PutObjectCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -25998,16 +24639,15 @@ var init_PutObjectCommand = __esm({
       static {
         __name(this, "PutObjectCommand");
       }
-      static {
-        __name2(this, "PutObjectCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectLegalHoldCommand.js
 var PutObjectLegalHoldCommand;
 var init_PutObjectLegalHoldCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectLegalHoldCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -26031,16 +24671,15 @@ var init_PutObjectLegalHoldCommand = __esm({
       static {
         __name(this, "PutObjectLegalHoldCommand");
       }
-      static {
-        __name2(this, "PutObjectLegalHoldCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectLockConfigurationCommand.js
 var PutObjectLockConfigurationCommand;
 var init_PutObjectLockConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectLockConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -26064,16 +24703,15 @@ var init_PutObjectLockConfigurationCommand = __esm({
       static {
         __name(this, "PutObjectLockConfigurationCommand");
       }
-      static {
-        __name2(this, "PutObjectLockConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectRetentionCommand.js
 var PutObjectRetentionCommand;
 var init_PutObjectRetentionCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectRetentionCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -26097,16 +24735,15 @@ var init_PutObjectRetentionCommand = __esm({
       static {
         __name(this, "PutObjectRetentionCommand");
       }
-      static {
-        __name2(this, "PutObjectRetentionCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectTaggingCommand.js
 var PutObjectTaggingCommand;
 var init_PutObjectTaggingCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutObjectTaggingCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -26130,16 +24767,15 @@ var init_PutObjectTaggingCommand = __esm({
       static {
         __name(this, "PutObjectTaggingCommand");
       }
-      static {
-        __name2(this, "PutObjectTaggingCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/PutPublicAccessBlockCommand.js
 var PutPublicAccessBlockCommand;
 var init_PutPublicAccessBlockCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/PutPublicAccessBlockCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -26162,16 +24798,15 @@ var init_PutPublicAccessBlockCommand = __esm({
       static {
         __name(this, "PutPublicAccessBlockCommand");
       }
-      static {
-        __name2(this, "PutPublicAccessBlockCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/RenameObjectCommand.js
 var RenameObjectCommand;
 var init_RenameObjectCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/RenameObjectCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es39();
@@ -26191,16 +24826,15 @@ var init_RenameObjectCommand = __esm({
       static {
         __name(this, "RenameObjectCommand");
       }
-      static {
-        __name2(this, "RenameObjectCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/RestoreObjectCommand.js
 var RestoreObjectCommand;
 var init_RestoreObjectCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/RestoreObjectCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -26224,16 +24858,15 @@ var init_RestoreObjectCommand = __esm({
       static {
         __name(this, "RestoreObjectCommand");
       }
-      static {
-        __name2(this, "RestoreObjectCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/SelectObjectContentCommand.js
 var SelectObjectContentCommand;
 var init_SelectObjectContentCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/SelectObjectContentCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es57();
@@ -26258,16 +24891,15 @@ var init_SelectObjectContentCommand = __esm({
       static {
         __name(this, "SelectObjectContentCommand");
       }
-      static {
-        __name2(this, "SelectObjectContentCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/UpdateBucketMetadataInventoryTableConfigurationCommand.js
 var UpdateBucketMetadataInventoryTableConfigurationCommand;
 var init_UpdateBucketMetadataInventoryTableConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/UpdateBucketMetadataInventoryTableConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -26290,16 +24922,15 @@ var init_UpdateBucketMetadataInventoryTableConfigurationCommand = __esm({
       static {
         __name(this, "UpdateBucketMetadataInventoryTableConfigurationCommand");
       }
-      static {
-        __name2(this, "UpdateBucketMetadataInventoryTableConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/UpdateBucketMetadataJournalTableConfigurationCommand.js
 var UpdateBucketMetadataJournalTableConfigurationCommand;
 var init_UpdateBucketMetadataJournalTableConfigurationCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/UpdateBucketMetadataJournalTableConfigurationCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es39();
@@ -26322,16 +24953,15 @@ var init_UpdateBucketMetadataJournalTableConfigurationCommand = __esm({
       static {
         __name(this, "UpdateBucketMetadataJournalTableConfigurationCommand");
       }
-      static {
-        __name2(this, "UpdateBucketMetadataJournalTableConfigurationCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/UploadPartCommand.js
 var UploadPartCommand;
 var init_UploadPartCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/UploadPartCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es25();
     init_dist_es30();
@@ -26358,16 +24988,15 @@ var init_UploadPartCommand = __esm({
       static {
         __name(this, "UploadPartCommand");
       }
-      static {
-        __name2(this, "UploadPartCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/UploadPartCopyCommand.js
 var UploadPartCopyCommand;
 var init_UploadPartCopyCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/UploadPartCopyCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es30();
     init_dist_es57();
@@ -26389,16 +25018,15 @@ var init_UploadPartCopyCommand = __esm({
       static {
         __name(this, "UploadPartCopyCommand");
       }
-      static {
-        __name2(this, "UploadPartCopyCommand");
-      }
     };
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/WriteGetObjectResponseCommand.js
 var WriteGetObjectResponseCommand;
 var init_WriteGetObjectResponseCommand = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/WriteGetObjectResponseCommand.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es39();
     init_dist_es20();
@@ -26413,17 +25041,15 @@ var init_WriteGetObjectResponseCommand = __esm({
       static {
         __name(this, "WriteGetObjectResponseCommand");
       }
-      static {
-        __name2(this, "WriteGetObjectResponseCommand");
-      }
     };
   }
 });
-var commands;
-var S3;
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/S3.js
+var commands, S3;
 var init_S3 = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/S3.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es20();
     init_AbortMultipartUploadCommand();
@@ -26645,16 +25271,15 @@ var init_S3 = __esm({
       static {
         __name(this, "S3");
       }
-      static {
-        __name2(this, "S3");
-      }
     };
     createAggregatedClient(commands, S3);
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/commands/index.js
 var init_commands = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/commands/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_AbortMultipartUploadCommand();
     init_CompleteMultipartUploadCommand();
@@ -26764,16 +25389,20 @@ var init_commands = __esm({
     init_WriteGetObjectResponseCommand();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/pagination/Interfaces.js
 var init_Interfaces = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/pagination/Interfaces.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/pagination/ListBucketsPaginator.js
 var paginateListBuckets;
 var init_ListBucketsPaginator = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/pagination/ListBucketsPaginator.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es14();
     init_ListBucketsCommand();
@@ -26781,10 +25410,12 @@ var init_ListBucketsPaginator = __esm({
     paginateListBuckets = createPaginator(S3Client, ListBucketsCommand, "ContinuationToken", "ContinuationToken", "MaxBuckets");
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/pagination/ListDirectoryBucketsPaginator.js
 var paginateListDirectoryBuckets;
 var init_ListDirectoryBucketsPaginator = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/pagination/ListDirectoryBucketsPaginator.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es14();
     init_ListDirectoryBucketsCommand();
@@ -26792,10 +25423,12 @@ var init_ListDirectoryBucketsPaginator = __esm({
     paginateListDirectoryBuckets = createPaginator(S3Client, ListDirectoryBucketsCommand, "ContinuationToken", "ContinuationToken", "MaxDirectoryBuckets");
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/pagination/ListObjectsV2Paginator.js
 var paginateListObjectsV2;
 var init_ListObjectsV2Paginator = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/pagination/ListObjectsV2Paginator.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es14();
     init_ListObjectsV2Command();
@@ -26803,10 +25436,12 @@ var init_ListObjectsV2Paginator = __esm({
     paginateListObjectsV2 = createPaginator(S3Client, ListObjectsV2Command, "ContinuationToken", "NextContinuationToken", "MaxKeys");
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/pagination/ListPartsPaginator.js
 var paginateListParts;
 var init_ListPartsPaginator = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/pagination/ListPartsPaginator.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es14();
     init_ListPartsCommand();
@@ -26814,9 +25449,11 @@ var init_ListPartsPaginator = __esm({
     paginateListParts = createPaginator(S3Client, ListPartsCommand, "PartNumberMarker", "NextPartNumberMarker", "MaxParts");
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/pagination/index.js
 var init_pagination2 = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/pagination/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_Interfaces();
     init_ListBucketsPaginator();
@@ -26825,33 +25462,43 @@ var init_pagination2 = __esm({
     init_ListPartsPaginator();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/waiters/waitForBucketExists.js
 var init_waitForBucketExists = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/waiters/waitForBucketExists.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/waiters/waitForBucketNotExists.js
 var init_waitForBucketNotExists = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/waiters/waitForBucketNotExists.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/waiters/waitForObjectExists.js
 var init_waitForObjectExists = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/waiters/waitForObjectExists.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/waiters/waitForObjectNotExists.js
 var init_waitForObjectNotExists = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/waiters/waitForObjectNotExists.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/waiters/index.js
 var init_waiters = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/waiters/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_waitForBucketExists();
     init_waitForBucketNotExists();
@@ -26859,27 +25506,35 @@ var init_waiters = __esm({
     init_waitForObjectNotExists();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/models/enums.js
 var init_enums = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/models/enums.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/models/models_0.js
 var init_models_0 = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/models/models_0.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/models/models_1.js
 var init_models_1 = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/models/models_1.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
   }
 });
+
+// ../node_modules/@aws-sdk/client-s3/dist-es/index.js
 var init_dist_es59 = __esm({
   "../node_modules/@aws-sdk/client-s3/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_S3Client();
     init_S3();
@@ -26893,6 +25548,8 @@ var init_dist_es59 = __esm({
     init_models_1();
   }
 });
+
+// ../node_modules/@aws-sdk/util-format-url/dist-es/index.js
 function formatUrl(request) {
   const { port, query } = request;
   let { protocol, path, hostname } = request;
@@ -26921,38 +25578,37 @@ function formatUrl(request) {
   }
   return `${protocol}//${auth}${hostname}${path}${queryString}${fragment}`;
 }
-__name(formatUrl, "formatUrl");
 var init_dist_es60 = __esm({
   "../node_modules/@aws-sdk/util-format-url/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es9();
-    __name2(formatUrl, "formatUrl");
+    __name(formatUrl, "formatUrl");
   }
 });
-var UNSIGNED_PAYLOAD2;
-var SHA256_HEADER2;
+
+// ../node_modules/@aws-sdk/s3-request-presigner/dist-es/constants.js
+var UNSIGNED_PAYLOAD2, SHA256_HEADER2;
 var init_constants15 = __esm({
   "../node_modules/@aws-sdk/s3-request-presigner/dist-es/constants.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     UNSIGNED_PAYLOAD2 = "UNSIGNED-PAYLOAD";
     SHA256_HEADER2 = "X-Amz-Content-Sha256";
   }
 });
+
+// ../node_modules/@aws-sdk/s3-request-presigner/dist-es/presigner.js
 var S3RequestPresigner;
 var init_presigner = __esm({
   "../node_modules/@aws-sdk/s3-request-presigner/dist-es/presigner.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es44();
     init_constants15();
     S3RequestPresigner = class {
       static {
         __name(this, "S3RequestPresigner");
-      }
-      static {
-        __name2(this, "S3RequestPresigner");
       }
       signer;
       constructor(options) {
@@ -27008,16 +25664,18 @@ var init_presigner = __esm({
     };
   }
 });
+
+// ../node_modules/@aws-sdk/s3-request-presigner/dist-es/getSignedUrl.js
 var getSignedUrl;
 var init_getSignedUrl = __esm({
   "../node_modules/@aws-sdk/s3-request-presigner/dist-es/getSignedUrl.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es60();
     init_dist_es39();
     init_dist_es2();
     init_presigner();
-    getSignedUrl = /* @__PURE__ */ __name2(async (client, command, options = {}) => {
+    getSignedUrl = /* @__PURE__ */ __name(async (client, command, options = {}) => {
       let s3Presigner;
       let region;
       if (typeof client.config.endpointProvider === "function") {
@@ -27031,12 +25689,12 @@ var init_getSignedUrl = __esm({
         s3Presigner = new S3RequestPresigner({
           ...client.config,
           signingName: authScheme?.signingName,
-          region: /* @__PURE__ */ __name2(async () => region, "region")
+          region: /* @__PURE__ */ __name(async () => region, "region")
         });
       } else {
         s3Presigner = new S3RequestPresigner(client.config);
       }
-      const presignInterceptMiddleware = /* @__PURE__ */ __name2((next, context) => async (args) => {
+      const presignInterceptMiddleware = /* @__PURE__ */ __name((next, context) => async (args) => {
         const { request } = args;
         if (!HttpRequest.isInstance(request)) {
           throw new Error("Request to be presigned is not an valid HTTP request.");
@@ -27078,14 +25736,18 @@ var init_getSignedUrl = __esm({
     }, "getSignedUrl");
   }
 });
+
+// ../node_modules/@aws-sdk/s3-request-presigner/dist-es/index.js
 var init_dist_es61 = __esm({
   "../node_modules/@aws-sdk/s3-request-presigner/dist-es/index.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_getSignedUrl();
     init_presigner();
   }
 });
+
+// tiles/montreal.pmtiles.js
 async function onRequest3({ env, request }) {
   const fileName = "montreal.pmtiles";
   const bucketName = "map";
@@ -27122,7 +25784,6 @@ async function onRequest3({ env, request }) {
     });
   }
 }
-__name(onRequest3, "onRequest3");
 async function onRequestOptions() {
   return new Response(null, {
     status: 204,
@@ -27135,23 +25796,23 @@ async function onRequestOptions() {
     }
   });
 }
-__name(onRequestOptions, "onRequestOptions");
 var init_montreal_pmtiles = __esm({
   "tiles/montreal.pmtiles.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_dist_es59();
     init_dist_es61();
-    __name2(onRequest3, "onRequest");
-    __name2(onRequestOptions, "onRequestOptions");
+    __name(onRequest3, "onRequest");
+    __name(onRequestOptions, "onRequestOptions");
   }
 });
+
+// utils/db/userStore.js
 async function findUserByGoogleSub(googleSub, env) {
   return env.DB.prepare(
     "SELECT id, email, name FROM users WHERE google_sub = ?"
   ).bind(googleSub).first();
 }
-__name(findUserByGoogleSub, "findUserByGoogleSub");
 async function createUserFromGoogle({ sub, email, name }, env) {
   const res = await env.DB.prepare(
     "INSERT INTO users (google_sub, email, name) VALUES (?, ?, ?)"
@@ -27162,15 +25823,16 @@ async function createUserFromGoogle({ sub, email, name }, env) {
     name
   };
 }
-__name(createUserFromGoogle, "createUserFromGoogle");
 var init_userStore = __esm({
   "utils/db/userStore.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(findUserByGoogleSub, "findUserByGoogleSub");
-    __name2(createUserFromGoogle, "createUserFromGoogle");
+    __name(findUserByGoogleSub, "findUserByGoogleSub");
+    __name(createUserFromGoogle, "createUserFromGoogle");
   }
 });
+
+// utils/auth/googleOAuth.js
 async function verifyIdToken(idToken, clientId) {
   const [headerB64, payloadB64, signatureB64] = idToken.split(".");
   if (!headerB64 || !payloadB64 || !signatureB64) {
@@ -27209,7 +25871,6 @@ async function verifyIdToken(idToken, clientId) {
   if (payload.exp * 1e3 < Date.now()) throw new Error("Token expired");
   return payload;
 }
-__name(verifyIdToken, "verifyIdToken");
 function timingSafeEqual(a2, b2) {
   if (a2.length !== b2.length) return false;
   let result = 0;
@@ -27218,15 +25879,16 @@ function timingSafeEqual(a2, b2) {
   }
   return result === 0;
 }
-__name(timingSafeEqual, "timingSafeEqual");
 var init_googleOAuth = __esm({
   "utils/auth/googleOAuth.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
-    __name2(verifyIdToken, "verifyIdToken");
-    __name2(timingSafeEqual, "timingSafeEqual");
+    __name(verifyIdToken, "verifyIdToken");
+    __name(timingSafeEqual, "timingSafeEqual");
   }
 });
+
+// auth/callback.js
 async function onRequest4({ request, env }) {
   try {
     const url = new URL(request.url);
@@ -27273,19 +25935,20 @@ async function onRequest4({ request, env }) {
     return new Response(`Authentification \xE9chou\xE9e`, { status: 500 });
   }
 }
-__name(onRequest4, "onRequest4");
 var init_callback = __esm({
   "auth/callback.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_cookies();
     init_userStore();
     init_sessionStore();
     init_googleOAuth();
     init_constants();
-    __name2(onRequest4, "onRequest");
+    __name(onRequest4, "onRequest");
   }
 });
+
+// auth/login.js
 function onRequest5(context) {
   const url = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   const state = crypto.randomUUID();
@@ -27304,18 +25967,19 @@ function onRequest5(context) {
     }
   });
 }
-__name(onRequest5, "onRequest5");
 var init_login = __esm({
   "auth/login.js"() {
-    init_functionsRoutes_0_45844092527989533();
+    init_functionsRoutes_0_29184717474569455();
     init_checked_fetch();
     init_cookies();
-    __name2(onRequest5, "onRequest");
+    __name(onRequest5, "onRequest");
   }
 });
+
+// ../.wrangler/tmp/pages-MSGwkR/functionsRoutes-0.29184717474569455.mjs
 var routes;
-var init_functionsRoutes_0_45844092527989533 = __esm({
-  "../.wrangler/tmp/pages-DvbCKv/functionsRoutes-0.45844092527989533.mjs"() {
+var init_functionsRoutes_0_29184717474569455 = __esm({
+  "../.wrangler/tmp/pages-MSGwkR/functionsRoutes-0.29184717474569455.mjs"() {
     init_path();
     init_path2();
     init_logout();
@@ -27384,13 +26048,21 @@ var init_functionsRoutes_0_45844092527989533 = __esm({
     ];
   }
 });
-init_functionsRoutes_0_45844092527989533();
+
+// ../.wrangler/tmp/bundle-H5ZURG/middleware-loader.entry.ts
+init_functionsRoutes_0_29184717474569455();
 init_checked_fetch();
-init_functionsRoutes_0_45844092527989533();
+
+// ../.wrangler/tmp/bundle-H5ZURG/middleware-insertion-facade.js
+init_functionsRoutes_0_29184717474569455();
 init_checked_fetch();
-init_functionsRoutes_0_45844092527989533();
+
+// ../../../../../../../usr/lib/node_modules/wrangler/templates/pages-template-worker.ts
+init_functionsRoutes_0_29184717474569455();
 init_checked_fetch();
-init_functionsRoutes_0_45844092527989533();
+
+// ../../../../../../../usr/lib/node_modules/wrangler/node_modules/path-to-regexp/dist.es2015/index.js
+init_functionsRoutes_0_29184717474569455();
 init_checked_fetch();
 function lexer(str) {
   var tokens = [];
@@ -27476,7 +26148,6 @@ function lexer(str) {
   return tokens;
 }
 __name(lexer, "lexer");
-__name2(lexer, "lexer");
 function parse(str, options) {
   if (options === void 0) {
     options = {};
@@ -27487,18 +26158,18 @@ function parse(str, options) {
   var key = 0;
   var i2 = 0;
   var path = "";
-  var tryConsume = /* @__PURE__ */ __name2(function(type) {
+  var tryConsume = /* @__PURE__ */ __name(function(type) {
     if (i2 < tokens.length && tokens[i2].type === type)
       return tokens[i2++].value;
   }, "tryConsume");
-  var mustConsume = /* @__PURE__ */ __name2(function(type) {
+  var mustConsume = /* @__PURE__ */ __name(function(type) {
     var value2 = tryConsume(type);
     if (value2 !== void 0)
       return value2;
     var _a2 = tokens[i2], nextType = _a2.type, index = _a2.index;
     throw new TypeError("Unexpected ".concat(nextType, " at ").concat(index, ", expected ").concat(type));
   }, "mustConsume");
-  var consumeText = /* @__PURE__ */ __name2(function() {
+  var consumeText = /* @__PURE__ */ __name(function() {
     var result2 = "";
     var value2;
     while (value2 = tryConsume("CHAR") || tryConsume("ESCAPED_CHAR")) {
@@ -27506,7 +26177,7 @@ function parse(str, options) {
     }
     return result2;
   }, "consumeText");
-  var isSafe = /* @__PURE__ */ __name2(function(value2) {
+  var isSafe = /* @__PURE__ */ __name(function(value2) {
     for (var _i2 = 0, delimiter_1 = delimiter; _i2 < delimiter_1.length; _i2++) {
       var char2 = delimiter_1[_i2];
       if (value2.indexOf(char2) > -1)
@@ -27514,7 +26185,7 @@ function parse(str, options) {
     }
     return false;
   }, "isSafe");
-  var safePattern = /* @__PURE__ */ __name2(function(prefix2) {
+  var safePattern = /* @__PURE__ */ __name(function(prefix2) {
     var prev = result[result.length - 1];
     var prevText = prefix2 || (prev && typeof prev === "string" ? prev : "");
     if (prev && !prevText) {
@@ -27577,14 +26248,12 @@ function parse(str, options) {
   return result;
 }
 __name(parse, "parse");
-__name2(parse, "parse");
 function match(str, options) {
   var keys = [];
   var re = pathToRegexp(str, keys, options);
   return regexpToFunction(re, keys, options);
 }
 __name(match, "match");
-__name2(match, "match");
 function regexpToFunction(re, keys, options) {
   if (options === void 0) {
     options = {};
@@ -27598,7 +26267,7 @@ function regexpToFunction(re, keys, options) {
       return false;
     var path = m2[0], index = m2.index;
     var params = /* @__PURE__ */ Object.create(null);
-    var _loop_1 = /* @__PURE__ */ __name2(function(i3) {
+    var _loop_1 = /* @__PURE__ */ __name(function(i3) {
       if (m2[i3] === void 0)
         return "continue";
       var key = keys[i3 - 1];
@@ -27617,17 +26286,14 @@ function regexpToFunction(re, keys, options) {
   };
 }
 __name(regexpToFunction, "regexpToFunction");
-__name2(regexpToFunction, "regexpToFunction");
 function escapeString(str) {
   return str.replace(/([.+*?=^!:${}()[\]|/\\])/g, "\\$1");
 }
 __name(escapeString, "escapeString");
-__name2(escapeString, "escapeString");
 function flags(options) {
   return options && options.sensitive ? "" : "i";
 }
 __name(flags, "flags");
-__name2(flags, "flags");
 function regexpToRegexp(path, keys) {
   if (!keys)
     return path;
@@ -27648,7 +26314,6 @@ function regexpToRegexp(path, keys) {
   return path;
 }
 __name(regexpToRegexp, "regexpToRegexp");
-__name2(regexpToRegexp, "regexpToRegexp");
 function arrayToRegexp(paths, keys, options) {
   var parts = paths.map(function(path) {
     return pathToRegexp(path, keys, options).source;
@@ -27656,12 +26321,10 @@ function arrayToRegexp(paths, keys, options) {
   return new RegExp("(?:".concat(parts.join("|"), ")"), flags(options));
 }
 __name(arrayToRegexp, "arrayToRegexp");
-__name2(arrayToRegexp, "arrayToRegexp");
 function stringToRegexp(path, keys, options) {
   return tokensToRegexp(parse(path, options), keys, options);
 }
 __name(stringToRegexp, "stringToRegexp");
-__name2(stringToRegexp, "stringToRegexp");
 function tokensToRegexp(tokens, keys, options) {
   if (options === void 0) {
     options = {};
@@ -27717,7 +26380,6 @@ function tokensToRegexp(tokens, keys, options) {
   return new RegExp(route, flags(options));
 }
 __name(tokensToRegexp, "tokensToRegexp");
-__name2(tokensToRegexp, "tokensToRegexp");
 function pathToRegexp(path, keys, options) {
   if (path instanceof RegExp)
     return regexpToRegexp(path, keys);
@@ -27726,7 +26388,8 @@ function pathToRegexp(path, keys, options) {
   return stringToRegexp(path, keys, options);
 }
 __name(pathToRegexp, "pathToRegexp");
-__name2(pathToRegexp, "pathToRegexp");
+
+// ../../../../../../../usr/lib/node_modules/wrangler/templates/pages-template-worker.ts
 var escapeRegex = /[.+?^${}()|[\]\\]/g;
 function* executeRequest(request) {
   const requestPath = new URL(request.url).pathname;
@@ -27777,14 +26440,13 @@ function* executeRequest(request) {
   }
 }
 __name(executeRequest, "executeRequest");
-__name2(executeRequest, "executeRequest");
 var pages_template_worker_default = {
   async fetch(originalRequest, env, workerContext) {
     let request = originalRequest;
     const handlerIterator = executeRequest(request);
     let data = {};
     let isFailOpen = false;
-    const next = /* @__PURE__ */ __name2(async (input, init) => {
+    const next = /* @__PURE__ */ __name(async (input, init) => {
       if (input !== void 0) {
         let url = input;
         if (typeof input === "string") {
@@ -27811,7 +26473,7 @@ var pages_template_worker_default = {
           },
           env,
           waitUntil: workerContext.waitUntil.bind(workerContext),
-          passThroughOnException: /* @__PURE__ */ __name2(() => {
+          passThroughOnException: /* @__PURE__ */ __name(() => {
             isFailOpen = true;
           }, "passThroughOnException")
         };
@@ -27839,16 +26501,18 @@ var pages_template_worker_default = {
     }
   }
 };
-var cloneResponse = /* @__PURE__ */ __name2((response) => (
+var cloneResponse = /* @__PURE__ */ __name((response) => (
   // https://fetch.spec.whatwg.org/#null-body-status
   new Response(
     [101, 204, 205, 304].includes(response.status) ? null : response.body,
     response
   )
 ), "cloneResponse");
-init_functionsRoutes_0_45844092527989533();
+
+// ../../../../../../../usr/lib/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
+init_functionsRoutes_0_29184717474569455();
 init_checked_fetch();
-var drainBody = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
+var drainBody = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } finally {
@@ -27864,7 +26528,9 @@ var drainBody = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx
   }
 }, "drainBody");
 var middleware_ensure_req_body_drained_default = drainBody;
-init_functionsRoutes_0_45844092527989533();
+
+// ../../../../../../../usr/lib/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
+init_functionsRoutes_0_29184717474569455();
 init_checked_fetch();
 function reduceError(e2) {
   return {
@@ -27875,8 +26541,7 @@ function reduceError(e2) {
   };
 }
 __name(reduceError, "reduceError");
-__name2(reduceError, "reduceError");
-var jsonError = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx) => {
+var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
   try {
     return await middlewareCtx.next(request, env);
   } catch (e2) {
@@ -27888,19 +26553,22 @@ var jsonError = /* @__PURE__ */ __name2(async (request, env, _ctx, middlewareCtx
   }
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
+
+// ../.wrangler/tmp/bundle-H5ZURG/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
 ];
 var middleware_insertion_facade_default = pages_template_worker_default;
-init_functionsRoutes_0_45844092527989533();
+
+// ../../../../../../../usr/lib/node_modules/wrangler/templates/middleware/common.ts
+init_functionsRoutes_0_29184717474569455();
 init_checked_fetch();
 var __facade_middleware__ = [];
 function __facade_register__(...args) {
   __facade_middleware__.push(...args.flat());
 }
 __name(__facade_register__, "__facade_register__");
-__name2(__facade_register__, "__facade_register__");
 function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   const [head, ...tail] = middlewareChain;
   const middlewareCtx = {
@@ -27912,7 +26580,6 @@ function __facade_invokeChain__(request, env, ctx, dispatch, middlewareChain) {
   return head(request, env, ctx, middlewareCtx);
 }
 __name(__facade_invokeChain__, "__facade_invokeChain__");
-__name2(__facade_invokeChain__, "__facade_invokeChain__");
 function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   return __facade_invokeChain__(request, env, ctx, dispatch, [
     ...__facade_middleware__,
@@ -27920,18 +26587,16 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
   ]);
 }
 __name(__facade_invoke__, "__facade_invoke__");
-__name2(__facade_invoke__, "__facade_invoke__");
+
+// ../.wrangler/tmp/bundle-H5ZURG/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
-  static {
-    __name(this, "___Facade_ScheduledController__");
-  }
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;
     this.cron = cron;
     this.#noRetry = noRetry;
   }
   static {
-    __name2(this, "__Facade_ScheduledController__");
+    __name(this, "__Facade_ScheduledController__");
   }
   #noRetry;
   noRetry() {
@@ -27948,7 +26613,7 @@ function wrapExportedHandler(worker) {
   for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__) {
     __facade_register__(middleware);
   }
-  const fetchDispatcher = /* @__PURE__ */ __name2(function(request, env, ctx) {
+  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
     if (worker.fetch === void 0) {
       throw new Error("Handler does not export a fetch() function.");
     }
@@ -27957,7 +26622,7 @@ function wrapExportedHandler(worker) {
   return {
     ...worker,
     fetch(request, env, ctx) {
-      const dispatcher = /* @__PURE__ */ __name2(function(type, init) {
+      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
         if (type === "scheduled" && worker.scheduled !== void 0) {
           const controller = new __Facade_ScheduledController__(
             Date.now(),
@@ -27973,7 +26638,6 @@ function wrapExportedHandler(worker) {
   };
 }
 __name(wrapExportedHandler, "wrapExportedHandler");
-__name2(wrapExportedHandler, "wrapExportedHandler");
 function wrapWorkerEntrypoint(klass) {
   if (__INTERNAL_WRANGLER_MIDDLEWARE__ === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__.length === 0) {
     return klass;
@@ -27982,7 +26646,7 @@ function wrapWorkerEntrypoint(klass) {
     __facade_register__(middleware);
   }
   return class extends klass {
-    #fetchDispatcher = /* @__PURE__ */ __name2((request, env, ctx) => {
+    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
       this.env = env;
       this.ctx = ctx;
       if (super.fetch === void 0) {
@@ -27990,7 +26654,7 @@ function wrapWorkerEntrypoint(klass) {
       }
       return super.fetch(request);
     }, "#fetchDispatcher");
-    #dispatcher = /* @__PURE__ */ __name2((type, init) => {
+    #dispatcher = /* @__PURE__ */ __name((type, init) => {
       if (type === "scheduled" && super.scheduled !== void 0) {
         const controller = new __Facade_ScheduledController__(
           Date.now(),
@@ -28013,7 +26677,6 @@ function wrapWorkerEntrypoint(klass) {
   };
 }
 __name(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
-__name2(wrapWorkerEntrypoint, "wrapWorkerEntrypoint");
 var WRAPPED_ENTRY;
 if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapExportedHandler(middleware_insertion_facade_default);
@@ -28021,178 +26684,8 @@ if (typeof middleware_insertion_facade_default === "object") {
   WRAPPED_ENTRY = wrapWorkerEntrypoint(middleware_insertion_facade_default);
 }
 var middleware_loader_entry_default = WRAPPED_ENTRY;
-
-// ../../../../../../usr/lib/node_modules/wrangler/templates/middleware/middleware-ensure-req-body-drained.ts
-var drainBody2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
-  try {
-    return await middlewareCtx.next(request, env);
-  } finally {
-    try {
-      if (request.body !== null && !request.bodyUsed) {
-        const reader = request.body.getReader();
-        while (!(await reader.read()).done) {
-        }
-      }
-    } catch (e2) {
-      console.error("Failed to drain the unused request body.", e2);
-    }
-  }
-}, "drainBody");
-var middleware_ensure_req_body_drained_default2 = drainBody2;
-
-// ../../../../../../usr/lib/node_modules/wrangler/templates/middleware/middleware-miniflare3-json-error.ts
-function reduceError2(e2) {
-  return {
-    name: e2?.name,
-    message: e2?.message ?? String(e2),
-    stack: e2?.stack,
-    cause: e2?.cause === void 0 ? void 0 : reduceError2(e2.cause)
-  };
-}
-__name(reduceError2, "reduceError");
-var jsonError2 = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx) => {
-  try {
-    return await middlewareCtx.next(request, env);
-  } catch (e2) {
-    const error = reduceError2(e2);
-    return Response.json(error, {
-      status: 500,
-      headers: { "MF-Experimental-Error-Stack": "true" }
-    });
-  }
-}, "jsonError");
-var middleware_miniflare3_json_error_default2 = jsonError2;
-
-// .wrangler/tmp/bundle-hf613y/middleware-insertion-facade.js
-var __INTERNAL_WRANGLER_MIDDLEWARE__2 = [
-  middleware_ensure_req_body_drained_default2,
-  middleware_miniflare3_json_error_default2
-];
-var middleware_insertion_facade_default2 = middleware_loader_entry_default;
-
-// ../../../../../../usr/lib/node_modules/wrangler/templates/middleware/common.ts
-var __facade_middleware__2 = [];
-function __facade_register__2(...args) {
-  __facade_middleware__2.push(...args.flat());
-}
-__name(__facade_register__2, "__facade_register__");
-function __facade_invokeChain__2(request, env, ctx, dispatch, middlewareChain) {
-  const [head, ...tail] = middlewareChain;
-  const middlewareCtx = {
-    dispatch,
-    next(newRequest, newEnv) {
-      return __facade_invokeChain__2(newRequest, newEnv, ctx, dispatch, tail);
-    }
-  };
-  return head(request, env, ctx, middlewareCtx);
-}
-__name(__facade_invokeChain__2, "__facade_invokeChain__");
-function __facade_invoke__2(request, env, ctx, dispatch, finalMiddleware) {
-  return __facade_invokeChain__2(request, env, ctx, dispatch, [
-    ...__facade_middleware__2,
-    finalMiddleware
-  ]);
-}
-__name(__facade_invoke__2, "__facade_invoke__");
-
-// .wrangler/tmp/bundle-hf613y/middleware-loader.entry.ts
-var __Facade_ScheduledController__2 = class ___Facade_ScheduledController__2 {
-  constructor(scheduledTime, cron, noRetry) {
-    this.scheduledTime = scheduledTime;
-    this.cron = cron;
-    this.#noRetry = noRetry;
-  }
-  static {
-    __name(this, "__Facade_ScheduledController__");
-  }
-  #noRetry;
-  noRetry() {
-    if (!(this instanceof ___Facade_ScheduledController__2)) {
-      throw new TypeError("Illegal invocation");
-    }
-    this.#noRetry();
-  }
-};
-function wrapExportedHandler2(worker) {
-  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
-    return worker;
-  }
-  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
-    __facade_register__2(middleware);
-  }
-  const fetchDispatcher = /* @__PURE__ */ __name(function(request, env, ctx) {
-    if (worker.fetch === void 0) {
-      throw new Error("Handler does not export a fetch() function.");
-    }
-    return worker.fetch(request, env, ctx);
-  }, "fetchDispatcher");
-  return {
-    ...worker,
-    fetch(request, env, ctx) {
-      const dispatcher = /* @__PURE__ */ __name(function(type, init) {
-        if (type === "scheduled" && worker.scheduled !== void 0) {
-          const controller = new __Facade_ScheduledController__2(
-            Date.now(),
-            init.cron ?? "",
-            () => {
-            }
-          );
-          return worker.scheduled(controller, env, ctx);
-        }
-      }, "dispatcher");
-      return __facade_invoke__2(request, env, ctx, dispatcher, fetchDispatcher);
-    }
-  };
-}
-__name(wrapExportedHandler2, "wrapExportedHandler");
-function wrapWorkerEntrypoint2(klass) {
-  if (__INTERNAL_WRANGLER_MIDDLEWARE__2 === void 0 || __INTERNAL_WRANGLER_MIDDLEWARE__2.length === 0) {
-    return klass;
-  }
-  for (const middleware of __INTERNAL_WRANGLER_MIDDLEWARE__2) {
-    __facade_register__2(middleware);
-  }
-  return class extends klass {
-    #fetchDispatcher = /* @__PURE__ */ __name((request, env, ctx) => {
-      this.env = env;
-      this.ctx = ctx;
-      if (super.fetch === void 0) {
-        throw new Error("Entrypoint class does not define a fetch() function.");
-      }
-      return super.fetch(request);
-    }, "#fetchDispatcher");
-    #dispatcher = /* @__PURE__ */ __name((type, init) => {
-      if (type === "scheduled" && super.scheduled !== void 0) {
-        const controller = new __Facade_ScheduledController__2(
-          Date.now(),
-          init.cron ?? "",
-          () => {
-          }
-        );
-        return super.scheduled(controller);
-      }
-    }, "#dispatcher");
-    fetch(request) {
-      return __facade_invoke__2(
-        request,
-        this.env,
-        this.ctx,
-        this.#dispatcher,
-        this.#fetchDispatcher
-      );
-    }
-  };
-}
-__name(wrapWorkerEntrypoint2, "wrapWorkerEntrypoint");
-var WRAPPED_ENTRY2;
-if (typeof middleware_insertion_facade_default2 === "object") {
-  WRAPPED_ENTRY2 = wrapExportedHandler2(middleware_insertion_facade_default2);
-} else if (typeof middleware_insertion_facade_default2 === "function") {
-  WRAPPED_ENTRY2 = wrapWorkerEntrypoint2(middleware_insertion_facade_default2);
-}
-var middleware_loader_entry_default2 = WRAPPED_ENTRY2;
 export {
-  __INTERNAL_WRANGLER_MIDDLEWARE__2 as __INTERNAL_WRANGLER_MIDDLEWARE__,
-  middleware_loader_entry_default2 as default
+  __INTERNAL_WRANGLER_MIDDLEWARE__,
+  middleware_loader_entry_default as default
 };
-//# sourceMappingURL=functionsWorker-0.4828238764724163.js.map
+//# sourceMappingURL=functionsWorker-0.19893540909867302.mjs.map
