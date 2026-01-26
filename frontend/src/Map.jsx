@@ -32,9 +32,8 @@ export default function Map() {
       if (!response.ok) throw new Error("Impossible de récupérer l'URL signée");
 
       // On récupère { url: "https://r2...", expiresAt: 123456789 }
-      const data = await response.json();
-      console.log(data)
-      return data
+      return await response.json();
+
     } catch (e) {
       console.error("Erreur auth carte:", e);
       return null;
