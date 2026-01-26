@@ -2,6 +2,7 @@ backend/opentripplanner/
 backend/photon/
 backend/logs/
 **/.vscode/
+**/.wrangler/
 # Logs
 logs
 *.log
