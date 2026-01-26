@@ -1,76 +1,61 @@
+import { S3Client, GetObjectCommand } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+
 export async function onRequest({ env, request }) {
-  const path = 'montreal.pmtiles';
+  const fileName = 'montreal.pmtiles';
+  const bucketName = 'map'; // Remplace par le vrai nom de ton bucket
 
   try {
-    const range = request.headers.get('Range');
+    const S3 = new S3Client({
+      region: "auto",
+      endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+      credentials: {
+        accessKeyId: env.R2_ACCESS_KEY_ID,
+        secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+      },
+    });
 
-    if (range) {
-      const parts = range.replace(/bytes=/, '').split('-');
-      const start = parseInt(parts[0], 10);
-      const end = parts[1] ? parseInt(parts[1], 10) : undefined;
+    // 3. Préparation de la commande
+    // On dit simplement "Je veux permettre la lecture (GetObject) de ce fichier"
+    const command = new GetObjectCommand({
+      Bucket: bucketName,
+      Key: fileName,
+    });
 
-      const head = await env.R2_BUCKET.head(path);
-      if (!head) {
-        return new Response('File not found', { status: 404 });
-      }
+    // 4. Génération de la signature
+    // expiresIn: 3600 = Le lien est valide 1 heure
+    const url = await getSignedUrl(S3, command, { expiresIn: 3600 });
 
-      const objectSize = head.size;
-      const rangeEnd = end !== undefined ? end : objectSize - 1;
-
-      const object = await env.R2_BUCKET.get(path, {
-        range: {
-          offset: start,
-          length: rangeEnd - start + 1
-        }
-      });
-
-      if (!object) {
-        return new Response('File not found', { status: 404 });
-      }
-
-      return new Response(object.body, {
-        status: 206,
-        headers: {
-          'Content-Type': 'application/x-protobuf',
-          'Content-Length': (rangeEnd - start + 1).toString(),
-          'Content-Range': `bytes ${start}-${rangeEnd}/${objectSize}`,
-          'Accept-Ranges': 'bytes',
-          'Access-Control-Allow-Origin': '*',
-          'Cache-Control': 'public, max-age=31536000, immutable',
-        }
-      });
-    }
-
-    const object = await env.R2_BUCKET.get(path);
-
-    if (!object) {
-      return new Response('File not found', { status: 404 });
-    }
-
-    return new Response(object.body, {
-      status: 200,
+    // 5. Réponse au Frontend
+    // On renvoie du JSON contenant l'URL magique.
+    // Le frontend utilisera cette URL pour initialiser PMTiles.
+    return new Response(JSON.stringify({ 
+      url: url,
+      expiresAt: Date.now() + 3600 * 1000 // Utile pour que le front sache quand rafraîchir
+    }), {
       headers: {
-        'Content-Type': 'application/x-protobuf',
-        'Content-Length': object.size.toString(),
-        'Accept-Ranges': 'bytes',
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'public, max-age=31536000, immutable',
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*', // Important pour le fetch du frontend
       }
     });
 
   } catch (error) {
-    console.error('R2 Error:', error);
-    return new Response(`Error: ${error.message}`, { status: 500 });
+    console.error('Presigning Error:', error);
+    return new Response(JSON.stringify({ error: error.message }), { 
+      status: 500,
+      headers: { 'Content-Type': 'application/json' }
+    });
   }
 }
 
+// Gestion des requêtes OPTIONS (CORS) - Reste identique
 export async function onRequestOptions() {
   return new Response(null, {
     status: 204,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
-      'Access-Control-Allow-Headers': 'Range',
+      'Access-Control-Allow-Methods': 'GET, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization', // Ajout de Authorization si tu l'utilises
       'Access-Control-Max-Age': '86400',
     }
   });

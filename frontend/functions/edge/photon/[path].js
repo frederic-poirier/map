@@ -1,6 +1,6 @@
-import { verifyEdgeToken } from "../utils/auth/edgeToken";
+import { verifyEdgeToken } from "../../utils/auth/edgeToken";
 
-export async function onRequest({ request, env }) {
+export async function onRequest({ request, env, params }) {
   const authHeader = request.headers.get('Authorization')
   if (!authHeader?.startsWith('Bearer ')) {
     return new Response('Unauthorized', { status: 401 })
@@ -12,11 +12,15 @@ export async function onRequest({ request, env }) {
   if (!payload) return new Response('Unauthorized', { status: 401 })
 
   const url = new URL(request.url);
-  const target = `${env.PHOTON_INTERNAL_URL}${url.search}`
+  console.log(params)
+  const subPath = params.path ? params.path : '';
+  const target = `${env.PHOTON_INTERNAL_URL}/${subPath}${url.search}`
 
   const res = await fetch(target, {
     headers: {
-      'Accept': 'application/json'
+      'Accept': 'application/json',
+      'CF-Access-Client-Id': env.CF_ACCESS_CLIENT_ID,
+      'CF-Access-Client-Secret': env.CF_ACCESS_CLIENT_SECRET
     }
   });
 
