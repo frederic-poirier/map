@@ -20,6 +20,7 @@
     "pmtiles": "^4.3.2",
     "pure-web-bottom-sheet": "^0.1.0",
     "solid-js": "^1.9.6",
+    "solid-sonner": "^0.2.8",
     "tailwindcss": "^4.1.18"
   },
   "devDependencies": {

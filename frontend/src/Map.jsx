@@ -4,6 +4,7 @@ import { Protocol } from 'pmtiles';
 import { auth } from './hooks/useAuth';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { useSheet } from './components/BottomSheet';
 
 export const [busStops, setBusStops] = createSignal([]);
 
@@ -11,6 +12,7 @@ export default function Map() {
   let mapContainer;
   let map; // Instance de la carte
   let refreshTimer; // Pour nettoyer le timer si on quitte la page
+  const sheet = useSheet()
 
   const colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
   const [theme, setTheme] = createSignal(colorSchemeQuery.matches ? "dark" : "light");
@@ -86,6 +88,8 @@ export default function Map() {
     setBusStops(newStops);
   }
 
+
+
   // --- 4. Montage du composant ---
   onMount(async () => {
     // A. Initialisation du protocole PMTiles
@@ -123,6 +127,25 @@ export default function Map() {
     });
 
     map.on("moveend", logBusStops);
+
+    let moveStartTime = 0;
+
+    map.on('movestart', () => {
+      moveStartTime = Date.now();
+    });
+
+    map.on('move', () => {
+      if (moveStartTime && (Date.now() - moveStartTime) > 500) {
+        if (sheet.atTop()) {
+          sheet.snapTo(1);
+          moveStartTime = 0; // On reset pour ne pas snap en boucle
+        }
+      }
+    });
+
+    map.on('idle', () => {
+      moveStartTime = 0;
+    });
 
     // D. On lance le timer de rafraîchissement
     scheduleTokenRefresh(data.expiresAt);

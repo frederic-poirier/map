@@ -1,6 +1,7 @@
 backend/opentripplanner/
 backend/photon/
 backend/logs/
+backend/start.sh
 **/.vscode/
 **/.wrangler/
 # Logs
@@ -17,6 +18,8 @@ dist
 dist-ssr
 *.local
 .dev.vars
+.env
+**/.env
 montreal.pmtiles
 **/.dev.vars
 
