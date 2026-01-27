@@ -25,8 +25,6 @@ export default function AuthGate(props) {
       navigate("/login", { replace: true });
       return;
     }
-
-    if (!currentAuth.user.edgeToken) return;
   });
 
   return (

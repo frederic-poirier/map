@@ -1,0 +1,9 @@
+
+
+bottom-sheet::part(handle) {
+  display: none;
+}
+
+bottom-sheet::part(content) {
+  padding: 0
+}

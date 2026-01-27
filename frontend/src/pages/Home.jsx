@@ -1,6 +1,6 @@
 import usePhoton from "../hooks/usePhoton";
-import { For, Show, createSignal, createEffect } from "solid-js";
-import BottomSheet from "../components/BottomSheet";
+import { For, Show } from "solid-js";
+import BottomSheet, { useSheet } from "../components/BottomSheet";
 import Search from 'lucide-solid/icons/search'
 import MapPin from 'lucide-solid/icons/map-pin'
 import Globe from 'lucide-solid/icons/globe'
@@ -11,11 +11,13 @@ import X from 'lucide-solid/icons/x'
 
 export default function Home() {
   const { query, setQuery, results } = usePhoton();
-  const [currentIndex, setCurrentIndex] = createSignal(1);
-  const snaps = ['10%', '50%', '92%'];
+
+  const snaps = ['50%'];
 
   let timeoutID;
   let inputRef;
+
+  const sheet = useSheet()
 
   const handleInput = (e) => {
     const q = e.target.value;
@@ -23,11 +25,6 @@ export default function Home() {
     timeoutID = setTimeout(() => {
       setQuery(q);
     }, 200);
-  };
-
-  const handleFocus = () => {
-    // Go to full height on focus, with small delay to avoid conflicts
-    setTimeout(() => setCurrentIndex(2), 50);
   };
 
   const clearSearch = () => {
@@ -78,106 +75,94 @@ export default function Home() {
 
   // Search bar component for the header
   const SearchHeader = () => (
-    <div class="px-4 pb-3 pt-1">
-      <div class="bg-gray-100 rounded-xl p-2 transition-all focus-within:ring-2 focus-within:ring-blue-100 focus-within:bg-white focus-within:shadow-sm">
-        <div class="flex items-center gap-3 px-2">
-          <Search class="text-gray-400 flex-shrink-0" size={20} />
-          <input
-            ref={inputRef}
-            type="text"
-            placeholder="Rechercher un lieu..."
-            class="flex-1 bg-transparent border-none outline-none text-sm text-gray-700 placeholder-gray-400 h-9"
-            onInput={handleInput}
-            onFocus={handleFocus}
-          />
-          <Show when={query()}>
-            <button
-              onClick={clearSearch}
-              class="p-1.5 rounded-full hover:bg-gray-200 text-gray-400 transition-colors"
-            >
-              <X size={16} />
-            </button>
-          </Show>
-        </div>
-      </div>
-    </div>
+    <>
+      <div class="bg-neutral-200 h-1.5 w-16 mx-auto mb-3 rounded-full" />
+      <label class="bg-neutral-100 flex justify-between items-center gap-3 mb-4 rounded-xl p-2 transition-all focus-within:ring-2 focus-within:ring-blue-100 focus-within:bg-white focus-within:shadow-sm">
+        <Search class="text-gray-400 flex-shrink-0" size={20} />
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="Rechercher un lieu..."
+          class="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-400 h-9"
+          onInput={handleInput}
+          onFocus={() => sheet.snapToTop()}
+        />
+        <Show when={query()}>
+          <button
+            onClick={clearSearch}
+            class="p-1.5 rounded-full hover:bg-gray-200 text-gray-400 transition-colors"
+          >
+            <X size={16} />
+          </button>
+        </Show>
+      </label>
+    </>
   );
 
   return (
     <main class="fixed inset-0 z-10 pointer-events-none">
       <BottomSheet
         snapPoints={snaps}
-        index={currentIndex()}
-        onIndexChange={setCurrentIndex}
-        nestedScroll={true}
-        style={`
-          color: black;
-          --sheet-background: #ffffff; 
-          --sheet-border-radius: 24px;
-          --handle-color: #e5e7eb;
-        `}
-        header={<SearchHeader />}
+        index={1}
       >
-        {/* Contenu de la BottomSheet */}
+        <BottomSheet.Header class="p-2">
+          <SearchHeader />
+        </BottomSheet.Header>
         <div class="px-4 pb-4">
-          <div class="max-w-lg mx-auto">
-            {/* Titre de section si résultats */}
-            <Show when={!results.loading && results()?.length > 0}>
-              <div class="flex items-center justify-between mb-3 px-1">
-                <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  Résultats
-                </h2>
-                <span class="text-xs text-gray-400">
-                  {results().length} lieux
-                </span>
-              </div>
+          <Show when={!results.loading && results()?.length > 0}>
+            <div class="flex items-center justify-between mb-3 px-1">
+              <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                Résultats
+              </h2>
+              <span class="text-xs text-gray-400">
+                {results().length} lieux
+              </span>
+            </div>
 
-              <div class="flex flex-col gap-1">
-                <For each={results()}>
-                  {(feature) => (
-                    <ResultCard feature={feature} />
-                  )}
-                </For>
-              </div>
-            </Show>
+            <div class="flex flex-col gap-1">
+              <For each={results()}>
+                {(feature) => (
+                  <ResultCard feature={feature} />
+                )}
+              </For>
+            </div>
+          </Show>
 
-            {/* Loading state */}
-            <Show when={results.loading}>
-              <div class="flex flex-col items-center justify-center py-12 text-center">
-                <div class="p-3 bg-gray-50 rounded-full mb-3 animate-pulse">
-                  <Search class="text-gray-400" size={24} />
-                </div>
-                <p class="text-sm text-gray-500 font-medium">Recherche...</p>
+          <Show when={results.loading}>
+            <div class="flex flex-col items-center justify-center py-12 text-center">
+              <div class="p-3 bg-gray-50 rounded-full mb-3 animate-pulse">
+                <Search class="text-gray-400" size={24} />
               </div>
-            </Show>
+              <p class="text-sm text-gray-500 font-medium">Recherche...</p>
+            </div>
+          </Show>
 
-            {/* État vide - no query */}
-            <Show when={!results.loading && !query()}>
-              <div class="flex flex-col items-center justify-center py-12 text-center">
-                <div class="p-3 bg-gray-50 rounded-full mb-3">
-                  <Search class="text-gray-400" size={24} />
-                </div>
-                <p class="text-sm text-gray-500 font-medium">Rechercher un lieu</p>
-                <p class="text-xs text-gray-400 mt-1 max-w-[200px]">
-                  Essayez "Montréal" ou "Rue Sainte-Catherine".
-                </p>
+          {/* État vide - no query */}
+          <Show when={!results.loading && !query()}>
+            <div class="flex flex-col items-center justify-center py-12 text-center">
+              <div class="p-3 bg-gray-50 rounded-full mb-3">
+                <Search class="text-gray-400" size={24} />
               </div>
-            </Show>
+              <p class="text-sm text-gray-500 font-medium">Rechercher un lieu</p>
+              <p class="text-xs text-gray-400 mt-1 max-w-[200px]">
+                Essayez "Montréal" ou "Rue Sainte-Catherine".
+              </p>
+            </div>
+          </Show>
 
-            {/* État vide - no results */}
-            <Show when={!results.loading && query() && results()?.length === 0}>
-              <div class="flex flex-col items-center justify-center py-12 text-center">
-                <div class="p-3 bg-gray-50 rounded-full mb-3">
-                  <Search class="text-gray-400" size={24} />
-                </div>
-                <p class="text-sm text-gray-500 font-medium">Aucun résultat</p>
-                <p class="text-xs text-gray-400 mt-1 max-w-[200px]">
-                  Essayez une autre recherche.
-                </p>
+          {/* État vide - no results */}
+          <Show when={!results.loading && query() && results()?.length === 0}>
+            <div class="flex flex-col items-center justify-center py-12 text-center">
+              <div class="p-3 bg-gray-50 rounded-full mb-3">
+                <Search class="text-gray-400" size={24} />
               </div>
-            </Show>
+              <p class="text-sm text-gray-500 font-medium">Aucun résultat</p>
+              <p class="text-xs text-gray-400 mt-1 max-w-[200px]">
+                Essayez une autre recherche.
+              </p>
+            </div>
+          </Show>
 
-          </div>
         </div>
       </BottomSheet>
     </main>

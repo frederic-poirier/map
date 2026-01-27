@@ -9,6 +9,3 @@ bucket_name = "map-dev"
 binding = "DB"
 database_name = "map-auth"
 database_id = "5cf5c86c-1cf7-4329-8895-9cd309dcfe11"
-
-[vars]
-WHITELIST_EMAILS = "fredmpoirier@gmail.com,frederic8242@gmail.com,emeryseheb@gmail.com"

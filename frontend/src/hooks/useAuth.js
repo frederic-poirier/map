@@ -10,10 +10,10 @@ export async function initAuth() {
     const response = await fetch('/auth/me');
     if (!response.ok) return setAuth({ loading: false, user: null });
     const user = await response.json();
-    setAuth({ 
-      loading: false, 
+    setAuth({
+      loading: false,
       user: user ? user : null,
-      });
+    });
   } catch (error) {
     setAuth({ loading: false, user: null });
   }
@@ -23,7 +23,7 @@ export async function Logout() {
   try {
     await fetch("/auth/logout", { method: "POST" });
     setAuth({ loading: false, user: null });
-  } catch {}
+  } catch { }
   setAuth({ loading: false, user: null });
 }
 

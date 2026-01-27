@@ -3,6 +3,8 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import AuthGate from "./components/AuthGate";
 import Map from "./Map";
+import { Toaster } from 'solid-sonner'
+import { SheetProvider } from "./components/BottomSheet";
 
 export default function App() {
   return (
@@ -12,8 +14,11 @@ export default function App() {
         path="/"
         component={(props) => (
           <AuthGate>
-            <Map />
-            {props.children}
+            <Toaster />
+            <SheetProvider>
+              <Map />
+              {props.children}
+            </SheetProvider>
           </AuthGate>
         )}
       >

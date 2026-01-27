@@ -1,115 +1,101 @@
-import { createEffect, onMount, For, mergeProps, createSignal } from 'solid-js';
+import { createSignal, createContext, useContext, onMount, For } from 'solid-js';
 
-export default function BottomSheet(props) {
-  const merged = mergeProps({
-    snapPoints: ['10%', '50%', '92%'],
-    index: 1,
-    nestedScroll: true,
-    header: null,
-    footer: null,
-    onIndexChange: () => {},
-  }, props);
+const SheetContext = createContext();
 
-  let containerRef;
-  let isReady = false;
-  let isProgrammaticScroll = false;
-  const snapRefs = [];
-  
-  const [initialIndex, setInitialIndex] = createSignal(merged.index);
+export function useSheet() {
+  const context = useContext(SheetContext);
+  if (!context) throw new Error("useSheet doit être utilisé sous un <SheetProvider>");
+  return context;
+}
 
-  onMount(() => {
-    if (!customElements.get('bottom-sheet')) {
-      import('pure-web-bottom-sheet').then(({ BottomSheet }) => {
-        customElements.define('bottom-sheet', BottomSheet);
-        setTimeout(() => {
-          isReady = true;
-        }, 150);
-      });
-    } else {
-      setTimeout(() => {
-        isReady = true;
-      }, 150);
-    }
-  });
+export function SheetProvider(props) {
+  const [index, setIndex] = createSignal(0);
+  const [snapPoints, setSnapPoints] = createSignal(['50%']); // État partagé des points
+  console.log(snapPoints())
+  let sheetEl; 
 
-  createEffect(() => {
-    const newIndex = merged.index;
-    if (newIndex !== undefined && isReady && containerRef) {
-      snapToIndex(newIndex);
-    }
-  });
-
-  const snapToIndex = (idx) => {
-    if (!containerRef || idx < 0 || idx >= merged.snapPoints.length) return;
-    if (!snapRefs[idx]) return;
-    
-    isProgrammaticScroll = true;
-    setInitialIndex(idx);
-    
-    const target = snapRefs[idx];
-    
-    // Get bounding rect relative to container
-    const containerRect = containerRef.getBoundingClientRect();
-    const targetRect = target.getBoundingClientRect();
-    
-    // Calculate the scroll position needed to bring target to top of container
-    const targetScroll = containerRef.scrollTop + (targetRect.top - containerRect.top);
-    
-    console.log('snapToIndex', {
-      idx,
-      snapPoint: merged.snapPoints[idx],
-      targetScroll,
-      currentScroll: containerRef.scrollTop,
-      targetRect,
-      containerRect
-    });
-    
-    // Use smooth scroll
-    containerRef.scrollTo({
-      top: targetScroll,
-      behavior: 'smooth'
-    });
-    
-    setTimeout(() => {
-      isProgrammaticScroll = false;
-    }, 500);
+  const api = {
+    index,
+    setIndex,
+    snapPoints,
+    setSnapPoints,
+    snapTo: (i) => {
+      const target = sheetEl?.querySelectorAll('[slot="snap"]')[i];
+      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    },
+    snapToTop: () => {
+      sheetEl?.scrollTo({top: 9999, behavior: 'smooth'})
+    },
+    atTop: () => index() === 0,
+    link: (el) => { sheetEl = el; }
   };
 
-  const handleSnapChange = (e) => {
-    if (e.detail && merged.onIndexChange && !isProgrammaticScroll) {
-      const libPosition = parseInt(e.detail.snapPosition);
-      const ourIndex = merged.snapPoints.length - 1 - libPosition;
-      
-      setInitialIndex(ourIndex);
-      merged.onIndexChange(ourIndex);
+  return <SheetContext.Provider value={api}>{props.children}</SheetContext.Provider>;
+}
+
+export default function BottomSheet(props) {
+  const sheet = useSheet();
+  const initialIndex = props.index ?? 1;
+
+  onMount(() => {
+    sheet.link(props.ref); 
+    sheet.setIndex(initialIndex);
+    
+    // Si des snapPoints sont passés manuellement, on les utilise
+    if (props.snapPoints) sheet.setSnapPoints(props.snapPoints);
+
+    if (!customElements.get('bottom-sheet')) {
+      import('pure-web-bottom-sheet').then(({ BottomSheet }) => {
+        if (!customElements.get('bottom-sheet')) customElements.define('bottom-sheet', BottomSheet);
+      });
+    }
+  });
+
+  const onSnapChange = (e) => {
+    if (e.detail?.snapPosition !== undefined) {
+      sheet.setIndex(parseInt(e.detail.snapPosition));
     }
   };
 
   return (
     <bottom-sheet
-      ref={containerRef}
-      nested-scroll={merged.nestedScroll}
-      on:snap-position-change={handleSnapChange}
-      style={props.style || ''}
+      ref={props.ref}
+      on:snap-position-change={onSnapChange}
+      style={{ "--sheet-max-height": "85vh","--sheet-background": "white", ...props.style }}
+      nested-scroll={props.nestedScroll ?? true}
     >
-      <For each={merged.snapPoints}>
+      <For each={sheet.snapPoints()}>
         {(point, i) => (
           <div
             slot="snap"
-            ref={(el) => (snapRefs[i()] = el)}
             style={`--snap: ${point}`}
-            classList={{ initial: i() === initialIndex() }}
+            classList={{ initial: i() === initialIndex }}
           />
         )}
       </For>
 
-      {merged.header && <div slot="header">{merged.header}</div>}
-      
-      <div class="h-full overflow-y-auto">
-        {merged.children}
-      </div>
-
-      {merged.footer && <div slot="footer">{merged.footer}</div>}
+      {/* Slots pour le contenu */}
+      {props.header}
+      {props.children}
+      {props.footer}
     </bottom-sheet>
   );
 }
+
+// Composant Header intelligent
+BottomSheet.Header = (p) => {
+  let headerREF;
+  const sheet = useSheet();
+
+  onMount(() => {
+    if (headerREF) {
+      const height = headerREF.offsetHeight;
+      const vh = (height / window.innerHeight) * 100;
+      sheet.setSnapPoints(prev => [`${vh}%`, ...prev]);
+    }
+  });
+
+  return <div ref={headerREF} slot="header" class={p.class}>{p.children}</div>;
+};
+
+BottomSheet.Footer = (p) => <div slot="footer" style={p.style}>{p.children}</div>;
