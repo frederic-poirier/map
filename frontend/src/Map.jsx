@@ -4,104 +4,83 @@ import { Protocol } from 'pmtiles';
 import { auth } from './hooks/useAuth';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { useSheet } from './components/BottomSheet';
+import { toast } from 'solid-sonner';
 
 export const [busStops, setBusStops] = createSignal([]);
 
 export default function Map() {
   let mapContainer;
-  let map; // Instance de la carte
-  let refreshTimer; // Pour nettoyer le timer si on quitte la page
-  const sheet = useSheet()
+  let map;
+  let refreshTimer;
 
+  const handleColorSchemeChange = (event) => setTheme(event.matches ? 'dark' : 'light')
   const colorSchemeQuery = window.matchMedia("(prefers-color-scheme: dark)");
   const [theme, setTheme] = createSignal(colorSchemeQuery.matches ? "dark" : "light");
 
-  // État pour savoir si on est prêt à afficher la carte
   const [isMapReady, setIsMapReady] = createSignal(false);
 
-  // --- 1. Logique de Récupération du Token (URL Signée) ---
   async function fetchSignedUrl() {
     try {
-      // On appelle votre Worker (qui renvoie maintenant le JSON)
-      const response = await fetch('/tiles/montreal.pmtiles', {
-        headers: {
-          // Si votre Worker vérifie l'auth, ajoutez le token ici
-          // 'Authorization': `Bearer ${token}` 
-        }
-      });
-
+      const response = await fetch('/tiles/montreal.pmtiles');
       if (!response.ok) throw new Error("Impossible de récupérer l'URL signée");
-
-      // On récupère { url: "https://r2...", expiresAt: 123456789 }
       return await response.json();
-
     } catch (e) {
-      console.error("Erreur auth carte:", e);
+      toast.error(`Erreur auth carte: ${e.message}`);
       return null;
     }
   }
 
-  // --- 2. Logique de Rafraîchissement Silencieux ---
+  async function getUserPosition() {
+
+    const success = (position) => {
+      const lng = position.coords.longitude
+      const lat = position.coords.latitude
+      addMarker(lng, lat)
+      flyTo(lng, lat)
+    }
+
+    const error = () => toast.error('Unable to retrieve your location')
+
+    if ("geolocation" in navigator) navigator.geolocation.getCurrentPosition(success, error)
+    else toast.error('Geolocation is not supported by your browser.')
+
+  }
+
+  const addMarker = (lng, lat) => {
+    const marker = new maplibregl.Marker()
+      .setLngLat([lng, lat])
+      .addTo(map);
+  }
+
+  const flyTo = (lng, lat) => {
+    map.flyTo({ center: [lng, lat], minZoom: 2 })
+  }
+
+
+
   function scheduleTokenRefresh(expiresAt) {
     const now = Date.now();
-    // On rafraîchit 5 minutes (300 000 ms) AVANT l'expiration
     const delay = Math.max(0, (expiresAt - now) - 300000);
-
-    console.log(`Prochain refresh du token carte dans ${(delay / 60000).toFixed(1)} minutes`);
 
     refreshTimer = setTimeout(async () => {
       const data = await fetchSignedUrl();
       if (data && map && map.getSource('protomaps')) {
-        console.log("Mise à jour silencieuse de la source carto...");
-        // C'est la magie : on change l'URL sans recharger la carte visuellement
         map.getSource('protomaps').setUrl("pmtiles://" + data.url);
-        // On relance la boucle pour la prochaine fois
         scheduleTokenRefresh(data.expiresAt);
       }
     }, delay);
   }
 
-  // --- 3. Logique existante (Bus Stops) ---
-  function logBusStops() {
-    if (!map) return; // Sécurité
-    const features = map.queryRenderedFeatures({
-      layers: ['pois'],
-      filter: ['match', ['get', 'kind'], 'bus_stop', true, false]
-    });
-
-    const newStops = [];
-    const seenIds = new Set();
-
-    for (const f of features) {
-      const id = f.properties.osm_id || f.id;
-      if (!seenIds.has(id)) {
-        seenIds.add(id);
-        newStops.push({
-          id: id,
-          name: f.properties.name,
-          coordinates: f.geometry.coordinates,
-          properties: f.properties
-        });
-      }
-    }
-    setBusStops(newStops);
-  }
-
-
-
-  // --- 4. Montage du composant ---
   onMount(async () => {
-    // A. Initialisation du protocole PMTiles
     const protocol = new Protocol();
+    const lastCameraPostion = JSON.parse(localStorage.getItem('lastCameraPosition'))
+    const position = lastCameraPostion || { zoom: 12, lng: -73.5673, lat: 45.5017 }
     maplibregl.addProtocol('pmtiles', protocol.tile);
 
-    // B. Récupération initiale de l'URL
+
     const data = await fetchSignedUrl();
+    if (!data) return;
 
-    if (!data) return; // Gérer l'erreur d'affichage si besoin
-
-    // C. Création de la carte
     map = new maplibregl.Map({
       container: mapContainer,
       style: {
@@ -111,51 +90,35 @@ export default function Map() {
         sources: {
           "protomaps": {
             type: "vector",
-            // IMPORTANT : On combine le protocole pmtiles:// avec l'URL signée https://
             url: "pmtiles://" + data.url,
             attribution: '<a href="https://protomaps.com">Protomaps</a> © OpenStreetMap'
           }
         },
         layers: layers("protomaps", namedFlavor(theme()), { lang: "en" })
       },
-      center: [-73.5673, 45.5017],
+      center: [position.lng, position.lat],
       maxBounds: [
         [-74.15453186035158, 45.31980593747679],
         [-73.1243133544922, 45.746922837378264]
       ],
-      zoom: 12
+      zoom: position.zoom
     });
 
-    map.on("moveend", logBusStops);
-
-    let moveStartTime = 0;
-
-    map.on('movestart', () => {
-      moveStartTime = Date.now();
-    });
-
-    map.on('move', () => {
-      if (moveStartTime && (Date.now() - moveStartTime) > 500) {
-        if (sheet.atTop()) {
-          sheet.snapTo(1);
-          moveStartTime = 0; // On reset pour ne pas snap en boucle
-        }
-      }
-    });
-
-    map.on('idle', () => {
-      moveStartTime = 0;
-    });
-
-    // D. On lance le timer de rafraîchissement
     scheduleTokenRefresh(data.expiresAt);
     map.on('load', () => {
       setIsMapReady(true);
+      getUserPosition()
     });
+
+    map.on('moveend', () => {
+      const position = JSON.stringify({ zoom: map.getZoom(), lat: map.getCenter().lat, lng: map.getCenter().lng })
+      localStorage.setItem('lastCameraPosition', position)
+    })
   });
 
   onCleanup(() => {
-    if (refreshTimer) clearTimeout(refreshTimer); // Stop le timer
+    colorSchemeQuery.removeEventListener('change', handleColorSchemeChange)
+    if (refreshTimer) clearTimeout(refreshTimer);
     if (map) map.remove();
   });
 
@@ -163,8 +126,8 @@ export default function Map() {
     <Show when={!auth().loading} fallback={<div>Authenticating...</div>}>
       <div ref={mapContainer} class="w-full h-svh fixed inset-0" />
       <Show when={!isMapReady()}>
-        <div class="fixed inset-0 z-50 flex items-center justify-center">
-          <div class="text-xl font-bold animate-pulse">Chargement de la carte...</div>
+        <div class="fixed bg-neutral-400 inset-0 z-10 flex items-center justify-center">
+          <div className='text-neutral-600 animate-pulse'>Loading map...</div>
         </div>
       </Show>
     </Show>

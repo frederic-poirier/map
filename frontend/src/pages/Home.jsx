@@ -1,6 +1,7 @@
 import usePhoton from "../hooks/usePhoton";
 import { For, Show } from "solid-js";
-import BottomSheet, { useSheet } from "../components/BottomSheet";
+import { BottomSheet } from "../components/BottomSheet";
+import { useSheet } from '../context/SheetProvider'
 import Search from 'lucide-solid/icons/search'
 import MapPin from 'lucide-solid/icons/map-pin'
 import Globe from 'lucide-solid/icons/globe'
@@ -12,7 +13,6 @@ import X from 'lucide-solid/icons/x'
 export default function Home() {
   const { query, setQuery, results } = usePhoton();
 
-  const snaps = ['50%'];
 
   let timeoutID;
   let inputRef;
@@ -85,7 +85,7 @@ export default function Home() {
           placeholder="Rechercher un lieu..."
           class="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-400 h-9"
           onInput={handleInput}
-          onFocus={() => sheet.snapToTop()}
+          onFocus={() => sheet.expand()}
         />
         <Show when={query()}>
           <button
@@ -100,71 +100,66 @@ export default function Home() {
   );
 
   return (
-    <main class="fixed inset-0 z-10 pointer-events-none">
-      <BottomSheet
-        snapPoints={snaps}
-        index={1}
-      >
-        <BottomSheet.Header class="p-2">
-          <SearchHeader />
-        </BottomSheet.Header>
-        <div class="px-4 pb-4">
-          <Show when={!results.loading && results()?.length > 0}>
-            <div class="flex items-center justify-between mb-3 px-1">
-              <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                Résultats
-              </h2>
-              <span class="text-xs text-gray-400">
-                {results().length} lieux
-              </span>
-            </div>
+    <>
+      <BottomSheet.Header class="p-2">
+        <SearchHeader />
+      </BottomSheet.Header>
+      <div class="px-4 pb-4">
+        <Show when={!results.loading && results()?.length > 0}>
+          <div class="flex items-center justify-between mb-3 px-1">
+            <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              Résultats
+            </h2>
+            <span class="text-xs text-gray-400">
+              {results().length} lieux
+            </span>
+          </div>
 
-            <div class="flex flex-col gap-1">
-              <For each={results()}>
-                {(feature) => (
-                  <ResultCard feature={feature} />
-                )}
-              </For>
-            </div>
-          </Show>
+          <div class="flex flex-col gap-1">
+            <For each={results()}>
+              {(feature) => (
+                <ResultCard feature={feature} />
+              )}
+            </For>
+          </div>
+        </Show>
 
-          <Show when={results.loading}>
-            <div class="flex flex-col items-center justify-center py-12 text-center">
-              <div class="p-3 bg-gray-50 rounded-full mb-3 animate-pulse">
-                <Search class="text-gray-400" size={24} />
-              </div>
-              <p class="text-sm text-gray-500 font-medium">Recherche...</p>
+        <Show when={results.loading}>
+          <div class="flex flex-col items-center justify-center py-12 text-center">
+            <div class="p-3 bg-gray-50 rounded-full mb-3 animate-pulse">
+              <Search class="text-gray-400" size={24} />
             </div>
-          </Show>
+            <p class="text-sm text-gray-500 font-medium">Recherche...</p>
+          </div>
+        </Show>
 
-          {/* État vide - no query */}
-          <Show when={!results.loading && !query()}>
-            <div class="flex flex-col items-center justify-center py-12 text-center">
-              <div class="p-3 bg-gray-50 rounded-full mb-3">
-                <Search class="text-gray-400" size={24} />
-              </div>
-              <p class="text-sm text-gray-500 font-medium">Rechercher un lieu</p>
-              <p class="text-xs text-gray-400 mt-1 max-w-[200px]">
-                Essayez "Montréal" ou "Rue Sainte-Catherine".
-              </p>
+        {/* État vide - no query */}
+        <Show when={!results.loading && !query()}>
+          <div class="flex flex-col items-center justify-center py-12 text-center">
+            <div class="p-3 bg-gray-50 rounded-full mb-3">
+              <Search class="text-gray-400" size={24} />
             </div>
-          </Show>
+            <p class="text-sm text-gray-500 font-medium">Rechercher un lieu</p>
+            <p class="text-xs text-gray-400 mt-1 max-w-[200px]">
+              Essayez "Montréal" ou "Rue Sainte-Catherine".
+            </p>
+          </div>
+        </Show>
 
-          {/* État vide - no results */}
-          <Show when={!results.loading && query() && results()?.length === 0}>
-            <div class="flex flex-col items-center justify-center py-12 text-center">
-              <div class="p-3 bg-gray-50 rounded-full mb-3">
-                <Search class="text-gray-400" size={24} />
-              </div>
-              <p class="text-sm text-gray-500 font-medium">Aucun résultat</p>
-              <p class="text-xs text-gray-400 mt-1 max-w-[200px]">
-                Essayez une autre recherche.
-              </p>
+        {/* État vide - no results */}
+        <Show when={!results.loading && query() && results()?.length === 0}>
+          <div class="flex flex-col items-center justify-center py-12 text-center">
+            <div class="p-3 bg-gray-50 rounded-full mb-3">
+              <Search class="text-gray-400" size={24} />
             </div>
-          </Show>
+            <p class="text-sm text-gray-500 font-medium">Aucun résultat</p>
+            <p class="text-xs text-gray-400 mt-1 max-w-[200px]">
+              Essayez une autre recherche.
+            </p>
+          </div>
+        </Show>
 
-        </div>
-      </BottomSheet>
-    </main>
+      </div>
+    </>
   );
 }

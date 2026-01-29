@@ -1,52 +1,20 @@
-import { createSignal, createContext, useContext, onMount, For } from 'solid-js';
+import { onMount, For } from 'solid-js';
+import { useSheet } from '../context/SheetProvider';
 
-const SheetContext = createContext();
-
-export function useSheet() {
-  const context = useContext(SheetContext);
-  if (!context) throw new Error("useSheet doit être utilisé sous un <SheetProvider>");
-  return context;
-}
-
-export function SheetProvider(props) {
-  const [index, setIndex] = createSignal(0);
-  const [snapPoints, setSnapPoints] = createSignal(['50%']); // État partagé des points
-  console.log(snapPoints())
-  let sheetEl; 
-
-  const api = {
-    index,
-    setIndex,
-    snapPoints,
-    setSnapPoints,
-    snapTo: (i) => {
-      const target = sheetEl?.querySelectorAll('[slot="snap"]')[i];
-      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    },
-    snapToTop: () => {
-      sheetEl?.scrollTo({top: 9999, behavior: 'smooth'})
-    },
-    atTop: () => index() === 0,
-    link: (el) => { sheetEl = el; }
-  };
-
-  return <SheetContext.Provider value={api}>{props.children}</SheetContext.Provider>;
-}
-
-export default function BottomSheet(props) {
+export function BottomSheet(props) {
   const sheet = useSheet();
   const initialIndex = props.index ?? 1;
 
   onMount(() => {
-    sheet.link(props.ref); 
+    sheet.link(props.ref);
     sheet.setIndex(initialIndex);
-    
-    // Si des snapPoints sont passés manuellement, on les utilise
     if (props.snapPoints) sheet.setSnapPoints(props.snapPoints);
 
     if (!customElements.get('bottom-sheet')) {
       import('pure-web-bottom-sheet').then(({ BottomSheet }) => {
-        if (!customElements.get('bottom-sheet')) customElements.define('bottom-sheet', BottomSheet);
+        if (!customElements.get('bottom-sheet')) {
+          customElements.define('bottom-sheet', BottomSheet);
+        }
       });
     }
   });
@@ -57,11 +25,21 @@ export default function BottomSheet(props) {
     }
   };
 
+  // Style réactif avec décalage clavier
+  const containerStyle = () => ({
+    "--sheet-max-height": "85vh",
+    "--sheet-background": "white",
+    "--sheet-keyboard-offset": `${sheet.keyboardOffset()}px`,
+    "transform": sheet.keyboardOffset() > 0 ? `translateY(-${sheet.keyboardOffset()}px)` : 'none',
+    "transition": "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    ...props.style
+  });
+
   return (
     <bottom-sheet
       ref={props.ref}
       on:snap-position-change={onSnapChange}
-      style={{ "--sheet-max-height": "85vh","--sheet-background": "white", ...props.style }}
+      style={containerStyle()}
       nested-scroll={props.nestedScroll ?? true}
     >
       <For each={sheet.snapPoints()}>
@@ -74,7 +52,6 @@ export default function BottomSheet(props) {
         )}
       </For>
 
-      {/* Slots pour le contenu */}
       {props.header}
       {props.children}
       {props.footer}
@@ -82,16 +59,41 @@ export default function BottomSheet(props) {
   );
 }
 
-// Composant Header intelligent
+BottomSheet.Input = (props) => {
+  const sheet = useSheet();
+  let inputRef;
+
+  const onFocus = (e) => {
+    props.onFocus?.(e);
+    // Attendre que le clavier soit ouvert
+    setTimeout(() => {
+      sheet.handleInputFocus?.(inputRef);
+    }, 100);
+  };
+
+  return (
+    <input
+      {...props}
+      ref={(el) => {
+        inputRef = el;
+        if (typeof props.ref === 'function') props.ref(el);
+      }}
+      onFocus={onFocus}
+    />
+  );
+};
+
 BottomSheet.Header = (p) => {
   let headerREF;
   const sheet = useSheet();
 
   onMount(() => {
     if (headerREF) {
-      const height = headerREF.offsetHeight;
-      const vh = (height / window.innerHeight) * 100;
-      sheet.setSnapPoints(prev => [`${vh}%`, ...prev]);
+      const headerHeight = headerREF.offsetHeight;
+      const vh = (headerHeight / window.innerHeight) * 100;
+      // Snap points: header-only, mid (50%), and full height (85vh)
+      // Order matters: first = smallest (collapsed), last = largest (expanded)
+      sheet.setSnapPoints([`${vh + 5}%`, '50%', '85%']);
     }
   });
 

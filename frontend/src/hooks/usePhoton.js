@@ -10,7 +10,7 @@ export default function usePhoton() {
     const res = await fetchSigned("/photon/api", {
       q: query,
       bbox: "-74.15453186035158,45.31980593747679,-73.1243133544922,45.746922837378264",
-      limit: 32
+      limit: 5
     });
 
     if (!res.ok) return [];
