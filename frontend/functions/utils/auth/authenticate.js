@@ -1,33 +1,35 @@
+import { REFRESH_THRESHOLD, SESSION_COOKIE, SESSION_DURATION } from "./constants";
+import { getCookie } from "./cookies";
+import { signSession, verifySession } from "./sessionToken";
 
-import { getCookie } from './cookies';
-import { getSession, refreshSession } from '../db/sessionStore';
-import { SESSION_COOKIE, SESSION_DURATION, REFRESH_THRESHOLD } from './constants';
+export function authenticateUser(request, env) {
+  const raw = getCookie(request, SESSION_COOKIE);
+  if (!raw) return null;
 
-export async function authenticateUser(request, env) {
-  let refreshed = true;
-  const sessionId = getCookie(request, SESSION_COOKIE);
-  if (!sessionId) return null;
+  const payload = verifySession(raw, env.SESSION_SECRET)
+  if (!payload) return null;
 
-  const row = await getSession(sessionId, env);
-  if (!row) return null;
+  const now = Math.floor(Date.now() / 1000)
+  if (payload.exp <= now) return null; // Expire
 
-  const now = Math.floor(Date.now() / 1000);
-  const timeLeft = row.expires_at - now;
+  let refreshed = false
+  let newToken = null;
 
-  refreshed = false
-  let expiresAt = row.expires_at;
-
-  if (timeLeft < REFRESH_THRESHOLD) {
-    expiresAt = now + SESSION_DURATION;
-    await refreshSession(sessionId, expiresAt, env);
+  if (payload - now < REFRESH_THRESHOLD) { // Sliding expriation
+    refreshed = true;
+    newToken = signSession(
+      { ...payload, exp: now + SESSION_DURATION },
+      env.SESSION_SECRET
+    )
   }
 
   return {
-    sessionId,
-    userId: row.user_id,
-    email: row.email,
-    name: row.name,
-    expiresAt,
-    refreshed
+    userId: payload.uid,
+    email: payload.email,
+    name: payload.name,
+    expiresAt: payload.exp,
+    refreshed,
+    newToken
   };
 }
+

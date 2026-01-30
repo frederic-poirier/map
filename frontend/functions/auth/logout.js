@@ -1,21 +1,13 @@
-import { deleteSession } from "../utils/db/sessionStore";
-import { getCookie } from "../utils/auth/cookies";
 
-export async function onRequestPost({ request, env }) {
-  const sessionId = getCookie(request, 'session');
+import { clearSessionCookie } from "../utils/auth/cookies";
 
-  if (sessionId) await deleteSession(sessionId, env);
-
-  return new Response(JSON.stringify({
-    success: true,
-    message: 'Déconnecté avec succès'
-  }, {
+export async function onRequestPost() {
+  return new Response(JSON.stringify({ success: true }), {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Set-Cookie': [
-        `session=; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=0`
-      ].join('; ')
+      'Set-Cookie': clearSessionCookie()
     }
-  }))
-};
+  });
+}
+

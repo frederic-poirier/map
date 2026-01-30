@@ -5,7 +5,7 @@ export default function Login() {
   }
 
   return (
-    <div class="min-h-screen flex flex-col items-center justify-center p-4">
+    <div class="flex flex-col items-center justify-center p-4 h-80">
 
 
       <button
@@ -33,7 +33,7 @@ export default function Login() {
         <span>Continuer avec Google</span>
       </button>
 
-      <p class="text-xs text-zinc-400 text-center mt-6">
+      <p class="text-xs text-zinc-400 text-center mt-6 max-w-[30ch]">
         Seuls les emails autorisés peuvent accéder à l'application
       </p>
     </div>

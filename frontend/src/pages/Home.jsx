@@ -34,6 +34,7 @@ export default function Home() {
 
   // Composant interne pour afficher un résultat
   const ResultCard = (props) => {
+    console.log(props)
     const { feature } = props;
     const data = feature.properties;
 
@@ -85,7 +86,6 @@ export default function Home() {
           placeholder="Rechercher un lieu..."
           class="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-400 h-9"
           onInput={handleInput}
-          onFocus={() => sheet.expand()}
         />
         <Show when={query()}>
           <button
@@ -105,7 +105,7 @@ export default function Home() {
         <SearchHeader />
       </BottomSheet.Header>
       <div class="px-4 pb-4">
-        <Show when={!results.loading && results()?.length > 0}>
+        <Show when={!results.loading && results()?.features?.length > 0}>
           <div class="flex items-center justify-between mb-3 px-1">
             <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
               Résultats
@@ -116,10 +116,8 @@ export default function Home() {
           </div>
 
           <div class="flex flex-col gap-1">
-            <For each={results()}>
-              {(feature) => (
-                <ResultCard feature={feature} />
-              )}
+            <For each={results()?.features || []}>
+              {(feature) => <ResultCard feature={feature} />}
             </For>
           </div>
         </Show>
@@ -147,7 +145,7 @@ export default function Home() {
         </Show>
 
         {/* État vide - no results */}
-        <Show when={!results.loading && query() && results()?.length === 0}>
+        <Show when={!results.loading && results()?.length > 0}>
           <div class="flex flex-col items-center justify-center py-12 text-center">
             <div class="p-3 bg-gray-50 rounded-full mb-3">
               <Search class="text-gray-400" size={24} />

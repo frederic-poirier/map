@@ -1,28 +1,71 @@
-import net from 'net'
+import http from 'http';
+import net from 'net';
 import crypto from 'crypto';
-import http from 'http'
-
-const SECRET = process.env.SIGNING_SECRET;
-if (!SECRET) throw new Error('SIGNING_SECRET missing');
-
 
 const PORT = Number(process.env.PORT ?? 4000);
+const SESSION_SECRET = process.env.SESSION_SECRET;
+if (!SESSION_SECRET) throw new Error('SESSION_SECRET missing');
+
+const SESSION_COOKIE = 'session'; // doit matcher le worker
 
 const ALLOWED_ORIGINS = new Set([
   'http://localhost:3000',
   'https://map.frederic.dog'
-])
+]);
 
 const TARGETS = new Map([
   ['/photon', 'http://127.0.0.1:5000'],
   ['/otp', 'http://127.0.0.1:8080']
-])
+]);
+
+function base64urlEncode(buffer) {
+  return Buffer.from(buffer)
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+}
+
+function base64urlDecode(str) {
+  str = str.replace(/-/g, '+').replace(/_/g, '/');
+  return Buffer.from(str, 'base64');
+}
+
+function hmac(data, secret) {
+  return base64urlEncode(
+    crypto
+      .createHmac('sha256', secret)
+      .update(data)
+      .digest()
+  );
+}
+
+function verifySession(token, secret) {
+  const parts = token.split('.');
+  if (parts.length !== 2) return null;
+
+  const [data, sig] = parts;
+  const expected = hmac(data, secret);
+
+  const a = base64urlDecode(sig);
+  const b = base64urlDecode(expected);
+
+  if (a.length !== b.length) return null;
+  if (!crypto.timingSafeEqual(a, b)) return null;
+
+  try {
+    return JSON.parse(base64urlDecode(data).toString('utf8'));
+  } catch {
+    return null;
+  }
+}
 
 function corsHeaders(req) {
   const origin = req.headers.origin;
   if (ALLOWED_ORIGINS.has(origin)) {
     return {
       'Access-Control-Allow-Origin': origin,
+      'Access-Control-Allow-Credentials': 'true',
       'Access-Control-Allow-Methods': 'GET, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
       'Access-Control-Max-Age': '86400'
@@ -31,50 +74,27 @@ function corsHeaders(req) {
   return {};
 }
 
-
-function verifyAndCleanUrl(req) {
-  const url = new URL(req.url, 'http://localhost');
-
-  const sig = url.searchParams.get('sig');
-  const exp = Number(url.searchParams.get('exp'));
-
-  if (!sig || !exp) return null;
-  if (Date.now() / 1000 > exp) return null;
-
-  // Canonical base string
-  url.searchParams.delete('sig');
-  const base = url.pathname + '?' + url.searchParams.toString();
-
-  const expected = crypto
-    .createHmac('sha256', SECRET)
-    .update(base)
-    .digest('base64url');
-
-  try {
-    if (
-      !crypto.timingSafeEqual(
-        Buffer.from(sig),
-        Buffer.from(expected)
-      )
-    ) {
-      return null;
-    }
-  } catch {
-    return null;
-  }
-
-  // Nettoyage final
-  url.searchParams.delete('exp');
-
-  return url;
+function getCookie(req, name) {
+  const cookie = req.headers.cookie || '';
+  const match = cookie
+    .split('; ')
+    .find(c => c.startsWith(name + '='));
+  return match ? decodeURIComponent(match.split('=')[1]) : null;
 }
 
+function targetFor(pathname) {
+  for (const [prefix, target] of TARGETS) {
+    if (pathname === prefix || pathname.startsWith(prefix + '/')) {
+      return { target, strip: prefix };
+    }
+  }
+  return null;
+}
 
 function checkPort(port) {
   return new Promise(resolve => {
     const socket = new net.Socket();
     socket.setTimeout(300);
-
     socket
       .once('connect', () => {
         socket.destroy();
@@ -105,26 +125,8 @@ async function handleStatus(req, res, cors) {
     ...cors
   });
 
-  res.end(JSON.stringify({
-    photon,
-    otp,
-    tunnel: 'unknown'
-  }));
+  res.end(JSON.stringify({ photon, otp, tunnel: 'ok' }));
 }
-
-
-function targetFor(pathname) {
-  for (const [prefix, target] of TARGETS) {
-    if (
-      pathname === prefix ||
-      pathname.startsWith(prefix + '/')
-    ) {
-      return { target, strip: prefix };
-    }
-  }
-  return null;
-}
-
 
 http.createServer(async (req, res) => {
   const cors = corsHeaders(req);
@@ -138,22 +140,24 @@ http.createServer(async (req, res) => {
     return handleStatus(req, res, cors);
   }
 
-  /* ---- à partir d’ici : signé obligatoire ---- */
-  const cleanUrl = verifyAndCleanUrl(req);
-  if (!cleanUrl) {
+  const token = getCookie(req, SESSION_COOKIE);
+  const session = token && verifySession(token, SESSION_SECRET);
+
+  if (!session) {
     res.writeHead(401, cors);
     return res.end('Unauthorized');
   }
 
-  const route = targetFor(cleanUrl.pathname);
+  const url = new URL(req.url, 'http://localhost');
+  const route = targetFor(url.pathname);
+
   if (!route) {
     res.writeHead(404, cors);
     return res.end('Not found');
   }
 
   const backendPath =
-    cleanUrl.pathname.replace(route.strip, '') +
-    (cleanUrl.search || '');
+    url.pathname.replace(route.strip, '') + url.search;
 
   const proxyReq = http.request(
     route.target + backendPath,
@@ -180,3 +184,4 @@ http.createServer(async (req, res) => {
 
   req.pipe(proxyReq);
 }).listen(PORT);
+

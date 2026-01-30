@@ -17,7 +17,7 @@ export async function requireAuth(request, env) {
   });
 
   if (auth.refreshed) {
-    headers.append('Set-Cookie', buildSessionCookie(auth.sessionId));
+    headers.append('Set-Cookie', buildSessionCookie(auth.newToken, request));
   }
 
   return { auth, headers };
