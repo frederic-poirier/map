@@ -29,8 +29,6 @@ export function BottomSheet(props) {
   const containerStyle = () => ({
     "--sheet-max-height": "85vh",
     "--sheet-background": "white",
-    "--sheet-keyboard-offset": `${sheet.keyboardOffset()}px`,
-    "transform": sheet.keyboardOffset() > 0 ? `translateY(-${sheet.keyboardOffset()}px)` : 'none',
     "transition": "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     ...props.style
   });
@@ -93,7 +91,7 @@ BottomSheet.Header = (p) => {
       const vh = (headerHeight / window.innerHeight) * 100;
       // Snap points: header-only, mid (50%), and full height (85vh)
       // Order matters: first = smallest (collapsed), last = largest (expanded)
-      sheet.setSnapPoints([`${vh + 5}%`, '50%', '85%']);
+      sheet.setSnapPoints([`${vh}%`, '50%', '85%']);
     }
   });
 

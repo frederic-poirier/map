@@ -12,8 +12,7 @@ function cookieDomain(request) {
 }
 
 export function buildOAuthStateCookie(state, request) {
-  const secure = isSecureRequest(request) ? '; Secure' : '';
-
+  const secure = isProd(request) ? '; Secure' : '';
   return `oauth_state=${state}; Path=/; Max-Age=600; HttpOnly; SameSite=Lax${secure}`;
 }
 
