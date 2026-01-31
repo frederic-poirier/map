@@ -1,33 +1,21 @@
-
-
 bottom-sheet::part(handle) {
   display: none;
 }
 
 bottom-sheet::part(content) {
-  padding: 0
+  padding: 0;
+  background: transparent;
 }
+
+bottom-sheet::part(backdrop) {
+  background: transparent;
+}
+
 
 bottom-sheet {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 1000;
-  
-  /* Gestion du resize */
-  height: calc(var(--sheet-max-height) - var(--sheet-keyboard-offset, 0px));
-  max-height: calc(100vh - var(--sheet-keyboard-offset, 0px) - 20px);
+  --sheet-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.3), 0 -2px 4px -2px rgba(0, 0, 0, 0.2);
 }
 
-@media (max-width: 768px) {
-  bottom-sheet {
-    transition: transform 0.2s ease-out, height 0.2s ease-out;
-  }
-  
-  /* Padding bottom dynamique pour le contenu scrollable */
-  .sheet-content {
-    padding-bottom: max(env(safe-area-inset-bottom), 20px);
-    padding-bottom: calc(max(env(safe-area-inset-bottom), 20px) + var(--sheet-keyboard-offset, 0px));
-  }
+body {
+  font-family: 'Geist', sans-serif;
 }

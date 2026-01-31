@@ -1,9 +1,10 @@
-import { onMount, onCleanup, createSignal } from 'solid-js';
+import { onMount, onCleanup, createSignal, createEffect } from 'solid-js';
 import maplibregl from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 import { MapContext } from './context/MapContext';
 import 'maplibre-gl/dist/maplibre-gl.css';
+import { theme } from './hooks/useScreen';
 
 export default function Map(props) {
   let container;
@@ -28,6 +29,20 @@ export default function Map(props) {
     }
   };
 
+  function buildStyle(theme) {
+    return {
+      version: 8,
+      glyphs: 'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf',
+      sprite: `https://protomaps.github.io/basemaps-assets/sprites/v4/${theme}`,
+      sources: {
+        protomaps: {
+          type: 'vector',
+          url: 'pmtiles://https://tiles.frederic.dog/montreal.pmtiles'
+        }
+      },
+      layers: layers('protomaps', namedFlavor(theme), { lang: 'en' })
+    };
+  }
 
   onMount(() => {
     let protocol = new Protocol()
@@ -45,18 +60,7 @@ export default function Map(props) {
         [-74.1545, 45.3198],
         [-73.1243, 45.7469]
       ],
-      style: {
-        version: 8,
-        glyphs: 'https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf',
-        sprite: 'https://protomaps.github.io/basemaps-assets/sprites/v4/light',
-        sources: {
-          protomaps: {
-            type: 'vector',
-            url: 'pmtiles://https://tiles.frederic.dog/montreal.pmtiles'
-          }
-        },
-        layers: layers('protomaps', namedFlavor('light'), { lang: 'en' })
-      }
+      style: buildStyle(theme())
     });
 
     map.on('load', () => setReady(true));
@@ -69,6 +73,11 @@ export default function Map(props) {
       );
     });
   });
+
+  createEffect(() => {
+    if (!map) return
+    map.setStyle(buildStyle(theme()));
+  })
 
 
   onCleanup(() => {

@@ -25,11 +25,13 @@ export function BottomSheet(props) {
     }
   };
 
-  // Style réactif avec décalage clavier
+  // Style réactif - dark transparent theme
   const containerStyle = () => ({
     "--sheet-max-height": "85vh",
-    "--sheet-background": "white",
+    "--sheet-border-radius": "1.25rem",
+    "--sheet-background": "rgba(20, 20, 20)",
     "transition": "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    "z-index": '40',
     ...props.style
   });
 
@@ -89,9 +91,7 @@ BottomSheet.Header = (p) => {
     if (headerREF) {
       const headerHeight = headerREF.offsetHeight;
       const vh = (headerHeight / window.innerHeight) * 100;
-      // Snap points: header-only, mid (50%), and full height (85vh)
-      // Order matters: first = smallest (collapsed), last = largest (expanded)
-      sheet.setSnapPoints([`${vh}%`, '50%', '85%']);
+      sheet.setSnapPoints([`${vh + 4}%`, '50%', '85%']);
     }
   });
 

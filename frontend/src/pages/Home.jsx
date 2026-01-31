@@ -1,163 +1,221 @@
 import usePhoton from "../hooks/usePhoton";
-import { For, Show } from "solid-js";
+import { createSignal, For, Show } from "solid-js";
 import { BottomSheet } from "../components/BottomSheet";
-import { useSheet } from '../context/SheetProvider'
+import { isSmallScreen } from "../hooks/useScreen";
+import { getIconForFeature } from "../features/place/PlaceIcon";
+import { useSearchParams } from '@solidjs/router'
 import Search from 'lucide-solid/icons/search'
-import MapPin from 'lucide-solid/icons/map-pin'
-import Globe from 'lucide-solid/icons/globe'
-import Building2 from 'lucide-solid/icons/building-2'
-import Layers from 'lucide-solid/icons/layers'
-import Navigation from 'lucide-solid/icons/navigation'
 import X from 'lucide-solid/icons/x'
+import Navigation from 'lucide-solid/icons/navigation'
+import Compass from 'lucide-solid/icons/compass'
+import Locate from 'lucide-solid/icons/locate'
+import { useSheet } from "../context/SheetProvider";
+
+function getIconForType(properties) {
+  return getIconForFeature(properties);
+}
+
+function formatAddress(properties) {
+  const parts = [];
+  if (properties.street) {
+    parts.push(properties.housenumber ? `${properties.housenumber} ${properties.street}` : properties.street);
+  }
+  return parts.join(', ');
+}
 
 export default function Home() {
-  const { query, setQuery, results } = usePhoton();
-
-
-  let timeoutID;
-  let inputRef;
-
+  const [params, setParams] = useSearchParams();
+  const [results] = usePhoton(() => params.search);
+  const [draft, setDraft] = createSignal(params.search || "")
   const sheet = useSheet()
 
+  const isTyping = () => draft() !== (params.search || "");
+  const isFetching = () => results.loading;
+  const isLoading = () => isTyping() || isFetching();
+  const hasSearched = () => params.search && params.search.length >= 3;
+
+  let timeoutID;
   const handleInput = (e) => {
     const q = e.target.value;
+    setDraft(q)
     clearTimeout(timeoutID);
     timeoutID = setTimeout(() => {
-      setQuery(q);
-    }, 200);
+      setParams({ search: q });
+    }, 300);
   };
 
   const clearSearch = () => {
-    setQuery('');
-    if (inputRef) inputRef.value = '';
-  };
-
-  // Composant interne pour afficher un résultat
-  const ResultCard = (props) => {
-    console.log(props)
-    const { feature } = props;
-    const data = feature.properties;
-
-    // Détermine l'icône et la couleur en fonction du type
-    let Icon = MapPin;
-    let colorClass = "text-gray-100";
-
-    if (data.type === 'city') { Icon = Globe; colorClass = "text-blue-600"; }
-    if (data.type === 'building' || data.osm_key === 'building') { Icon = Building2; colorClass = "text-orange-600"; }
-    if (data.osm_key === 'amenity') { Icon = Layers; colorClass = "text-purple-600"; }
-
-    return (
-      <div class="group flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors cursor-pointer border border-transparent hover:border-gray-100">
-        {/* Icône type */}
-        <div class="mt-1 flex-shrink-0">
-          <div class={`p-2 rounded-lg bg-gray-50 ${colorClass} group-hover:bg-white transition-colors`}>
-            <Icon size={18} />
-          </div>
-        </div>
-
-        {/* Contenu texte */}
-        <div class="flex-1 min-w-0">
-          <h3 class="font-medium text-gray-900 text-sm leading-tight mb-1 group-hover:text-blue-600 transition-colors">
-            {data.name}
-          </h3>
-          <div class="text-xs text-gray-500 space-y-0.5">
-            {data.street && <p>{data.housenumber} {data.street}</p>}
-            <p>{data.city} {data.postcode && `(${data.postcode})`}</p>
-          </div>
-        </div>
-
-        {/* Bouton action */}
-        <button class="flex-shrink-0 p-2 -mr-2 -mt-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all opacity-0 group-hover:opacity-100 focus:opacity-100">
-          <Navigation size={18} />
-        </button>
-      </div>
-    );
-  };
-
-  // Search bar component for the header
-  const SearchHeader = () => (
-    <>
-      <div class="bg-neutral-200 h-1.5 w-16 mx-auto mb-3 rounded-full" />
-      <label class="bg-neutral-100 flex justify-between items-center gap-3 mb-4 rounded-xl p-2 transition-all focus-within:ring-2 focus-within:ring-blue-100 focus-within:bg-white focus-within:shadow-sm">
-        <Search class="text-gray-400 flex-shrink-0" size={20} />
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder="Rechercher un lieu..."
-          class="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-400 h-9"
-          onInput={handleInput}
-        />
-        <Show when={query()}>
-          <button
-            onClick={clearSearch}
-            class="p-1.5 rounded-full hover:bg-gray-200 text-gray-400 transition-colors"
-          >
-            <X size={16} />
-          </button>
-        </Show>
-      </label>
-    </>
-  );
+    setDraft('');
+    setParams({ search: '' });
+  }
 
   return (
-    <>
-      <BottomSheet.Header class="p-2">
-        <SearchHeader />
-      </BottomSheet.Header>
-      <div class="px-4 pb-4">
-        <Show when={!results.loading && results()?.features?.length > 0}>
-          <div class="flex items-center justify-between mb-3 px-1">
-            <h2 class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-              Résultats
-            </h2>
-            <span class="text-xs text-gray-400">
-              {results().length} lieux
-            </span>
-          </div>
+    <div class="h-full flex flex-col text-white m-3">
+      <Header>
+        <div className="w-16 h-1.5 bg-neutral-800 mx-auto rounded-full mb-3" />
+        <nav className="flex items-center justify-between m-2">
+          <h1>Map</h1>
+          <button onClick={() => sheet.collapseToHeader()}>
+            <X class="w-4 h-4 text-neutral-400" />
+          </button>
+        </nav>
+        <label className="flex items-center  bg-neutral-900 outline-0 outline-neutral-800 rounded-xl px-2 mb-2 border-1 border-neutral-800">
+          <Search class="h-4 w-4 text-neutral-500 group-focus-within:text-slate-400 transition-colors" />
+          <input
+            className="w-full p-2.5 focus:outline-none"
+            type="text"
+            placeholder="Search places..."
+            value={draft()}
+            onInput={handleInput}
+          />
+        </label>
+      </Header>
 
-          <div class="flex flex-col gap-1">
-            <For each={results()?.features || []}>
-              {(feature) => <ResultCard feature={feature} />}
-            </For>
-          </div>
+      <div class="flex-1 overflow-y-auto">
+        <Show
+          when={hasSearched()}
+          fallback={<EmptyState />}
+        >
+          <Results results={results} loading={isLoading} />
         </Show>
-
-        <Show when={results.loading}>
-          <div class="flex flex-col items-center justify-center py-12 text-center">
-            <div class="p-3 bg-gray-50 rounded-full mb-3 animate-pulse">
-              <Search class="text-gray-400" size={24} />
-            </div>
-            <p class="text-sm text-gray-500 font-medium">Recherche...</p>
-          </div>
-        </Show>
-
-        {/* État vide - no query */}
-        <Show when={!results.loading && !query()}>
-          <div class="flex flex-col items-center justify-center py-12 text-center">
-            <div class="p-3 bg-gray-50 rounded-full mb-3">
-              <Search class="text-gray-400" size={24} />
-            </div>
-            <p class="text-sm text-gray-500 font-medium">Rechercher un lieu</p>
-            <p class="text-xs text-gray-400 mt-1 max-w-[200px]">
-              Essayez "Montréal" ou "Rue Sainte-Catherine".
-            </p>
-          </div>
-        </Show>
-
-        {/* État vide - no results */}
-        <Show when={!results.loading && results()?.length > 0}>
-          <div class="flex flex-col items-center justify-center py-12 text-center">
-            <div class="p-3 bg-gray-50 rounded-full mb-3">
-              <Search class="text-gray-400" size={24} />
-            </div>
-            <p class="text-sm text-gray-500 font-medium">Aucun résultat</p>
-            <p class="text-xs text-gray-400 mt-1 max-w-[200px]">
-              Essayez une autre recherche.
-            </p>
-          </div>
-        </Show>
-
       </div>
-    </>
-  );
+    </div>
+  )
+}
+
+function Header(props) {
+  return (
+    <Show
+      when={isSmallScreen()}
+      fallback={<header class="border-b border-neutral-800">{props.children}</header>}
+    >
+      <BottomSheet.Header>
+        {props.children}
+      </BottomSheet.Header>
+    </Show>
+  )
+}
+
+function EmptyState() {
+  return (
+    <div class="flex flex-col items-center justify-center px-8 py-16 text-center">
+      <div class="relative mb-5">
+        <div class="relative p-4 bg-neutral-900 rounded-2xl border border-neutral-800">
+          <Locate class="h-6 w-6 text-neutral-500" />
+        </div>
+      </div>
+      <h3 class="text-sm font-medium text-neutral-400 mb-1">
+        Find your way
+      </h3>
+      <p class="text-xs text-neutral-500 max-w-[220px] leading-relaxed">
+        Search for restaurants, shops, landmarks, or any destination
+      </p>
+    </div>
+  )
+}
+
+function Results(props) {
+  const features = () => props.results()?.features || [];
+  const count = () => features().length;
+
+  return (
+    <div>
+      {/* Header */}
+      <Show when={!props.loading() && count() > 0}>
+        <div class="flex items-center justify-between py-3 px-1">
+          <span class="text-xs font-medium text-neutral-400">
+            {count()} results
+          </span>
+        </div>
+      </Show>
+
+      {/* Results List */}
+      <Show
+        when={count() > 0}
+        fallback={<NoResults />}
+      >
+        <div class="space-y-3">
+          <For each={features()}>
+            {(result) => (
+              <ResultItem
+                properties={result.properties}
+                loading={props.loading}
+              />
+            )}
+          </For>
+        </div>
+      </Show>
+    </div>
+  )
+}
+
+function NoResults() {
+  return (
+    <div class="flex flex-col items-center justify-center py-16 text-center">
+      <div class="p-3 bg-neutral-900 rounded-xl border border-neutral-800 mb-4">
+        <Search class="h-5 w-5 text-neutral-600" />
+      </div>
+      <h3 class="text-sm font-medium text-neutral-400 mb-1">
+        No results
+      </h3>
+      <p class="text-xs text-neutral-600">
+        Try a different search
+      </p>
+    </div>
+  )
+}
+
+function ResultItem(props) {
+  const iconComponent = () => getIconForType(props.properties);
+  const address = () => formatAddress(props.properties);
+
+  return (
+    <Show
+      when={!props.loading()}
+      fallback={<ResultSkeleton />}
+    >
+      <button class="group w-full flex items-center gap-3 p-1 rounded-lg hover:bg-neutral-900/60 transition-colors text-left">
+        {/* Icon */}
+        <Dynamic component={iconComponent()} class="h-4 w-4 text-neutral-500 group-hover:text-neutral-400" />
+
+        {/* Content */}
+        <div class="flex-1 min-w-0">
+          <h4 class="text-sm font-medium text-neutral-300 group-hover:text-slate-200 transition-colors truncate">
+            {props.properties.name}
+          </h4>
+          <Show when={address()}>
+            <p class="text-xs text-neutral-500 truncate mt-0.5">
+              {address()}
+            </p>
+          </Show>
+          <Show when={props.properties.city && !address()}>
+            <p class="text-xs text-neutral-500 truncate mt-0.5">
+              {props.properties.city}
+            </p>
+          </Show>
+        </div>
+
+        {/* Action */}
+        <div class="flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+          <div class="p-2 rounded-md hover:bg-neutral-800 text-neutral-600 hover:text-neutral-400 transition-colors">
+            <Navigation class="h-3.5 w-3.5" />
+          </div>
+        </div>
+      </button>
+    </Show>
+  )
+}
+
+function ResultSkeleton() {
+  return (
+    <div class="flex items-center gap-3 p-3 rounded-lg">
+      <div class="flex-shrink-0 p-2.5">
+        <div class="h-4 w-4 bg-neutral-800 rounded animate-pulse" />
+      </div>
+      <div class="flex-1 min-w-0 space-y-2">
+        <div class="h-3.5 w-2/3 bg-neutral-800 rounded animate-pulse" />
+        <div class="h-3 w-1/2 bg-neutral-800/50 rounded animate-pulse" />
+      </div>
+    </div>
+  )
 }

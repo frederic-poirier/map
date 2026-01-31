@@ -1,12 +1,10 @@
 
-import { createSignal } from 'solid-js';
 import useTunnel from './useTunnel';
 
-export default function usePhoton() {
-  const [query, setQuery] = createSignal('');
+export default function usePhoton(searchSignal) {
 
   const results = useTunnel(() => {
-    const q = query();
+    const q = searchSignal();
     if (!q || q.length < 3) return null;
 
     return {
@@ -19,10 +17,6 @@ export default function usePhoton() {
     };
   });
 
-  return {
-    query,
-    setQuery,
-    results
-  };
+  return [results];
 }
 
