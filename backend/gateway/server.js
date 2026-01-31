@@ -14,7 +14,7 @@ const ALLOWED_ORIGINS = new Set([
 ]);
 
 const TARGETS = new Map([
-  ['/photon', 'http://127.0.0.1:5000'],
+  ['/photon', 'http://localhost:5000'],
   ['/otp', 'http://127.0.0.1:8080']
 ]);
 

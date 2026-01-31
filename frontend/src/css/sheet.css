@@ -7,14 +7,6 @@ bottom-sheet::part(content) {
   background: transparent;
 }
 
-bottom-sheet::part(backdrop) {
-  background: transparent;
-}
-
-
-bottom-sheet {
-  --sheet-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.3), 0 -2px 4px -2px rgba(0, 0, 0, 0.2);
-}
 
 body {
   font-family: 'Geist', sans-serif;

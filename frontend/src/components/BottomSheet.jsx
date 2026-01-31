@@ -1,5 +1,6 @@
 import { onMount, For } from 'solid-js';
 import { useSheet } from '../context/SheetProvider';
+import { theme } from '../hooks/useScreen';
 
 export function BottomSheet(props) {
   const sheet = useSheet();
@@ -29,7 +30,7 @@ export function BottomSheet(props) {
   const containerStyle = () => ({
     "--sheet-max-height": "85vh",
     "--sheet-border-radius": "1.25rem",
-    "--sheet-background": "rgba(20, 20, 20)",
+    "--sheet-background": theme() === "dark" ? "rgb(23, 23, 23)" : "#fff",
     "transition": "transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
     "z-index": '40',
     ...props.style
@@ -95,7 +96,16 @@ BottomSheet.Header = (p) => {
     }
   });
 
-  return <div ref={headerREF} slot="header" class={p.class}>{p.children}</div>;
+  return (
+    <div 
+      ref={headerREF} 
+      slot="header" 
+      class={p.class}
+    >
+      <div className="w-16 h-1.5 bg-neutral-200  dark:bg-neutral-800 mx-auto rounded-full mb-3" />
+      {p.children}
+    </div>
+  )
 };
 
 BottomSheet.Footer = (p) => <div slot="footer" style={p.style}>{p.children}</div>;

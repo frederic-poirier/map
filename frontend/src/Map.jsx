@@ -76,7 +76,7 @@ export default function Map(props) {
 
   createEffect(() => {
     if (!map) return
-    map.setStyle(buildStyle(theme()));
+    if (ready()) map.setStyle(buildStyle(theme()));
   })
 
 
