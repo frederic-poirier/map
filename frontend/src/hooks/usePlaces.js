@@ -2,47 +2,54 @@
 import { createStore } from "solid-js/store";
 import usePhoton from "./usePhoton";
 import { getIconForFeature } from "../features/place/PlaceIcon";
+import { decodeGeohash, encodeGeohash } from "../utils/geohash";
+
 
 const [placesCache, setPlacesCache] = createStore({});
 
-const PRECISION = 5;
 
-function encodeId(place) {
+function encodePlaceId(place) {
   const [lng, lat] = place.geometry.coordinates;
-  return `${lat.toFixed(PRECISION)},${lng.toFixed(PRECISION)}`;
+  return encodeGeohash(lat, lng, 10)
+  
 }
 
-function parseId(id) {
-  const [lat, lng] = id.split(",");
+function decodePlaceId(id) {
+  const {lat, lng} = decodeGeohash(id);
   return {
     lat: Number(lat),
     lng: Number(lng),
   };
 }
 
-function addCache(place) {
-  const id = encodeId(place);
+function addPlaceCache(place) {
+  const id = encodePlaceId(place);
   setPlacesCache(id, place);
   return id
 }
 
-function hasCache(id) {
+function hasPlaceCache(id) {
   return id in placesCache;
 }
 
-function getCache(id) {
+function getPlaceCache(id) {
   return placesCache[id];
 }
 
 function fetchPlace(id) {
   const { reverseResult } = usePhoton()
-  return reverseResult(parseId(id))
+  return reverseResult(decodePlaceId(id))
 }
 
 function getPlaceName(place) {
-  return place.properties.name
+  const name = place.properties.name
+  if (!name) return getPlaceAddress(place)
+  return place.properties.name 
 }
 
+function getPlaceCoords(place) {
+    return [lng, lat] = place.geometry.coordinates;
+}
 
 function getPlaceAddress(place) {
   const { street, housenumber } = place.properties ?? {};
@@ -64,15 +71,16 @@ function getPlaceIcon(place) {
 export default function usePlaces() {
   return {
     placesCache,
-    addCache,
-    hasCache,
-    getCache,
-    encodeId,
-    parseId,
+    addPlaceCache,
+    hasPlaceCache,
+    getPlaceCache,
+    encodePlaceId,
+    decodePlaceId,
     fetchPlace,
     getPlaceAddress,
     getPlaceName,
-    getPlaceIcon
+    getPlaceIcon,
+    getPlaceCoords,
   };
 }
 

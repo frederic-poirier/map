@@ -5,8 +5,10 @@ import Search from 'lucide-solid/icons/search'
 import X from 'lucide-solid/icons/x'
 import usePlaces from "../hooks/usePlaces";
 import { State, Header } from '../components/Layout.jsx'
+import { useMap } from "../context/MapContext.jsx";
 
 export default function Home() {
+  const map = useMap()
   const [params, setParams] = useSearchParams();
   const { searchResults } = usePhoton();
 
@@ -16,7 +18,17 @@ export default function Home() {
   const hasQuery = () => query().length >= 3;
   const isPending = () => draft() !== query() && draft().length >= 3;
 
-  const [results] = createResource(() => hasQuery() ? query() : null, searchResults);
+  const camera = map.getCamera();
+
+  const [results] = createResource(
+    () => hasQuery()
+      ? {
+        query: query(),
+        bias: camera,
+      }
+      : null,
+    searchResults
+  );
 
   let timeout;
   const handleInput = (e) => {
@@ -43,8 +55,8 @@ export default function Home() {
   return (
     <>
       <Header>
-        <label className="flex items-center bg-neutral-100 px-3 outline-neutral-200 dark:bg-neutral-900 outline-1 dark:outline-neutral-800 rounded-xl px-2">
-          <Search class="h-4 w-4 text-neutral-500 group-focus-within:text-slate-400 transition-colors" />
+        <label className="flex items-center bg-neutral-100 px-3 outline-neutral-200 dark:bg-neutral-800/50 outline-1 dark:outline-neutral-800 rounded-xl px-2">
+          <Search class="h-4 w-4 text-neutral-500" />
           <input
             className="w-full p-2.5 focus:outline-none"
             type="text"
@@ -66,16 +78,13 @@ export default function Home() {
 }
 
 function Results(props) {
-  const features = () => props.results()?.features || [];
+  const features = () => props.results() || [];
   const count = () => features().length;
 
   return (
     <Show when={count() > 0} fallback={<State title="No results" text="Try a different search" />} >
-      <div class="mt-4 mx-2">
-        <span class="text-xs font-medium text-neutral-400">
-          {count()} results
-        </span>
-        <ul class="space-y-3">
+      <div class="mt-4">
+        <ul class="space-y-1 my-2">
           <For each={features()}>
             {(result) => (
               <ResultItem
@@ -91,8 +100,8 @@ function Results(props) {
 }
 function ResultItem(props) {
   const navigate = useNavigate()
-  const { addCache, getPlaceAddress, getPlaceIcon, getPlaceName } = usePlaces()
-  const handleClick = () => navigate(`/place/${addCache(props.place)}`)
+  const { addPlaceCache, getPlaceAddress, getPlaceIcon, getPlaceName } = usePlaces()
+  const handleClick = () => navigate(`/place/${addPlaceCache(props.place)}`)
 
   return (
     <Show
@@ -102,7 +111,7 @@ function ResultItem(props) {
       <li>
         <button
           onClick={handleClick}
-          class="group grid grid-rows-2 grid-cols-[auto_1fr] w-full p-1 items-center gap-x-2 rounded-lg text-left"
+          class="group cursor-pointer hover:bg-neutral-800/25 px-3 py-2 grid grid-rows-2 grid-cols-[auto_1fr] w-full items-center gap-x-3 rounded-lg text-left"
         >
           <Dynamic component={getPlaceIcon(props.place)} class="h-3.5 w-3.5 text-neutral-500" />
           <h4 class="text-sm font-medium truncate">
@@ -120,9 +129,9 @@ function ResultItem(props) {
 function ResultItemLoading() {
   return (
     <li class="group grid grid-rows-2 grid-cols-[auto_1fr] w-full p-1 items-center gap-x-2 rounded-lg text-left">
-      <div class="h-3.5 w-3.5 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-lg" />
-      <div class="h-4 m-1 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-lg " />
-      <div class="h-4 mx-1 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded-lg col-start-2" />
+      <div class="h-3.5 w-3.5 bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded" />
+      <div class="h-4 m-1 w-[32ch] bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded " />
+      <div class="h-4 mx-1 w-[16ch] bg-neutral-100 dark:bg-neutral-800 animate-pulse rounded col-start-2" />
     </li>
   )
 }

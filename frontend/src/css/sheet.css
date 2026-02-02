@@ -7,6 +7,15 @@ bottom-sheet::part(content) {
   background: transparent;
 }
 
+bottom-sheet::part(sheet) {
+  transition: 0.4s all cubic-bezier(0.075, 0.82, 0.165, 1);
+
+  @starting-style {
+    transform: translateY(100%);
+
+  }
+}
+
 
 body {
   font-family: 'Geist', sans-serif;

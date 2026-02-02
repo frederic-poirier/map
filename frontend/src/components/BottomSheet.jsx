@@ -102,7 +102,7 @@ BottomSheet.Header = (p) => {
       slot="header" 
       class={p.class}
     >
-      <div className="w-16 h-1.5 bg-neutral-200  dark:bg-neutral-800 mx-auto rounded-full mb-3" />
+      <div className="w-16 h-1.5 bg-neutral-200  dark:bg-neutral-800/50 mx-auto rounded-full mt-2 mb-3" />
       {p.children}
     </div>
   )

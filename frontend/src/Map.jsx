@@ -5,28 +5,55 @@ import { layers, namedFlavor } from '@protomaps/basemaps';
 import { MapContext } from './context/MapContext';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { theme } from './hooks/useScreen';
+import { toast } from 'solid-sonner';
 
 export default function Map(props) {
   let container;
   let map;
 
   const [ready, setReady] = createSignal(false);
+  const [userPosition, setUserPosition] = createSignal(getCurrentUserPosition())
 
+  function getCurrentUserPosition() {
+
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition((position) =>
+        setUserPosition({
+          lat: position.coords.latitude,
+          lng: position.coords.longitude
+        }
+        ), () => toast.error("Couldn't find your position"),
+        { enableHighAccuracy: true })
+    } else {
+      toast.error("Geolocation is not avaialable in your browser")
+    }
+  }
 
   const api = {
+    userPosition,
+    getCamera() {
+      if (!map) return null;
+      const c = map.getCenter();
+      return {
+        lat: c.lat,
+        lon: c.lng,
+        zoom: map.getZoom(),
+      }
+    },
+
     addMarker(lng, lat) {
       if (!map) return;
       new maplibregl.Marker().setLngLat([lng, lat]).addTo(map);
     },
 
-    flyTo(lng, lat, zoom = 14) {
+    flyTo(lng, lat, offset = 0, zoom = 14) {
       if (!map) return;
-      map.flyTo({ center: [lng, lat], zoom });
+      map.flyTo({ center: [lng, lat], offset: [0, offset], zoom });
     },
 
     getMap() {
       return map;
-    }
+    },
   };
 
   function buildStyle(theme) {
@@ -48,7 +75,6 @@ export default function Map(props) {
     let protocol = new Protocol()
     maplibregl.addProtocol("pmtiles", protocol.tile)
 
-
     const saved = JSON.parse(localStorage.getItem('camera'));
     const position = saved ?? { lng: -73.5673, lat: 45.5017, zoom: 12 };
 
@@ -63,14 +89,9 @@ export default function Map(props) {
       style: buildStyle(theme())
     });
 
-    map.on('load', () => setReady(true));
 
-    map.on('moveend', () => {
-      const c = map.getCenter();
-      localStorage.setItem(
-        'camera',
-        JSON.stringify({ lng: c.lng, lat: c.lat, zoom: map.getZoom() })
-      );
+    map.on('load', () => {
+      setReady(true)
     });
   });
 
@@ -89,7 +110,9 @@ export default function Map(props) {
   return (
     <MapContext.Provider value={api}>
       <div ref={container} class="fixed h-svh inset-0" />
-      {ready() && props.children}
+      <Show when={ready()}>
+        {props.children}
+      </Show>
     </MapContext.Provider>
   );
 }

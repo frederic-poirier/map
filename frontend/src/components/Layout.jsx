@@ -1,4 +1,4 @@
-import { onCleanup, onMount, createSignal, Show } from "solid-js";
+import { Show } from "solid-js";
 import { BottomSheet } from "./BottomSheet";
 import { SheetProvider } from "../context/SheetProvider";
 import { Toaster } from "solid-sonner";
@@ -19,7 +19,7 @@ export default function Layout(props) {
             fallback={<Container>{props.children}</Container>}
           >
             <BottomSheet index={1}>
-              <div class="p-4">
+              <div class="px-4">
                 {props.children}
               </div>
             </BottomSheet>
@@ -32,12 +32,11 @@ export default function Layout(props) {
 
 function Container(props) {
   return (
-    <div class="fixed h-fit w-96 top-4 left-4 p-3 bg-neutral-950/80 backdrop-blur-xl rounded-2xl border border-neutral-800/50 shadow-2xl overflow-hidden">
+    <div class="fixed h-fit w-96 top-4 left-4 p-3 bg-neutral-950/80 backdrop-blur-xl rounded-3xl border border-neutral-800/50 shadow-2xl overflow-hidden">
       {props.children}
     </div>
   )
 }
-
 
 export function State(props) {
   return (
