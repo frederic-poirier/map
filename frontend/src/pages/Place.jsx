@@ -1,7 +1,6 @@
 import { useNavigate, useParams } from "@solidjs/router"
-import { createEffect, createMemo, createResource } from "solid-js"
-import usePlaces from '../hooks/usePlaces'
-import usePhoton from "../hooks/usePhoton";
+import { createEffect } from "solid-js"
+import { usePlaces, usePlaceById } from '../hooks/usePlaces'
 import { Header } from '../components/Layout.jsx'
 import X from 'lucide-solid/icons/x'
 import useMap from "../hooks/useMap.js";
@@ -11,23 +10,11 @@ export default function Place() {
   const map = useMap();
   const sheet = useSheet()
   const params = useParams();
-  const { getPlaceCache, getPlaceName, getPlaceAddress, decodePlaceId } = usePlaces()
-  const { reverseResult } = usePhoton();
+  const { getPlaceName, getPlaceAddress, decodePlaceId } = usePlaces()
+  const place = usePlaceById(() => params.id)
   const navigate = useNavigate()
 
-  const cached = createMemo(() => getPlaceCache(params.id));
 
-
-  const [fetchedPlace] = createResource(
-    () => cached() ? null : params.id,
-    async (id) => {
-      const data = await reverseResult(id);
-      return data;
-    }
-  );
-
-
-  const place = createMemo(() => cached() ?? fetchedPlace())
 
   createEffect(() => {
     const { lat, lng } = decodePlaceId(params.id)
@@ -35,6 +22,10 @@ export default function Place() {
     map.flyTo(lng, lat, -200)
     map.addMarker(lng, lat)
   })
+
+  const Button = (props) => {
+    return <button {...props} className="p-4 w-full dark:bg-neutral-800/50 bg-neutral-100 rounded-xl">{props.children}</button>
+  }
 
   return (
     <Show when={place()}>
@@ -46,8 +37,8 @@ export default function Place() {
       </Header>
       <p class="text-neutral-500">{getPlaceAddress(place())}</p>
       <div className="flex gap-3">
-        <button className="p-4 w-full dark:bg-neutral-800/50 bg-neutral-100 rounded-xl">Saved</button>
-        <button className="p-4 w-full dark:bg-neutral-800/50 bg-neutral-100 rounded-xl">Itinerary</button>
+        <Button>Saved</Button>
+        <Button onClick={() => navigate(`/direction?to=${params.id}`)}>Direction</Button>
       </div>
     </Show>
   )

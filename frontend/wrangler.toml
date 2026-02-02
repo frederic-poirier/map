@@ -6,6 +6,6 @@ binding = "R2_BUCKET"
 bucket_name = "map-dev"
 
 [[d1_databases]]
-binding = "DB"
-database_name = "map-auth"
-database_id = "5cf5c86c-1cf7-4329-8895-9cd309dcfe11"
+binding = "dev_map"
+database_name = "dev-map"
+database_id = "31014eb9-78a0-4cba-ba39-bf1528ce15da"

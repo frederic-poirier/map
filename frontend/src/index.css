@@ -1,1 +1,58 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+
+@theme {
+  --color-neutral-850: oklch(0.237 0 0);
+}
+
+/* Refined AppLoader animations */
+@keyframes loader-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes loader-pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(0.8);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes loader-ring {
+  0% {
+    transform: rotate(0deg);
+    stroke-dasharray: 1, 150;
+    stroke-dashoffset: 0;
+  }
+  50% {
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -35;
+  }
+  100% {
+    transform: rotate(360deg);
+    stroke-dasharray: 90, 150;
+    stroke-dashoffset: -124;
+  }
+}
+
+.animate-loader-spin {
+  animation: loader-spin 2s linear infinite;
+}
+
+.animate-loader-pulse {
+  animation: loader-pulse 1.5s ease-in-out infinite;
+}
+
+.animate-loader-ring {
+  animation: loader-ring 2s ease-in-out infinite;
+}
+
+

@@ -3,6 +3,7 @@ import maplibregl from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
 import { layers, namedFlavor } from '@protomaps/basemaps';
 import { MapContext } from './context/MapContext';
+import { setMapLoading } from './context/LoadingContext';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { theme } from './hooks/useScreen';
 import { toast } from 'solid-sonner';
@@ -92,6 +93,7 @@ export default function Map(props) {
 
     map.on('load', () => {
       setReady(true)
+      setMapLoading(false)
     });
   });
 
@@ -109,7 +111,7 @@ export default function Map(props) {
 
   return (
     <MapContext.Provider value={api}>
-      <div ref={container} class="fixed h-svh inset-0" />
+      <div ref={container} class="fixed bg-neutral-900 h-svh inset-0" />
       <Show when={ready()}>
         {props.children}
       </Show>

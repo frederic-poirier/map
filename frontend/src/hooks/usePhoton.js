@@ -1,15 +1,15 @@
 import { toast } from 'solid-sonner';
 import { createStore } from 'solid-js/store';
 import { tunnelFetch } from './useTunnel';
-import usePlaces from './usePlaces';
+import { usePlaces } from './usePlaces';
 import { encodeGeohash, geohashPrecisionFromZoom } from '../utils/geohash';
 
 const [searchResultsCache, setSearchResultsCache] = createStore({})
 
 
-function makeSearchCacheKey({query, bias}) {
+function makeSearchCacheKey({ query, bias }) {
   if (!bias) return query
-  
+
   const precision = geohashPrecisionFromZoom(bias.zoom)
   const hash = encodeGeohash(bias.lat, bias.lon, precision)
 
@@ -63,18 +63,6 @@ export default function usePhoton() {
     if (!searchQuery?.query || searchQuery.query.length < 3) return null
 
     const cacheKey = makeSearchCacheKey(searchQuery)
-    const cachedIds = searchResultsCache[cacheKey]
-
-    if (cachedIds) {
-      const results = []
-
-      for (const id of cachedIds) {
-        if (!hasPlaceCache(id)) return null
-        results.push(getPlaceCache(id))
-      }
-
-      return results
-    }
 
     try {
       const data = await tunnelFetch({
