@@ -191,12 +191,12 @@ export const ICON_MAP = {
 
 
 export function getIconForFeature(properties) {
-  const key = properties.osm_key;
-  const value = properties.osm_value;
+  const key = properties?.osm_key;
+  const value = properties?.osm_value;
 
   if (key && ICON_MAP[key] && ICON_MAP[key][value]) return ICON_MAP[key][value];
-  if (properties.type === 'city') return Building;
-  if (properties.type === 'building') return Building;
+  if (properties?.type === 'city') return Building;
+  if (properties?.type === 'building') return Building;
 
   return MapPin;
 }

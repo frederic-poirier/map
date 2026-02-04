@@ -1,100 +1,98 @@
+import { Show, createEffect, createSignal } from "solid-js";
 import { useSearchParams } from "@solidjs/router"
-import { useMap } from "../context/MapContext"
-import { usePlaceById, usePlaces } from "../hooks/usePlaces"
-import usePhoton from "../hooks/usePhoton"
-import { createSignal, createResource, createEffect, onMount } from "solid-js"
 import { SearchPlaceInput, SearchPlaceResults } from "../components/SearchPlaces"
-import MapPin from 'lucide-solid/icons/map-pin'
-import Dot from 'lucide-solid/icons/dot'
+import { usePlaceById, encodePlaceId, getPlaceName, useSearchPlace } from "../hooks/places";
+
 
 export default function Direction() {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [activeField, setActiveField] = createSignal(null);
+  const [activeSearch, setActiveSearch] = createSignal(null)
+
+  const handleFromSelect = (place) => {
+    setSearchParams({ [activeField()]: encodePlaceId(place) });
+    setActiveField(null);
+  };
+
+  let resultsRef;
+
+  const handleFocusOut = (e) => {
+    const relatedTarget = e.relatedTarget;
+    const isInResults = resultsRef?.contains(relatedTarget);
+    const isInSearchField = e.currentTarget.contains(relatedTarget);
+
+    if (!isInResults && !isInSearchField) {
+      setActiveField(null);
+    }
+  };
+
   return (
     <>
-      <h1>directions</h1>
-      <div className="bg-neutral-100 dark:bg-neutral-850 rounded-xl " >
-        <DirectionSearch direction="from" />
-        <DirectionSearch direction="to" />
+      <h1>Directions</h1>
+
+      <div className="bg-neutral-100 dark:bg-neutral-850 rounded-xl">
+        <SearchField
+          direction="from"
+          placeholder="From"
+          active={activeField() === "from"}
+          onSearch={setActiveSearch}
+          onActive={setActiveField}
+          onFocusOut={handleFocusOut}
+        />
+        <SearchField
+          direction="to"
+          placeholder="To"
+          active={activeField() === "to"}
+          onSearch={setActiveSearch}
+          onActive={setActiveField}
+          onFocusOut={handleFocusOut}
+        />
       </div>
+
+      <Show when={activeField() && activeSearch()}>
+        <div ref={(el) => resultsRef = el}>
+          <SearchPlaceResults
+            search={activeSearch()}
+            onSelect={handleFromSelect}
+            emptyTitle="No places found"
+            emptyText="Try a different starting point"
+          />
+        </div>
+      </Show>
     </>
-  )
+  );
 }
 
 
-
-
-function DirectionSearch(props) {
-  const [hasFocus, setHasFocus] = createSignal(false);
+function SearchField(props) {
   const [searchParams, setSearchParams] = useSearchParams();
-
-  const placeId = () => searchParams[props.direction];
-  const place = usePlaceById(placeId);
-
-  const map = useMap();
-  const { searchResults } = usePhoton();
-  const { encodePlaceId, getPlaceName } = usePlaces();
-
-  const [draft, setDraft] = createSignal("");
-  const [query, setQuery] = createSignal("");
+  const search = useSearchPlace({ debounce: 300 })
+  const place = usePlaceById(() => searchParams[props.direction])
 
   createEffect(() => {
-    const p = place();
-    if (p) {
-      const name = getPlaceName(p);
-      setDraft(name);
-      setQuery(name);
-    }
-  });
+    const p = place()
+    if (p) search.setQuery(getPlaceName(p))
+  })
 
-  const [results] = createResource(
-    () => query().length >= 3
-      ? { query: query(), bias: map.getCamera() }
-      : null,
-    searchResults
-  );
-
-  const handleSelect = (place) => {
-    setSearchParams({ [props.direction]: encodePlaceId(place) })
-    setHasFocus(false)
+  const handleFocusIn = () => {
+    props.onActive(props.direction)
+    props.onSearch(search)
   }
-
-
-  const resolvedResults = () =>
-    draft() === query() ? results() ?? [] : []
 
   return (
     <div
-      className="relative"
       tabIndex={-1}
-      onFocusIn={() => setHasFocus(true)}
-      onFocusOut={(e) => {
-        if (!e.currentTarget.contains(e.relatedTarget)) {
-          setHasFocus(false);
-        }
-      }}
+      onFocusIn={handleFocusIn}
+      onFocusOut={props.onFocusOut}
     >
       <SearchPlaceInput
         icon={false}
-        class="flex p-1 pr-4"
-        draft={draft}
-        onInput={(e) => {
-          const q = e.target.value;
-          setDraft(q);
-          setQuery(q);
-        }
-        }
-        onClear={() => setDraft("")}
+        class={props.active ? "outline-1 rounded-xl outline-neutral-400 flex p-1 pr-4" : "flex p-1 pr-4"}
+        value={search.query()}
+        onInput={(e) => search.setQuery(e.target.value)}
+        onClear={search.clear}
+        placeholder={props.placeholder}
       />
-
-      < Show when={hasFocus()} >
-        <div className="absolute w-full z-10 rounded-b-xl bg-neutral-100 dark:bg-neutral-850 border-t-1 border-neutral-700">
-          <SearchPlaceResults
-            results={results}
-            loading={() => results.loading}
-            onSelect={handleSelect}
-          />
-        </div>
-      </Show >
-    </div >
-  );
+    </div>
+  )
 }
-

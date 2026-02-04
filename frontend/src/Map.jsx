@@ -1,4 +1,4 @@
-import { onMount, onCleanup, createSignal, createEffect } from 'solid-js';
+import { onMount, onCleanup, createSignal, createEffect, Show } from 'solid-js';
 import maplibregl from 'maplibre-gl';
 import { Protocol } from 'pmtiles';
 import { layers, namedFlavor } from '@protomaps/basemaps';
@@ -38,7 +38,7 @@ export default function Map(props) {
       return {
         lat: c.lat,
         lon: c.lng,
-        zoom: map.getZoom(),
+        zoom: Math.trunc(map.getZoom()),
       }
     },
 
@@ -76,8 +76,7 @@ export default function Map(props) {
     let protocol = new Protocol()
     maplibregl.addProtocol("pmtiles", protocol.tile)
 
-    const saved = JSON.parse(localStorage.getItem('camera'));
-    const position = saved ?? { lng: -73.5673, lat: 45.5017, zoom: 12 };
+    const position = { lng: -73.5673, lat: 45.5017, zoom: 12 };
 
     map = new maplibregl.Map({
       container,

@@ -1,76 +1,47 @@
-import usePhoton from "../hooks/usePhoton";
-import { createResource, createSignal, createEffect, For, Show } from "solid-js";
 import { useNavigate, useSearchParams } from '@solidjs/router'
-import { usePlaces } from "../hooks/usePlaces";
-import { State, Header } from '../components/Layout.jsx'
-import { useMap } from "../context/MapContext.jsx";
+import { encodePlaceId, useSearchPlace } from "../hooks/places";
+import { Header } from '../components/Layout.jsx';
 import { SearchPlaceInput, SearchPlaceResults } from "../components/SearchPlaces.jsx";
 
 export default function Home() {
-  const map = useMap()
-  const [params, setParams] = useSearchParams();
+  const [params, setParams] = useSearchParams()
   const navigate = useNavigate()
-  const { searchResults } = usePhoton();
-  const { encodePlaceId } = usePlaces()
+  const search = useSearchPlace({ debounce: 300 });
 
-  const [draft, setDraft] = createSignal(params.search || "");
-  const [query, setQuery] = createSignal(params.search || "");
+  if (params.search && !search.query()) {
+    search.setQuery(params.search);
+  }
 
-  const hasQuery = () => query().length >= 3;
-  const isPending = () => draft() !== query() && draft().length >= 3;
+  function handleInput(e) {
+    const value = e.target.value;
+    search.setQuery(value);
+    setParams({ search: value || undefined });
+  }
 
-  const camera = map.getCamera();
+  function handleClear() {
+    search.clear();
+    setParams({ search: undefined });
+  }
 
-  const [results] = createResource(
-    () => hasQuery()
-      ? {
-        query: query(),
-        bias: camera,
-      }
-      : null,
-    searchResults
-  );
-
-  let timeout;
-  const handleInput = (e) => {
-    const q = e.target.value;
-    setDraft(q);
-
-    clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      setQuery(q);
-      setParams({ search: q });
-    }, 300);
-  };
-
-  createEffect(() => {
-    setQuery(params.search || "");
-    setDraft(params.search || "");
-  });
-
-  const clearSearch = () => {
-    setDraft('');
-    setParams({ search: '' });
+  function handleSelect(place) {
+    navigate(`place/${encodePlaceId(place)}`);
   }
 
   return (
     <>
       <Header>
         <SearchPlaceInput
-          draft={draft}
+          value={search.query()}
           onInput={handleInput}
-          onClear={clearSearch}
+          onClear={handleClear}
+          placeholder="Search for places..."
         />
       </Header>
 
-      <Show when={hasQuery()} fallback={<State title="Find your way" text="Search for restaurants, shops, landmarks, or any destination" />}>
-        <SearchPlaceResults
-          results={results}
-          loading={isPending}
-          onSelect={(place) => navigate(`place/${encodePlaceId(place)}`)}
-        />
-      </Show>
+      <SearchPlaceResults
+        search={search}
+        onSelect={handleSelect}
+      />
     </>
-  )
+  );
 }
-

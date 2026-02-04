@@ -1,6 +1,6 @@
 import { useNavigate, useParams } from "@solidjs/router"
-import { createEffect } from "solid-js"
-import { usePlaces, usePlaceById } from '../hooks/usePlaces'
+import { createEffect, Show } from "solid-js"
+import { getPlaceName, getPlaceAddress, decodePlaceId, usePlaceById } from "../hooks/places";
 import { Header } from '../components/Layout.jsx'
 import X from 'lucide-solid/icons/x'
 import useMap from "../hooks/useMap.js";
@@ -10,7 +10,6 @@ export default function Place() {
   const map = useMap();
   const sheet = useSheet()
   const params = useParams();
-  const { getPlaceName, getPlaceAddress, decodePlaceId } = usePlaces()
   const place = usePlaceById(() => params.id)
   const navigate = useNavigate()
 
